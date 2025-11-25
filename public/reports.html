@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin | Reports</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      background-color: #2c3e50;
+      padding: 20px;
+      text-align: center;
+      color: white;
+      font-size: 24px;
+    }
+
+    .container {
+      max-width: 1100px;
+      background: #fff;
+      margin: 40px auto;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    select, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .export-btns button {
+      background-color: #607d8b;
+    }
+
+    .export-btns button:hover {
+      background-color: #455a64;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #2c3e50;
+      color: white;
+    }
+
+    .back-btn {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: #607d8b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background-color: #455a64;
+    }
+
+    body.dark-mode {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+body.dark-mode .header {
+  background-color: #1e293b;
+  color: #f1f5f9;
+}
+
+body.dark-mode .container {
+  background-color: #1e293b;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+body.dark-mode h2 {
+  color: #f8fafc;
+}
+
+body.dark-mode select,
+body.dark-mode button {
+  background-color: #334155;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+}
+
+body.dark-mode button:hover {
+  background-color: #475569;
+}
+
+body.dark-mode .export-btns button {
+  background-color: #475569;
+}
+
+body.dark-mode .export-btns button:hover {
+  background-color: #64748b;
+}
+
+body.dark-mode table {
+  border-color: #334155;
+}
+
+body.dark-mode th {
+  background-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode td {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+body.dark-mode .back-btn {
+  background-color: #334155;
+}
+
+body.dark-mode .back-btn:hover {
+  background-color: #475569;
+}
+
+  </style>
+</head>
+<body>
+  <div class="header">ChaiConnect Admin - Reports</div>
+  <div class="container">
+    <h2>📊 Generate and Export System Reports</h2>
+    <div class="controls">
+      <select id="reportType">
+        <option value="">Select Report Type</option>
+        <option value="finance">Finance Report</option>
+        <option value="training">Training Report</option>
+        <option value="productivity">Productivity Report</option>
+      </select>
+
+      <div class="export-btns">
+        <button onclick="exportToCSV()">⬇ Export CSV</button>
+        <button onclick="window.print()">🖨 Print Report</button>
+      </div>
+    </div>
+
+    <div id="reportTable"></div>
+
+    <button class="back-btn" onclick="location.href='/admin_dashboard.html'">← Back to Dashboard</button>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => {
+        const userId = data.userId;
+        if (!userId) return;
+        const theme = localStorage.getItem(`theme_${userId}`);
+        if (theme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      })
+      .catch(() => {
+        const fallbackTheme = localStorage.getItem('theme');
+        if (fallbackTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+        }
+      });
+  });
+</script>
+
+  <script>
+    let currentData = [];
+
+    async function fetchReport() {
+      const type = document.getElementById('reportType').value;
+      const tableDiv = document.getElementById('reportTable');
+      if (!type) return alert("Please select a report type.");
+
+      const res = await fetch(`/admin/report/${type}`);
+      const data = await res.json();
+      currentData = data;
+
+      if (!Array.isArray(data) || data.length === 0) {
+        tableDiv.innerHTML = '<p>No data found for the selected report.</p>';
+        return;
+      }
+
+      const headers = Object.keys(data[0]);
+      let tableHTML = '<table><thead><tr>';
+      headers.forEach(h => tableHTML += `<th>${h}</th>`);
+      tableHTML += '</tr></thead><tbody>';
+      data.forEach(row => {
+        tableHTML += '<tr>';
+        headers.forEach(h => tableHTML += `<td>${row[h]}</td>`);
+        tableHTML += '</tr>';
+      });
+      tableHTML += '</tbody></table>';
+      tableDiv.innerHTML = tableHTML;
+    }
+
+    function exportToCSV() {
+      if (!currentData.length) return alert("No data to export.");
+
+      const headers = Object.keys(currentData[0]);
+      const csvRows = [headers.join(',')];
+      currentData.forEach(row => {
+        const values = headers.map(h => JSON.stringify(row[h]));
+        csvRows.push(values.join(','));
+      });
+      const csvData = csvRows.join('\n');
+
+      const blob = new Blob([csvData], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'report.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('reportType').addEventListener('change', fetchReport);
+  </script>
+</body>
+</html>

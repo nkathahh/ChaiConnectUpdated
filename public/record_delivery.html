@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Record Delivery | ChaiConnect</title>
+    <link rel="stylesheet" href="/css/factory_style.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f2f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 15px;
+            font-weight: 600;
+            display: block;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-top: 5px;
+            font-size: 16px;
+            background-color: #fff;
+            color: #333;
+        }
+
+        button[type="submit"] {
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #4CAF50;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
+
+        #deliveryMessage {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* -------- DARK MODE -------- */
+        body.dark-mode {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .container {
+            background-color: #1e293b;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+            color: #e2e8f0;
+        }
+
+        body.dark-mode h2 {
+            color: #f8fafc;
+        }
+        body.dark-mode form{
+            color:#0f172a;
+        }
+
+        body.dark-mode label {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode input,
+        body.dark-mode select {
+            background-color: #1e293b;
+            border: 1px solid #475569;
+            color: #f1f5f9;
+        }
+
+        body.dark-mode button[type="submit"] {
+            background-color: #10b981;
+        }
+
+        body.dark-mode button[type="submit"]:hover {
+            background-color: #059669;
+        }
+
+        body.dark-mode .back-button {
+            color: #93c5fd;
+        }
+
+        body.dark-mode .back-button:hover {
+            text-decoration: underline;
+        }
+        .dark-mode form{
+            background-color:#0f172a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Record New Tea Delivery</h2>
+        <a href="/factory_staff_dashboard.html" class="back-button">← Back to Dashboard</a>
+        <form id="deliveryForm" enctype="multipart/form-data">
+            <label for="id_number">Farmer ID Number:</label>
+            <input type="text" id="id_number" name="id_number" required />
+
+            <label for="quantity_kg">Quantity (kg):</label>
+            <input type="number" id="quantity_kg" name="quantity_kg" step="0.01" required />
+
+            <label for="quality_grade">Quality Grade:</label>
+            <select id="quality_grade" name="quality_grade" required>
+                <option value="">Select Grade</option>
+                <option value="A">Grade A</option>
+                <option value="B">Grade B</option>
+                <option value="C">Grade C</option>
+            </select>
+
+            <!-- Optional photo upload (aligned with photo_url in DB) -->
+            <label for="photo">Upload Tea Photo (optional):</label>
+            <input type="file" id="photo" name="photo" accept="image/*" />
+
+            <label for="status">Delivery Status:</label>
+            <select id="status" name="status" required>
+                <option value="">Select Status</option>
+                <option value="pending">Pending</option>
+                <option value="graded">Graded</option>
+                <option value="completed">Completed</option>
+            </select>
+
+            <button type="submit">Submit Delivery</button>
+        </form>
+
+        <div id="deliveryMessage"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/me')
+                .then(res => res.json())
+                .then(data => {
+                    const userId = data.userId;
+                    if (!userId) return;
+                    const theme = localStorage.getItem(`theme_${userId}`);
+                    if (theme === 'dark') {
+                        document.body.classList.add('dark-mode');
+                    } else {
+                        document.body.classList.remove('dark-mode');
+                    }
+                })
+                .catch(() => {
+                    const fallbackTheme = localStorage.getItem('theme');
+                    if (fallbackTheme === 'dark') {
+                        document.body.classList.add('dark-mode');
+                    }
+                });
+        });
+    </script>
+
+    <script>
+        document.getElementById('deliveryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+
+            const res = await fetch('/factory/deliveries', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await res.json();
+            const msg = document.getElementById('deliveryMessage');
+            msg.textContent = result.success ? '✅ Delivery recorded successfully!' : `❌ ${result.message || 'Failed to record delivery.'}`;
+            msg.style.color = result.success ? 'green' : 'red';
+
+            if (result.success) form.reset();
+        });
+    </script>
+</body>
+
+</html>

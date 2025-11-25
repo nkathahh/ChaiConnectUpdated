@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>View Training Materials</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #34495e;
+      --accent: #4CAF50;
+      --bg: #f4f6f8;
+      --white: #fff;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--primary);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 30px 40px;
+      background-color: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .training {
+      border-bottom: 1px solid #ddd;
+      padding: 20px 0;
+    }
+
+    .training h3 {
+      margin: 0;
+    }
+
+    .training p {
+      margin: 5px 0 10px;
+      color: #555;
+    }
+
+    .training small {
+      color: #888;
+    }
+
+    .training a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .training a:hover {
+      text-decoration: underline;
+    }
+
+    .back-btn {
+      display: block;
+      margin: 30px auto 0;
+      padding: 10px 20px;
+      background-color: #607d8b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .back-btn:hover {
+      background-color: #455a64;
+    }
+
+    /* Dark mode */
+    body.dark-mode {
+      background-color: #0f172a;
+      color: #f1f5f9;
+    }
+
+    body.dark-mode .container {
+      background-color: #1e293b;
+    }
+
+    body.dark-mode .training {
+      border-color: #334155;
+    }
+
+    body.dark-mode .training p,
+    body.dark-mode .training small {
+      color: #cbd5e1;
+    }
+
+    body.dark-mode .training a {
+      color: #38bdf8;
+    }
+
+    body.dark-mode .back-btn {
+      background-color: #334155;
+    }
+
+    body.dark-mode .back-btn:hover {
+      background-color: #475569;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📘 Training Materials</h2>
+    <div id="trainings"></div>
+    <button class="back-btn" onclick="history.back()">← Back</button>
+  </div>
+
+  
+
+
+
+  
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => {
+        const userId = data.userId;
+        if (!userId) return;
+        const theme = localStorage.getItem(`theme_${userId}`);
+        if (theme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      })
+      .catch(() => {
+        const fallbackTheme = localStorage.getItem('theme');
+        if (fallbackTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+        }
+      });
+  });
+</script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/me')
+        .then(res => res.json())
+        .then(data => {
+          const userId = data.userId;
+          if (!userId) return;
+          const theme = localStorage.getItem(`theme_${userId}`);
+          if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+          }
+        })
+        .catch(() => {
+          if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+          }
+        });
+
+      fetchTrainingMaterials();
+    });
+
+    async function fetchTrainingMaterials() {
+      const res = await fetch('/training-materials');
+      const data = await res.json();
+      const container = document.getElementById('trainings');
+
+      if (!Array.isArray(data) || data.length === 0) {
+        container.innerHTML = "<p>No training materials uploaded yet.</p>";
+        return;
+      }
+
+      data.forEach(doc => {
+        const div = document.createElement('div');
+        div.className = 'training';
+        div.innerHTML = `
+          <h3>${doc.title}</h3>
+          <p>${doc.description || 'No description provided.'}</p>
+          <small>Uploaded on ${new Date(doc.upload_date).toLocaleString()}</small><br>
+          <a href="${doc.file_path}" target="_blank">📄 View / Download</a>
+        `;
+        container.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>

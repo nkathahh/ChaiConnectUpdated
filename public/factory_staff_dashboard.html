@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Staff Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboards_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<body>
+    <!-- Top Floating Header -->
+    <div class="top-header">
+        <div class="left-section">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2>chaiConnect</h2>
+        </div>
+        <div class="right-icons">
+            <a href="/alerts.html" title="View Alerts" class="alert-link">
+                <i class="fas fa-bell"></i>
+                <span id="alertCount">0</span>
+            </a>
+
+            <label class="theme-switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider"></span>
+            </label>
+
+            <button class="logout-button" onclick="logout()">Logout</button>
+        </div>
+    </div>
+    <div class="sidebar">
+        <h3>Factory Staff Dashboard</h3>
+        <ul>
+            <li><a href="#" class="active">Home</a></li>
+            <li><a href="view_profile.html">View My Profile</a></li>
+            <li><a href="record_delivery.html">Record Delivery</a></li>
+            <li><a href="update_delivery.html">Update Delivery</a></li>
+            <li><a href="validate_farmers.html">Validate Farmers</a></li>
+            <li><a href="factorystaff_complaints.html">Resolve Delivery Complaints</a></li>
+            <li><a href="/view_policies.html">View uploaded policies</a></li>
+
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <section id="overview">
+            <h1 id="welcomeMessage">Welcome, Factory Staff</h1>
+            <p>Oversee the delivery and grading of tea, manage farmer data, and monitor factory activities.</p>
+        </section>
+        <div class="dashboard-cards">
+            <div class="stat-card">
+                <p>Today's Deliveries Recorded By You</p>
+                <h2 id="deliveriesToday">Loading...</h2>
+            </div>
+            <div class="stat-card">
+                <p>Total Tea (KG) Handled By You Today</p>
+                <h2 id="kgToday">Loading...</h2>
+            </div>
+            <div class="stat-card">
+                <p>Farmers Flagged</p>
+                <h2 id="flaggedFarmers">Loading...</h2>
+            </div>
+            <div class="stat-card">
+                <p>Total No of Assigned Farmers To Extension Officer</p>
+                <h2 id="assignedFarmers">Loading...</h2>
+            </div>
+        </div>
+
+
+        <div class="card-actions">
+            <div class="card">
+                <h3>Record Delivery</h3>
+                <p>Log tea deliveries from farmers and confirm entry.</p>
+                <button onclick="location.href='record_delivery.html'">Record</button>
+            </div>
+            <div class="card">
+                <h3>Update Delivery</h3>
+                <p>Cross-check entries for accuracy and legitimacy. Correct or update delivery entries made earlier.
+                </p>
+                <button onclick="location.href='update_delivery.html'">Update</button>
+            </div>
+            <div class="card">
+                <h3>Validate Farmer Info</h3>
+                <p>Confirm registered farmer identities and data.</p>
+                <button onclick="location.href='validate_farmers.html'">Validate</button>
+            </div>
+            <div class="card">
+                <h3>Assign Farmers</h3>
+                <p>Link farmers to their respective extension officers.</p>
+                <button onclick="location.href='assign_farmers.html'">Assign</button>
+            </div>
+
+            <div class="card">
+                <h3>Grading Summary</h3>
+                <p>View reports of graded tea by quality level.</p>
+                <button onclick="location.href='grading_summary.html'">View</button>
+            </div>
+            <div class="card">
+                <h3>Delivery Patterns</h3>
+                <p>Explore daily and weekly delivery trends.</p>
+                <button onclick="location.href='delivery_patterns.html'">Analyze</button>
+            </div>
+        </div>
+    </div>
+    <div id="logoutToast" class="toast">✅ Logged out successfully</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/me')
+                .then(res => res.json())
+                .then(data => {
+                    const name = data.name || 'Factory Staff';
+                    document.getElementById('welcomeMessage').textContent = `Welcome, ${name}`;
+                })
+                .catch(() => {
+                    document.getElementById('welcomeMessage').textContent = 'Welcome, Factory Staff';
+                });
+        });
+
+        fetch('/factory-dashboard-stats')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('deliveriesToday').textContent = data.deliveriesToday || '0';
+                document.getElementById('kgToday').textContent = `${data.kgToday || '0'} kg`;
+                document.getElementById('flaggedFarmers').textContent = data.flaggedFarmers || '0';
+                document.getElementById('assignedFarmers').textContent = data.assignedFarmers || '0';
+            })
+            .catch(err => {
+                console.error("Failed to load factory stats", err);
+                // Set default values when API fails
+                document.getElementById('deliveriesToday').textContent = '0';
+                document.getElementById('kgToday').textContent = '0 kg';
+                document.getElementById('flaggedFarmers').textContent = '0';
+                document.getElementById('assignedFarmers').textContent = '0';
+            });
+
+            function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('active');
+}
+
+    </script>
+    <script src="/logout.js"></script>
+    <script src="/alertCount.js"></script>
+    <script src="/darkLight.js"></script>
+
+
+
+</body>
+
+</html>

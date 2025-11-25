@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Policy Documents</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      background: #fff;
+      margin: auto;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 12px 20px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .back-btn {
+      margin-top: 15px;
+      background-color: #607d8b;
+    }
+
+    .back-btn:hover {
+      background-color: #455a64;
+    }
+
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #4CAF50;
+      color: #fff;
+      text-align: center;
+      border-radius: 8px;
+      padding: 16px;
+      position: fixed;
+      z-index: 9999;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+      transition: visibility 0s, opacity 0.5s ease-in-out;
+      opacity: 0;
+    }
+
+    .toast.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    body.dark-mode {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+body.dark-mode .container {
+  background-color: #1e293b;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+}
+
+body.dark-mode h2 {
+  color: #f8fafc;
+}
+
+body.dark-mode label {
+  color: #cbd5e1;
+}
+
+body.dark-mode input,
+body.dark-mode textarea {
+  background-color: #334155;
+  border: 1px solid #475569;
+  color: #e2e8f0;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #94a3b8;
+}
+
+body.dark-mode .back-btn {
+  background-color: #334155;
+}
+
+body.dark-mode .back-btn:hover {
+  background-color: #475569;
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>📄 Upload Policy Document</h2>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+      <label for="title">Document Title</label>
+      <input type="text" name="title" id="title" placeholder="Enter title" required>
+
+      <label for="description">Description (optional)</label>
+      <textarea name="description" id="description" placeholder="Short description of the document..."></textarea>
+
+      <label for="policyFile">Select Document File</label>
+      <input type="file" name="policyFile" id="policyFile" required>
+
+      <div id="toast" class="toast">✅ Policy uploaded successfully</div>
+
+      <button type="submit">Upload Policy</button>
+      <button type="button" class="back-btn" onclick="location.href='/admin_dashboard.html'">← Back to Dashboard</button>
+    </form>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => {
+        const userId = data.userId;
+        if (!userId) return;
+        const theme = localStorage.getItem(`theme_${userId}`);
+        if (theme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      })
+      .catch(() => {
+        const fallbackTheme = localStorage.getItem('theme');
+        if (fallbackTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+        }
+      });
+  });
+</script>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch('/admin/upload-policy', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          showToast('✅ Policy uploaded successfully!');
+          form.reset();
+        } else {
+          const error = await response.text();
+          showToast(`❌ Upload failed: ${error}`, true);
+        }
+      } catch (err) {
+        showToast('❌ Upload failed due to network error', true);
+      }
+    });
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.backgroundColor = isError ? '#f44336' : '#4CAF50';
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+
+</html>

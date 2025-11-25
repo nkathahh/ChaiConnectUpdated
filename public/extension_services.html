@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extension Services | chaiConnect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+  :root {
+    --primary-color: #27ae60; /* Green */
+    --primary-hover: #219150;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --text-color: #2c3e50;
+    --light-gray: #f4fdf6;
+    --border-color: #cce8d7;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light-gray);
+    margin: 0;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
+
+  h2 {
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    font-size: 26px;
+    font-weight: 600;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-color);
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: #fefefe;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 6px rgba(39, 174, 96, 0.2);
+    outline: none;
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .btn-submit {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .btn-submit:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+  }
+
+  .notification {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+    font-weight: 500;
+  }
+
+  .success {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: var(--success-color);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+  }
+
+  .error {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: var(--danger-color);
+    border: 1px solid rgba(231, 76, 60, 0.3);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  th, td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 15px;
+  }
+
+  th {
+    background-color: #e9f9ee;
+    color: var(--text-color);
+    font-weight: 600;
+  }
+
+  .status-pending {
+    color: #f39c12;
+    font-weight: 500;
+  }
+
+  .status-scheduled {
+    color: var(--primary-color);
+    font-weight: 500;
+  }
+
+  .status-completed {
+    color: var(--success-color);
+    font-weight: 500;
+  }
+
+  .status-cancelled {
+    color: var(--danger-color);
+    font-weight: 500;
+  }
+
+  .btn-cancel {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .btn-cancel:hover {
+    background-color: #c0392b;
+  }
+
+  body.dark-mode {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+body.dark-mode .container {
+  background-color: #1e293b;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode h2 {
+  color: #38bdf8;
+}
+
+body.dark-mode label {
+  color: #e2e8f0;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: #1e293b;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.4);
+}
+
+body.dark-mode .btn-submit {
+  background-color: #22c55e;
+  color: white;
+}
+
+body.dark-mode .btn-submit:hover {
+  background-color: #16a34a;
+}
+
+body.dark-mode .notification.success {
+  background-color: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #4ade80;
+}
+
+body.dark-mode .notification.error {
+  background-color: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #f87171;
+}
+
+body.dark-mode table {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode th {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode td {
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+body.dark-mode .status-pending {
+  color: #facc15;
+}
+
+body.dark-mode .status-scheduled {
+  color: #38bdf8;
+}
+
+body.dark-mode .status-completed {
+  color: #22c55e;
+}
+
+body.dark-mode .status-cancelled {
+  color: #f87171;
+}
+
+body.dark-mode .btn-cancel {
+  background-color: #ef4444;
+}
+
+body.dark-mode .btn-cancel:hover {
+  background-color: #dc2626;
+}
+
+</style>
+
+</head>
+<body>
+  <div class="container">
+    <h2><i class="fas fa-calendar-plus"></i> Request Extension Visit</h2>
+    
+    <div id="notification" class="notification"></div>
+    
+    <form id="visitRequestForm">
+      <div class="form-group">
+        <label for="visitDate">Preferred Visit Date</label>
+        <input type="date" id="visitDate" class="form-control" required min="">
+      </div>
+      
+      <div class="form-group">
+        <label for="visitTime">Preferred Visit Time</label>
+        <input type="time" id="visitTime" class="form-control" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="visitPurpose">Purpose</label>
+        <select id="visitPurpose" class="form-control" required>
+          <option value="">-- Select purpose --</option>
+          <option value="routine_check">Routine Check</option>
+          <option value="training">Training</option>
+          <option value="problem_solving">Problem Solving</option>
+          <option value="harvest_advice">Harvest Advice</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="visitNotes">Additional Notes</label>
+        <textarea id="visitNotes" class="form-control" placeholder="Any special requests or information..."></textarea>
+      </div>
+      
+      <button type="submit" class="btn-submit">
+        <i class="fas fa-paper-plane"></i> Submit Request
+      </button>
+    </form>
+    
+    <h2 style="margin-top: 40px;"><i class="fas fa-history"></i> Your Visit Requests</h2>
+    
+    <table id="visitHistoryTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Purpose</th>
+          <th>Status</th>
+          
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Visits will be loaded here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => {
+        const userId = data.userId;
+        if (!userId) return;
+        const theme = localStorage.getItem(`theme_${userId}`);
+        if (theme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      })
+      .catch(() => {
+        const fallbackTheme = localStorage.getItem('theme');
+        if (fallbackTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+        }
+      });
+  });
+</script>
+
+  <script>
+    // Set minimum date to today
+    document.getElementById('visitDate').min = new Date().toISOString().split('T')[0];
+    
+    // Form submission
+    document.getElementById('visitRequestForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const visitDate = document.getElementById('visitDate').value;
+      const visitTime = document.getElementById('visitTime').value;
+      const purpose = document.getElementById('visitPurpose').value;
+      const notes = document.getElementById('visitNotes').value;
+      
+      if (!visitDate || !visitTime || !purpose) {
+        showNotification('Please fill all required fields', 'error');
+        return;
+      }
+      
+      const visit_datetime = `${visitDate}T${visitTime}:00`;
+      
+      try {
+        const response = await fetch('/api/farmer/request-extension-visit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ visit_datetime, purpose, notes })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showNotification('Visit request submitted successfully!', 'success');
+          this.reset();
+          loadVisitHistory();
+        } else {
+          throw new Error(data.message || 'Failed to submit request');
+        }
+      } catch (error) {
+        showNotification(error.message, 'error');
+        console.error('Error submitting visit request:', error);
+      }
+    });
+    
+    // Load visit history
+    async function loadVisitHistory() {
+      try {
+        const response = await fetch('/api/farmer/my-visit-requests', { 
+          credentials: 'include' 
+        });
+        
+        const data = await response.json();
+        const tbody = document.querySelector('#visitHistoryTable tbody');
+        tbody.innerHTML = '';
+        
+        if (data.success && data.visits.length > 0) {
+          data.visits.forEach(visit => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${formatDate(visit.preferred_date)}</td>
+              <td>${formatPurpose(visit.purpose)}</td>
+              <td class="status-${visit.status}">${formatStatus(visit.status)}</td>
+              
+            `;
+            tbody.appendChild(tr);
+          });
+          
+          // Add event listeners to cancel buttons
+          document.querySelectorAll('.btn-cancel').forEach(btn => {
+            btn.addEventListener('click', cancelVisit);
+          });
+        } else {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4">No visit requests found</td>
+            </tr>
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading visit history:', error);
+        showNotification('Failed to load visit history', 'error');
+      }
+    }
+    
+    
+    
+    // Helper functions
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleString();
+    }
+    
+    function formatPurpose(purpose) {
+      return purpose.replace('_', ' ');
+    }
+    
+    function formatStatus(status) {
+      return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
+    }
+    
+    function showNotification(message, type) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.style.display = 'block';
+      
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 5000);
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', loadVisitHistory);
+  </script>
+</body>
+</html>

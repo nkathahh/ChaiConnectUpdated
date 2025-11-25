@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Visits | chaiConnect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --success-color: #2ecc71;
+      --danger-color: #e74c3c;
+      --warning-color: #e67e22;
+      --text-color: #2c3e50;
+      --light-gray: #f7f9fc;
+      --border-color: #ddd;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--light-gray);
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    h1 {
+      color: var(--primary-color);
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .notification {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .success {
+      background-color: rgba(46, 204, 113, 0.1);
+      color: var(--success-color);
+      border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+    
+    .error {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: var(--danger-color);
+      border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    th {
+      background-color: var(--light-gray);
+      font-weight: 500;
+    }
+    
+    .status-requested {
+      color: var(--warning-color);
+    }
+    
+    .status-scheduled {
+      color: var(--primary-color);
+    }
+    
+    .status-completed {
+      color: var(--success-color);
+    }
+    
+    .status-cancelled {
+      color: var(--danger-color);
+    }
+    
+    .action-btn {
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      margin-right: 5px;
+    }
+    
+    .btn-complete {
+      background-color: var(--success-color);
+      color: white;
+    }
+    
+    .btn-cancel {
+      background-color: var(--danger-color);
+      color: white;
+    }
+    
+    .btn-schedule {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 5px;
+    }
+
+body.dark-mode {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+body.dark-mode .container {
+  background-color: #1e293b;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+
+body.dark-mode h1 {
+  color: #f8fafc;
+}
+
+
+body.dark-mode table {
+  background-color: #1e293b;
+  color: #f1f5f9;
+}
+
+body.dark-mode th {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+body.dark-mode td {
+  border-color: #334155;
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+
+body.dark-mode tbody tr:nth-child(odd) {
+  background-color: #1e2633;
+}
+
+body.dark-mode tbody tr:hover {
+  background-color: #334155;
+}
+
+
+body.dark-mode .action-btn {
+  border: none;
+}
+
+body.dark-mode .btn-schedule {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+body.dark-mode .btn-complete {
+  background-color: var(--success-color);
+  color: #fff;
+}
+
+body.dark-mode .btn-cancel {
+  background-color: var(--danger-color);
+  color: #fff;
+}
+
+
+body.dark-mode .notification.success {
+  background-color: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #4ade80;
+}
+
+body.dark-mode .notification.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+
+body.dark-mode .status-requested {
+  color: #facc15;
+}
+
+body.dark-mode .status-scheduled {
+  color: #60a5fa;
+}
+
+body.dark-mode .status-completed {
+  color: #4ade80;
+}
+
+body.dark-mode .status-cancelled {
+  color: #f87171;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-calendar-alt"></i> Manage Farm Visits</h1>
+    
+    <div id="notification" class="notification"></div>
+    
+    <table id="visitsTable">
+      <thead>
+        <tr>
+          <th>Farmer</th>
+          <th>Phone</th>
+          <th>Preferred Date</th>
+          <th>Scheduled Date</th>
+          <th>Purpose</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Visits will be loaded here -->
+      </tbody>
+    </table>
+  </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => {
+        const userId = data.userId;
+        if (!userId) return;
+        const theme = localStorage.getItem(`theme_${userId}`);
+        if (theme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      })
+      .catch(() => {
+        const fallbackTheme = localStorage.getItem('theme');
+        if (fallbackTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+        }
+      });
+  });
+</script>
+  
+  <script>
+    // DOM elements
+    const visitsTable = document.getElementById('visitsTable');
+    const notification = document.getElementById('notification');
+    
+    // Fetch all visit requests for the officer
+    async function fetchVisitRequests() {
+      try {
+        showLoading(true);
+        
+        // First get the officer's ID
+        const officerRes = await fetch('/api/extension-officer/me', {
+          credentials: 'include'
+        });
+        
+        if (!officerRes.ok) throw new Error('Failed to fetch officer data');
+        
+        const officerData = await officerRes.json();
+        
+        if (!officerData.success || !officerData.officer_id) {
+          throw new Error('Officer not found');
+        }
+        
+        const officerId = officerData.officer_id;
+        
+        // Then fetch visits assigned to this officer
+        const visitsRes = await fetch(`/api/extension-officer/visits?officer_id=${officerId}`, {
+          credentials: 'include'
+        });
+        
+        if (!visitsRes.ok) throw new Error('Failed to fetch visits');
+        
+        const visitsData = await visitsRes.json();
+        const tbody = visitsTable.querySelector('tbody');
+        tbody.innerHTML = '';
+        
+        if (visitsData.success && visitsData.visits.length > 0) {
+          visitsData.visits.forEach(visit => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${visit.farmer_name}</td>
+              <td>${visit.farmer_phone}</td>
+              <td>${formatDate(visit.preferred_date)}</td>
+              <td>${visit.scheduled_date ? formatDate(visit.scheduled_date) : 'Not scheduled'}</td>
+              <td>${formatPurpose(visit.purpose)}</td>
+              <td class="status-${visit.status}">${formatStatus(visit.status)}</td>
+              <td>
+                <div class="btn-group">
+                  ${visit.status === 'requested' ? `
+                    <button class="action-btn btn-schedule" data-id="${visit.visit_id}">
+                      <i class="fas fa-calendar-check"></i> Schedule
+                    </button>
+                  ` : ''}
+                  
+                  ${visit.status === 'scheduled' ? `
+                    <button class="action-btn btn-complete" data-id="${visit.visit_id}">
+                      <i class="fas fa-check"></i> Complete
+                    </button>
+                    <button class="action-btn btn-cancel" data-id="${visit.visit_id}">
+                      <i class="fas fa-times"></i> Cancel
+                    </button>
+                  ` : ''}
+                </div>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+          
+          // Add event listeners to action buttons
+          document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', handleVisitAction);
+          });
+        } else {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7">No visit requests found</td>
+            </tr>
+          `;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showNotification(error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+    
+    // Handle visit actions
+    async function handleVisitAction(e) {
+      const visitId = e.target.closest('button').dataset.id;
+      const action = e.target.closest('button').classList.contains('btn-complete') ? 'complete' : 
+                     e.target.closest('button').classList.contains('btn-cancel') ? 'cancel' : 
+                     'schedule';
+      
+      try {
+        if (action === 'schedule') {
+          window.location.href = `schedule_visit.html?visitId=${visitId}`;
+          return;
+        }
+        
+        if (!confirm(`Are you sure you want to ${action} this visit?`)) return;
+        
+        const res = await fetch(`/api/extension-officer/visits/${visitId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ action })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          showNotification(`Visit ${action}d successfully`, 'success');
+          fetchVisitRequests();
+        } else {
+          throw new Error(data.message || `Failed to ${action} visit`);
+        }
+      } catch (error) {
+        showNotification(error.message, 'error');
+        console.error(`Error ${action}ing visit:`, error);
+      }
+    }
+    
+    // Helper functions
+    function formatDate(dateString) {
+      return dateString ? new Date(dateString).toLocaleString() : '';
+    }
+    
+    function formatPurpose(purpose) {
+      return purpose.replace('_', ' ');
+    }
+    
+    function formatStatus(status) {
+      return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+    
+    function showNotification(message, type) {
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.style.display = 'block';
+      
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 5000);
+    }
+    
+    function showLoading(show) {
+      // Implement loading indicator if needed
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', fetchVisitRequests);
+  </script>
+</body>
+</html>

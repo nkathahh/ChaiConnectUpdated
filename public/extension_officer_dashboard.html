@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extension Officer Dashboard | chaiConnect</title>
+  <link rel="stylesheet" href="/css/dashboards_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="top-header">
+        <div class="left-section">
+          <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2>chaiConnect</h2>
+        </div>
+        <div class="right-icons">
+            <a href="/alerts.html" title="View Alerts" class="alert-link">
+                <i class="fas fa-bell"></i>
+                <span id="alertCount">0</span>
+            </a>
+            <label class="theme-switch">
+              <input type="checkbox" id="themeToggle">
+              <span class="slider"></span>
+            </label>
+            <button class="logout-button" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+  <div class="sidebar">
+    <h3>Extension Dashboard</h3>
+    <ul>
+      <li><a href="#" class="active">Home</a></li>
+      <li><a href="/view_profile.html">View My Profile</a></li>
+      <li><a href="/assigned_farmers.html">Assigned Farmers</a></li>
+      <li><a href="/upload_training.html">Upload Training Materials</a></li>
+      <li><a href="/extension_complaints.html">Respond to Complaints</a></li>
+      <li><a href="/all_visit_requests.html">Manage All Visit Requests</a></li>
+      <li><a href="/view_policies.html">View uploaded policies</a></li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <section id="overview">
+      <h1 id="welcomeMessage">Welcome, <span id="officerName">Extension Officer</span></h1>
+      <p>Manage your assigned farmers, schedule visits, and provide agricultural support.</p>
+    </section>
+
+    <div class="dashboard-cards">
+      <div class="stat-card">
+        <p>Assigned Farmers</p>
+        <h2 id="farmerCount">0</h2>
+      </div>
+      <div class="stat-card">
+        <p> Upcoming Visits</p>
+        <h2 id="upcomingVisitsCount">0</h2>
+      </div>
+      <div class="stat-card">
+        <p>Training Materials</p>
+        <h2 id="trainingMaterialsCount">0</h2>
+      </div>
+      <div class="stat-card">
+        <p>Open Complaints</p>
+        <h2 id="openComplaintsCount">0</h2>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <div class="card">
+        <h3>View Assigned Farmers</h3>
+        <p>See all farmers under your guidance.</p>
+        <button onclick="location.href='/assigned_farmers.html'">View</button>
+      </div>
+      <div class="card">
+        <h3>Upload Training Materials</h3>
+        <p>Provide resources to help farmers grow better tea.</p>
+        <button onclick="location.href='/upload_training.html'">Upload</button>
+      </div>
+      <div class="card">
+        <h3>Respond to Complaints</h3>
+        <p>Address concerns raised by your assigned farmers.</p>
+        <button onclick="location.href='/extension_complaints.html'">Respond</button>
+      </div>
+      <div class = "card">
+        <h3>Load Visit Requests</h3>
+        <p>View Requests by various farmers to visit their farms</p>
+        <button onclick="location.href='/all_visit_requests.html'">Load Visit Requests</button>
+      </div>
+    </div>
+
+    <div class="recent-farmers">
+      <h3>Recently Assigned Farmers</h3>
+      <table class="farmers-table" id="recentFarmersTable">
+        <thead>
+          <tr>
+            <th>Farmer Name</th>
+            <th>Region</th>
+            <th>Contact</th>
+            <th>Assigned Since</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Will be populated by JavaScript -->
+        </tbody>
+      </table>
+      <a href="/assigned_farmers.html" class="view-all">View All Farmers →</a>
+    </div>
+  </div>
+
+  <div id="logoutToast" class="toast">
+    <i class="fas fa-check-circle"></i>
+    <span>Logged out successfully</span>
+  </div>
+
+  <script>
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('officerName').textContent = data.name;
+
+        fetch('/api/my-assigned-farmers')
+          .then(res => res.json())
+          .then(farmers => {
+            document.getElementById('farmerCount').textContent = farmers.length;
+            const recentFarmers = farmers.slice(0, 5);
+            const tableBody = document.querySelector('#recentFarmersTable tbody');
+
+            if (recentFarmers.length === 0) {
+              tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #666; padding: 20px;">No farmers assigned yet</td></tr>`;
+            } else {
+              recentFarmers.forEach(farmer => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                  <td>${farmer.farmer_name || '—'}</td>
+                  <td>${farmer.region || '—'}</td>
+                  <td>${farmer.phone || '—'}</td>
+                  <td>${farmer.assigned_since || '—'}</td>
+                `;
+                tableBody.appendChild(row);
+              });
+            }
+          })
+          .catch(() => {
+            document.getElementById('farmerCount').textContent = '0';
+          });
+      });
+
+    fetch('/api/extension/complaints')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const openCount = data.complaints.filter(c => c.status === 'open').length;
+          document.getElementById('openComplaintsCount').textContent = openCount;
+        }
+      });
+
+       // Fetch upcoming visits count (scheduled but not completed)
+      fetch('/api/extension-officer/upcoming-visits-count')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('upcomingVisitsCount').textContent = data.count;
+          }
+        });
+
+    fetch('/api/training-materials/count')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('trainingMaterialsCount').textContent = data.count;
+        }
+      });
+
+    function logout() {
+      fetch('/logout', { method: 'POST' })
+        .then(() => {
+          const toast = document.getElementById('logoutToast');
+          toast.classList.add('show');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1500);
+        });
+    }
+
+    // Fetch alert count
+    fetch('/alerts/count')
+      .then(res => res.json())
+      .then(data => {
+        const alertCount = document.getElementById('alertCount');
+        if (data.count > 0) {
+          alertCount.textContent = data.count;
+          alertCount.style.display = 'flex';
+        }
+      });
+
+    // Visit Requests functionality
+    function loadVisitRequests() {
+      fetch('/api/visit-requests')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            renderVisitRequests(data.requests);
+            // Update upcoming visits count in stats
+            const upcomingVisits = data.requests.filter(r => r.status === 'scheduled').length;
+            document.getElementById('upcomingVisitsCount').textContent = upcomingVisits;
+          } else {
+            console.error('Error loading requests:', data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+
+    function renderVisitRequests(requests) {
+      const container = document.getElementById('requestsContainer');
+      
+      if (requests.length === 0) {
+        container.innerHTML = '<div class="no-requests">No pending visit requests.</div>';
+        return;
+      }
+      
+      let html = '';
+      
+      requests.forEach(request => {
+        const preferredDate = request.preferred_date ? new Date(request.preferred_date) : null;
+        const scheduledDate = request.scheduled_date ? new Date(request.scheduled_date) : null;
+        const isScheduled = request.status === 'scheduled';
+        
+        html += `
+        <div class="request-card" data-id="${request.visit_id}">
+          <div class="request-header">
+            <span class="farmer-name">${request.farmer_name}</span>
+            <span class="farmer-location">${request.location || 'Unknown location'}</span>
+          </div>
+          <div class="request-body">
+            ${preferredDate ? `<p><strong>Preferred Date:</strong> ${preferredDate.toLocaleDateString()} at ${preferredDate.toLocaleTimeString()}</p>` : ''}
+            <p><strong>Purpose:</strong> ${request.purpose}</p>
+            ${request.notes ? `<p><strong>Notes:</strong> ${request.notes}</p>` : ''}
+            <p><strong>Contact:</strong> ${request.farmer_phone}</p>
+            ${isScheduled && scheduledDate ? `<p><strong>Scheduled Date:</strong> ${scheduledDate.toLocaleDateString()} at ${scheduledDate.toLocaleTimeString()}</p>` : ''}
+            <p><strong>Status:</strong> <span class="status-${request.status}">${request.status.charAt(0).toUpperCase() + request.status.slice(1)}</span></p>
+          </div>
+          ${!isScheduled ? `
+          <div class="request-actions">
+            <input type="datetime-local" class="schedule-date" required>
+            <button class="schedule-btn">Schedule Visit</button>
+          </div>
+          ` : ''}
+        </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+      
+      // Add event listeners to schedule buttons
+      document.querySelectorAll('.schedule-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const card = this.closest('.request-card');
+          const visitId = card.dataset.id;
+          const scheduleDate = card.querySelector('.schedule-date').value;
+          
+          if (!scheduleDate) {
+            showToast('Please select a date and time', 'error');
+            return;
+          }
+          
+          fetch(`/api/schedule-visit/${visitId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ scheduledDate: scheduleDate })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              showToast('Visit scheduled successfully!');
+              loadVisitRequests();
+            } else {
+              showToast('Error: ' + data.message, 'error');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            showToast('Failed to schedule visit', 'error');
+          });
+        });
+      });
+    }
+
+    function refreshVisitRequests() {
+      loadVisitRequests();
+      showToast('Visit requests refreshed');
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <span>${message}</span>
+      `;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 10);
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 3000);
+    }
+ // Load all visit-related data
+function loadVisitData() {
+  // Load pending visit requests
+  fetch('/api/visit-requests')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        renderPendingVisits(data.requests);
+      }
+    });
+
+  // Load scheduled visits
+  fetch('/api/upcoming-visits')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        renderScheduledVisits(data.visits);
+      }
+    });
+
+  // Load training sessions
+  fetch('/api/training-sessions')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        renderTrainingSessions(data.sessions);
+      }
+    });
+}
+
+// Render pending visit requests
+function renderPendingVisits(requests) {
+  const container = document.getElementById('pendingVisitsContainer');
+  
+  if (requests.length === 0) {
+    container.innerHTML = '<p class="text-muted">No pending visit requests.</p>';
+    return;
+  }
+
+  let html = '<div class="list-group">';
+  
+  requests.forEach(request => {
+    const preferredDate = new Date(request.preferred_date);
+    
+    html += `
+    <div class="list-group-item">
+      <div class="d-flex justify-content-between">
+        <h5>${request.farmer_name}</h5>
+        <span class="badge bg-warning">Pending</span>
+      </div>
+      <p><strong>Preferred Date:</strong> ${preferredDate.toLocaleString()}</p>
+      <p><strong>Purpose:</strong> ${request.purpose}</p>
+      ${request.notes ? `<p><strong>Notes:</strong> ${request.notes}</p>` : ''}
+      
+      <div class="visit-actions mt-2">
+        <div class="input-group mb-2">
+          <input type="datetime-local" class="form-control schedule-date-input" 
+                 min="${new Date().toISOString().slice(0, 16)}">
+          <button class="btn btn-success schedule-btn" data-id="${request.visit_id}">
+            <i class="fas fa-calendar-plus"></i> Schedule
+          </button>
+        </div>
+        <button class="btn btn-outline-danger reject-btn" data-id="${request.visit_id}">
+          <i class="fas fa-times"></i> Reject
+        </button>
+      </div>
+    </div>
+    `;
+  });
+  
+  html += '</div>';
+  container.innerHTML = html;
+
+  // Add event listeners
+  document.querySelectorAll('.schedule-btn').forEach(btn => {
+    btn.addEventListener('click', scheduleVisit);
+  });
+  
+  document.querySelectorAll('.reject-btn').forEach(btn => {
+    btn.addEventListener('click', rejectVisit);
+  });
+}
+
+// Render scheduled visits
+function renderScheduledVisits(visits) {
+  const container = document.getElementById('scheduledVisitsContainer');
+  
+  if (visits.length === 0) {
+    container.innerHTML = '<p class="text-muted">No upcoming visits scheduled.</p>';
+    return;
+  }
+
+  let html = '<div class="list-group">';
+  
+  visits.forEach(visit => {
+    const visitDate = new Date(visit.scheduled_date);
+    
+    html += `
+    <div class="list-group-item">
+      <div class="d-flex justify-content-between">
+        <h5>${visit.farmer_name}</h5>
+        <span class="badge bg-success">Scheduled</span>
+      </div>
+      <p><strong>Date:</strong> ${visitDate.toLocaleString()}</p>
+      <p><strong>Purpose:</strong> ${visit.purpose}</p>
+      ${visit.notes ? `<p><strong>Notes:</strong> ${visit.notes}</p>` : ''}
+      <p><strong>Contact:</strong> ${visit.farmer_phone}</p>
+      
+      <div class="visit-actions mt-2">
+        <button class="btn btn-primary complete-btn" data-id="${visit.visit_id}">
+          <i class="fas fa-check"></i> Mark Complete
+        </button>
+        <button class="btn btn-outline-secondary reschedule-btn" data-id="${visit.visit_id}">
+          <i class="fas fa-calendar-alt"></i> Reschedule
+        </button>
+      </div>
+    </div>
+    `;
+  });
+  
+  html += '</div>';
+  container.innerHTML = html;
+
+  // Add event listeners
+  document.querySelectorAll('.complete-btn').forEach(btn => {
+    btn.addEventListener('click', completeVisit);
+  });
+  
+  document.querySelectorAll('.reschedule-btn').forEach(btn => {
+    btn.addEventListener('click', showRescheduleForm);
+  });
+}
+
+// Schedule a visit
+function scheduleVisit() {
+  const visitId = this.dataset.id;
+  const card = this.closest('.list-group-item');
+  const dateInput = card.querySelector('.schedule-date-input');
+  const scheduledDate = dateInput.value;
+  
+  if (!scheduledDate) {
+    showToast('Please select a date and time', 'error');
+    return;
+  }
+
+  fetch(`/api/schedule-visit/${visitId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ scheduledDate })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('Visit scheduled successfully!');
+      loadVisitData(); // Refresh all visit data
+    } else {
+      showToast(data.message || 'Error scheduling visit', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showToast('Failed to schedule visit', 'error');
+  });
+}
+
+// Mark visit as complete
+function completeVisit() {
+  const visitId = this.dataset.id;
+  
+  if (!confirm('Mark this visit as completed?')) return;
+
+  fetch(`/api/complete-visit/${visitId}`, {
+    method: 'PUT'
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('Visit marked as completed');
+      loadVisitData(); // Refresh all visit data
+    } else {
+      showToast(data.message || 'Error completing visit', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showToast('Failed to complete visit', 'error');
+  });
+}
+
+// Load data when page loads
+document.addEventListener('DOMContentLoaded', loadVisitData);
+    // Initial load of visit requests when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadVisitRequests();
+    });
+
+
+    function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('active');
+}
+
+  </script>
+  <script src="logout.js"></script>
+  <script src="/alertCount.js"></script>
+  <script src="/darkLight.js"></script>
+</body>
+
+</html>
