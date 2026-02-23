@@ -1,182 +1,551 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <title>View Policy Documents</title>
+  <title>Policy Documents</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+
+      --primary: #16a34a;
+      --primary-hover: #15803d;
+
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+
+      --warning: #facc15;
+      --warning-hover: #eab308;
+
+      --btn: #0f172a;
+      --btn-soft: #e2e8f0;
+    }
+
+    body.dark-mode {
+      --bg: #0b1220;
+      --card: #0f172a;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --border: #1f2a44;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+      --btn: #e5e7eb;
+      --btn-soft: #1f2a44;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
-      padding: 40px;
+      background: var(--bg);
       margin: 0;
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(22, 163, 74, 0.18), rgba(56, 189, 248, 0.18));
+      border: 1px solid var(--border);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1;
+    }
+
+    .btn:hover {
+      border-color: rgba(100, 116, 139, 0.45);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-soft {
+      background: var(--btn-soft);
+      border-color: transparent;
+      color: var(--btn);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-hover);
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      border-color: transparent;
+      color: #111827;
+    }
+
+    .btn-warning:hover {
+      background: var(--warning-hover);
     }
 
     .container {
-      max-width: 900px;
-      background: #fff;
-      margin: auto;
-      padding: 30px 40px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 30px;
+    .header-strip {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
-    .policy {
-      padding: 20px;
-      border-bottom: 1px solid #eee;
+    .count-pill {
+      font-size: 13px;
+      color: var(--muted);
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
     }
 
-    .policy h3 {
+    .list {
+      padding: 10px 12px 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .policy-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .policy-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .policy-title {
       margin: 0;
-      color: #2c3e50;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
     }
 
-    .policy p {
-      color: #555;
-      margin: 8px 0;
+    .policy-desc {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
     }
 
-    .policy small {
-      color: #888;
-    }
-
-    .policy a {
-      display: inline-block;
+    .meta {
       margin-top: 10px;
-      color: #4CAF50;
-      text-decoration: none;
+      color: var(--muted);
+      font-size: 12.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
-    .policy a:hover {
-      text-decoration: underline;
+    .meta .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.65);
+      display: inline-block;
     }
 
-    .back-btn {
-      display: block;
-      margin: 30px auto 0;
-      padding: 10px 20px;
-      background-color: #607d8b;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 9999;
+      padding: 16px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      width: min(560px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-header h3 {
+      margin: 0;
       font-size: 16px;
     }
 
-    .back-btn:hover {
-      background-color: #455a64;
+    .modal-close {
+      font-size: 22px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--muted);
     }
-    body.dark-mode {
-  background-color: #0f172a;
-  color: #f1f5f9;
-}
 
-body.dark-mode .container {
-  background-color: #1e293b;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-}
+    .modal-close:hover {
+      color: var(--text);
+    }
 
-body.dark-mode h2 {
-  color: #f8fafc;
-}
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+    }
 
-body.dark-mode .policy {
-  border-color: #334155;
-}
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+    }
 
-body.dark-mode .policy h3 {
-  color: #e2e8f0;
-}
+    textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
 
-body.dark-mode .policy p {
-  color: #cbd5e1;
-}
+    body.modal-open {
+      overflow: hidden;
+    }
 
-body.dark-mode .policy small {
-  color: #94a3b8;
-}
-
-body.dark-mode .policy a {
-  color: #38bdf8;
-}
-
-body.dark-mode .policy a:hover {
-  color: #7dd3fc;
-}
-
-body.dark-mode .back-btn {
-  background-color: #334155;
-}
-
-body.dark-mode .back-btn:hover {
-  background-color: #475569;
-}
-
+    .empty {
+      padding: 22px 18px 26px;
+      color: var(--muted);
+      text-align: center;
+    }
   </style>
 </head>
-<body>
-  <div class="container">
-    <h2>📚 Policy Documents</h2>
-    <div id="policies"></div>
 
-    <button class="back-btn" onclick="history.back()">← Back</button>
+<body>
+  <div class="page">
+
+    <div class="topbar">
+      <div class="title-wrap">
+        <div class="badge">📚</div>
+        <div>
+          <h1>Policy Documents</h1>
+          <div class="subtitle">Read official guidelines and documents for ChaiConnect.</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn btn-soft" onclick="history.back()">← Back</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="header-strip">
+        <div class="count-pill"><span id="policyCount">0</span> documents</div>
+        <div class="count-pill" id="rolePill">Role: checking…</div>
+      </div>
+
+      <div id="policies" class="list"></div>
+      <div id="emptyState" class="empty" style="display:none;">No policies uploaded yet.</div>
+    </div>
+  </div>
+
+  <!-- Edit Policy Modal -->
+  <div id="editPolicyModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Policy</h3>
+        <button type="button" class="modal-close" onclick="closePolicyModal()">×</button>
+      </div>
+
+      <form id="editPolicyForm">
+        <input type="hidden" id="editPolicyId" />
+
+        <label>Title</label>
+        <input type="text" id="editPolicyTitle" required />
+
+        <label>Description</label>
+        <textarea id="editPolicyDescription" rows="5"></textarea>
+
+        <div class="actions" style="justify-content:flex-end; margin-top:14px;">
+          <button type="button" class="btn btn-soft" onclick="closePolicyModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
-      });
-  });
-</script>
+    // Theme (your existing logic)
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/me')
+        .then(res => res.json())
+        .then(data => {
+          const userId = data.userId;
+          if (!userId) return;
+          const theme = localStorage.getItem(`theme_${userId}`);
+          if (theme === 'dark') document.body.classList.add('dark-mode');
+          else document.body.classList.remove('dark-mode');
+        })
+        .catch(() => {
+          const fallbackTheme = localStorage.getItem('theme');
+          if (fallbackTheme === 'dark') document.body.classList.add('dark-mode');
+        });
+    });
+  </script>
 
   <script>
-    async function fetchPolicies() {
-      const res = await fetch('/policies');
-      const data = await res.json();
-      const container = document.getElementById('policies');
+    let currentRole = 'guest';
 
-      if (data.length === 0) {
-        container.innerHTML = "<p>No policies uploaded yet.</p>";
+    async function loadMeRole() {
+      try {
+        const res = await fetch('/api/me');
+        if (!res.ok) {
+          currentRole = 'guest';
+          document.getElementById('rolePill').textContent = 'Role: guest';
+          return;
+        }
+        const data = await res.json();
+        currentRole = data.role || 'guest';
+        document.getElementById('rolePill').textContent = `Role: ${currentRole}`;
+      } catch {
+        currentRole = 'guest';
+        document.getElementById('rolePill').textContent = 'Role: guest';
+      }
+    }
+
+    function openPolicyModal(doc) {
+      document.getElementById('editPolicyId').value = doc.document_id;
+      document.getElementById('editPolicyTitle').value = doc.title || '';
+      document.getElementById('editPolicyDescription').value = doc.description || '';
+
+      const modal = document.getElementById('editPolicyModal');
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+
+      setTimeout(() => document.getElementById('editPolicyTitle').focus(), 0);
+    }
+
+    function closePolicyModal() {
+      const modal = document.getElementById('editPolicyModal');
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+
+    document.addEventListener('click', (e) => {
+      const modal = document.getElementById('editPolicyModal');
+      if (modal.classList.contains('show') && e.target === modal) closePolicyModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePolicyModal();
+    });
+
+    async function deletePolicy(id) {
+      if (!confirm('Delete this policy?')) return;
+
+      const res = await fetch(`/admin/policies/${id}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) return alert(data.message || 'Delete failed');
+      alert(data.message || 'Deleted');
+      fetchPolicies();
+    }
+
+    async function fetchPolicies() {
+      await loadMeRole();
+
+      const res = await fetch('/policies');
+      const data = await res.json().catch(() => []);
+      const container = document.getElementById('policies');
+      const emptyState = document.getElementById('emptyState');
+
+      container.innerHTML = '';
+
+      document.getElementById('policyCount').textContent = Array.isArray(data) ? data.length : 0;
+
+      if (!data || data.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+      }
+      emptyState.style.display = 'none';
+
+      data.forEach(doc => {
+        const card = document.createElement('div');
+        card.className = 'policy-card';
+
+        const adminControls = (currentRole === 'admin')
+          ? `
+            <div class="actions">
+              <button class="btn btn-warning" onclick='openPolicyModal(${JSON.stringify(doc)})'>Edit</button>
+              <button class="btn btn-danger" onclick='deletePolicy(${doc.document_id})'>Delete</button>
+            </div>
+          `
+          : '';
+
+        card.innerHTML = `
+          <div class="policy-top">
+            <div>
+              <h3 class="policy-title">${doc.title}</h3>
+              <p class="policy-desc">${doc.description || 'No description provided.'}</p>
+              <div class="meta">
+                <span>Uploaded ${new Date(doc.uploaded_at).toLocaleString()}</span>
+                <span class="dot"></span>
+                <a class="btn btn-soft" href="${doc.file_path}" target="_blank">📄 View / Download</a>
+              </div>
+              ${adminControls}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById('editPolicyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('editPolicyId').value;
+      if (!id || id === 'undefined') {
+        alert('Missing policy ID. Please refresh and try again.');
         return;
       }
 
-      data.forEach(doc => {
-        const div = document.createElement('div');
-        div.className = 'policy';
-        div.innerHTML = `
-          <h3>${doc.title}</h3>
-          <p>${doc.description || 'No description provided.'}</p>
-          <small>Uploaded on ${new Date(doc.uploaded_at).toLocaleString()}</small><br>
-          <a href="${doc.file_path}" target="_blank">📄 View / Download</a>
-        `;
-        container.appendChild(div);
+      const title = document.getElementById('editPolicyTitle').value.trim();
+      const description = document.getElementById('editPolicyDescription').value;
+
+      const res = await fetch(`/admin/policies/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description })
       });
-    }
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return alert(data.message || 'Update failed');
+
+      alert(data.message || 'Updated');
+      closePolicyModal();
+      fetchPolicies();
+    });
 
     fetchPolicies();
   </script>
 </body>
+
 </html>

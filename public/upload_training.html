@@ -1,167 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Upload Training Material | chaiConnect</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <link rel="stylesheet" href="css/extension_officer_dashboard.css" />
+  <link rel="stylesheet" href="/css/dashboards_style.css" />
   <style>
-    .upload-container {
-      max-width: 600px;
-      margin: 50px auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    body { background:#f8fafc; padding:24px; }
+    .wrap { max-width: 760px; margin:0 auto; }
+    .card {
+      background:#fff; border:1px solid #e2e8f0; border-radius:14px;
+      padding:18px; box-shadow: 0 8px 18px rgba(15,23,42,.06);
     }
-    .upload-container h2 {
-      margin-bottom: 20px;
-      text-align: center;
+    .top { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; }
+    h2 { margin:0; }
+    .btn { padding:10px 14px; border:none; border-radius:10px; cursor:pointer; font-weight:700; }
+    .btn-back { background:#334155; color:#fff; }
+    .btn-submit { background:#10b981; color:#fff; width:100%; margin-top:12px; }
+    label { display:block; margin-top:12px; font-weight:700; }
+    input, textarea, select {
+      width:100%; padding:10px; border-radius:10px; border:1px solid #cbd5e1;
     }
-    .upload-container input, .upload-container textarea {
-      width: 100%;
-      margin-bottom: 15px;
-      padding: 10px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    .upload-container button {
-      background: #27ae60;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      width: 100%;
-    }
-    .upload-container button:hover {
-      background: #219653;
-    }
-    .success-message {
-      color: #27ae60;
-      text-align: center;
-      margin-top: 10px;
-    }
-    .error-message {
-      color: #e74c3c;
-      text-align: center;
-      margin-top: 10px;
-    }
-    /* DARK MODE STYLES */
-body.dark-mode {
-  background-color: #0f172a;
-  color: #f1f5f9;
-}
-
-body.dark-mode .upload-container {
-  background-color: #1e293b;
-  color: #f1f5f9;
-  box-shadow: 0 0 12px rgba(0,0,0,0.4);
-}
-
-body.dark-mode .upload-container input,
-body.dark-mode .upload-container textarea {
-  background-color: #0f172a;
-  color: #f1f5f9;
-  border: 1px solid #334155;
-}
-
-body.dark-mode .upload-container button {
-  background-color: #22c55e;
-  color: #0f172a;
-}
-
-body.dark-mode .upload-container button:hover {
-  background-color: #16a34a;
-}
-
-body.dark-mode .success-message {
-  color: #4ade80;
-}
-
-body.dark-mode .error-message {
-  color: #f87171;
-}
-
+    .hint { color:#64748b; font-size:13px; margin-top:6px; }
+    .notice { margin-top:12px; padding:12px; border-radius:12px; background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; }
   </style>
 </head>
 <body>
-  <div class="upload-container">
-    <h2><i class="fas fa-upload"></i> Upload Training Material</h2>
-    <form id="uploadForm" enctype="multipart/form-data">
-      <input type="text" name="title" placeholder="Material Title" required />
-      <textarea name="description" placeholder="Brief Description" rows="4" required></textarea>
-      <input type="file" name="file" accept=".pdf,.doc,.ppt,.jpg,.png" required />
-      <button type="submit">Upload</button>
-      <div id="uploadMessage"></div>
-    </form>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h2>📤 Upload Training Material</h2>
+        <p class="hint">Extension officers only.</p>
+      </div>
+      <button class="btn btn-back" id="backBtn">← Back</button>
+    </div>
+
+    <div class="card">
+      <div id="blockNotice" class="notice" style="display:none;"></div>
+
+      <form id="uploadForm">
+        <label>Title</label>
+        <input type="text" name="title" id="title" required />
+
+        <label>Description (optional)</label>
+        <textarea name="description" id="description" rows="3"></textarea>
+
+        <label>Material Type</label>
+        <select id="materialType" name="material_type">
+          <option value="file">File (PDF, DOCX, images, etc)</option>
+          <option value="text">Text Only</option>
+        </select>
+
+        <div id="fileBlock">
+          <label>Upload File</label>
+          <input type="file" id="file" name="file" />
+          <div class="hint">Supported: any file type. Recommend PDF/images for farmers.</div>
+        </div>
+
+        <div id="textBlock" style="display:none;">
+          <label>Text Content</label>
+          <textarea id="text_content" name="text_content" rows="8" placeholder="Write training content here..."></textarea>
+        </div>
+
+        <button class="btn btn-submit" type="submit">Upload</button>
+      </form>
+    </div>
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
-      });
-  });
-</script>
-  
-  <script>
-   document.getElementById('uploadForm').addEventListener('submit', function(e) {
-  e.preventDefault();
+    let me = { role: 'guest' };
 
-  const form = e.target;
-  const formData = new FormData(form);
-
-  fetch('/api/upload-training', {
-    method: 'POST',
-    body: formData,
-    credentials: 'include'
-  })
-  .then(res => {
-    const contentType = res.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      return res.json();
-    } else {
-      throw new Error("Unexpected response format (likely HTML)");
+    async function loadMe() {
+      const res = await fetch('/api/me');
+      if (!res.ok) return;
+      me = await res.json();
     }
-  })
-  .then(data => {
-    const messageBox = document.getElementById('uploadMessage');
-    if (data.success) {
-      messageBox.textContent = "Upload successful!";
-      messageBox.className = 'success-message';
-      form.reset();
 
-      // Optionally trigger dashboard update here (e.g., via WebSocket or API)
-    } else {
-      messageBox.textContent = "Upload failed: " + data.message;
-      messageBox.className = 'error-message';
+    function goBack() {
+      const role = (me.role || '').toLowerCase();
+      const map = {
+        admin: '/admin_dashboard.html',
+        extension_officer: '/extension_officer_dashboard.html',
+        farmer: '/farmer_dashboard.html',
+        factory_staff: '/factory_staff_dashboard.html'
+      };
+      window.location.href = map[role] || '/';
     }
-  })
-  .catch(err => {
-    console.error('Fetch error:', err); 
-    const messageBox = document.getElementById('uploadMessage');
-    messageBox.textContent = 'An error occurred: ' + err.message;
-    messageBox.className = 'error-message';
-  });
-});
 
+    function blockForm(msg) {
+      document.getElementById('blockNotice').style.display = 'block';
+      document.getElementById('blockNotice').textContent = msg;
+      document.getElementById('uploadForm').style.display = 'none';
+    }
+
+    document.getElementById('materialType').addEventListener('change', function() {
+      const type = this.value;
+      document.getElementById('fileBlock').style.display = (type === 'file') ? 'block' : 'none';
+      document.getElementById('textBlock').style.display = (type === 'text') ? 'block' : 'none';
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const type = document.getElementById('materialType').value;
+      const form = new FormData();
+      form.append('title', document.getElementById('title').value);
+      form.append('description', document.getElementById('description').value);
+      form.append('material_type', type);
+
+      if (type === 'file') {
+        const f = document.getElementById('file').files[0];
+        if (!f) return alert('Please select a file');
+        form.append('file', f);
+      } else {
+        const text = document.getElementById('text_content').value.trim();
+        if (!text) return alert('Please enter text content');
+        form.append('text_content', text);
+      }
+
+      const res = await fetch('/api/upload-training', { method: 'POST', body: form });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) return alert(data.message || 'Upload failed');
+      alert(data.message || 'Uploaded!');
+      window.location.href = '/view_training_materials.html';
+    });
+
+    (async function init(){
+      await loadMe();
+      document.getElementById('backBtn').onclick = goBack;
+
+      if ((me.role || '').toLowerCase() !== 'extension_officer') {
+        blockForm('You are not allowed to upload training materials.');
+      }
+    })();
   </script>
 </body>
 </html>

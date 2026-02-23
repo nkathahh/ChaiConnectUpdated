@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications | chaiConnect</title>
+  <link rel="stylesheet" href="/css/dashboards_style.css" />
+
+  <style>
+    body { background:#f8fafc; padding:24px; }
+    .wrap { max-width: 980px; margin: 0 auto; }
+
+    .header {
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      margin-bottom: 14px;
+    }
+    .header h2 { margin:0; font-size: 22px; color:#0f172a; }
+    .header p { margin:6px 0 0; color:#64748b; font-size: 14px; }
+
+    .btn {
+      padding:10px 14px; border-radius:12px; border:1px solid transparent;
+      cursor:pointer; font-weight:700; font-size:14px;
+      display:inline-flex; align-items:center; gap:8px;
+      transition: .15s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-back { background:#0f172a; color:#fff; }
+    .btn-back:hover { opacity:.92; }
+    .btn-ghost { background:#fff; border-color:#e2e8f0; color:#0f172a; }
+    .btn-ghost:hover { background:#f1f5f9; }
+    .btn-green { background:#10b981; color:#fff; }
+    .btn-green:hover { background:#0ea371; }
+
+    .toolbar {
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      background:#fff; border:1px solid #e2e8f0; border-radius:16px;
+      padding:12px; box-shadow: 0 8px 18px rgba(15,23,42,.05);
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .search {
+      flex: 1;
+      min-width: 220px;
+      display:flex; align-items:center; gap:10px;
+      background:#f1f5f9; border:1px solid #e2e8f0; border-radius:12px;
+      padding:10px 12px;
+    }
+    .search input {
+      border:none; outline:none; width:100%;
+      background:transparent; font-size:14px;
+    }
+
+    .tabs {
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .tab {
+      padding:8px 12px; border-radius:999px; border:1px solid #e2e8f0;
+      background:#fff; cursor:pointer; font-weight:800; font-size:13px;
+      color:#0f172a; transition:.15s ease;
+    }
+    .tab:hover { background:#f8fafc; }
+    .tab.active { background:#0f172a; color:#fff; border-color:#0f172a; }
+
+    .count-pill {
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width: 22px; height:22px; padding:0 8px;
+      border-radius:999px; font-size:12px; font-weight:900;
+      background:#ef4444; color:#fff;
+      margin-left: 8px;
+    }
+
+    .list {
+      display:flex; flex-direction:column; gap:10px;
+    }
+
+    .item {
+      background:#fff; border:1px solid #e2e8f0; border-radius:16px;
+      padding:14px 14px;
+      box-shadow: 0 10px 22px rgba(15,23,42,.06);
+      transition: .18s ease;
+      cursor:pointer;
+      position: relative;
+      overflow:hidden;
+    }
+    .item:hover { transform: translateY(-2px); }
+
+    .item.unread::before {
+      content:'';
+      position:absolute; left:0; top:0; bottom:0;
+      width:5px; background:#10b981;
+    }
+
+    .row1 {
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
+    }
+
+    .left {
+      display:flex; gap:12px; align-items:flex-start;
+      min-width: 0;
+    }
+
+    .icon {
+      width:42px; height:42px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      background:#f1f5f9; border:1px solid #e2e8f0;
+      font-size:18px;
+      flex: 0 0 auto;
+    }
+
+    .title {
+      font-weight:900; color:#0f172a; margin:0;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      max-width: 640px;
+    }
+    .meta { margin-top:4px; color:#64748b; font-size:12px; }
+    .msg { margin-top:10px; color:#334155; font-size:14px; line-height:1.5; }
+
+    .right {
+      display:flex; flex-direction:column; align-items:flex-end; gap:8px;
+      flex: 0 0 auto;
+    }
+
+    .chip {
+      padding:5px 10px; border-radius:999px;
+      font-weight:900; font-size:12px;
+      background:#e0f2fe; color:#075985;
+      border:1px solid #bae6fd;
+    }
+
+    .actions {
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+      margin-top: 10px;
+    }
+
+    .mini {
+      padding:8px 10px; border-radius:12px; font-weight:900;
+      border:1px solid #e2e8f0; background:#fff; cursor:pointer;
+      font-size:13px;
+    }
+    .mini:hover { background:#f8fafc; }
+    .mini.read { background:#10b981; border-color:#10b981; color:#fff; }
+    .mini.link { background:#0f172a; border-color:#0f172a; color:#fff; }
+    .mini.link:hover { opacity:.92; }
+
+    .empty {
+      background:#fff; border:1px solid #e2e8f0; border-radius:16px;
+      padding:34px; text-align:center;
+      color:#64748b;
+      box-shadow: 0 10px 22px rgba(15,23,42,.05);
+    }
+    .empty h3 { margin:0; color:#0f172a; }
+    .empty p { margin:10px 0 0; }
+
+    /* Dark mode support (if your app uses body.dark-mode) */
+    body.dark-mode { background:#0b1220; color:#f1f5f9; }
+    body.dark-mode .header h2 { color:#f1f5f9; }
+    body.dark-mode .toolbar,
+    body.dark-mode .item,
+    body.dark-mode .empty { background:#111b2e; border-color:#22304a; box-shadow:none; }
+    body.dark-mode .search { background:#0b1220; border-color:#22304a; }
+    body.dark-mode .search input { color:#f1f5f9; }
+    body.dark-mode .tab { background:#111b2e; border-color:#22304a; color:#f1f5f9; }
+    body.dark-mode .tab.active { background:#f1f5f9; color:#0b1220; border-color:#f1f5f9; }
+    body.dark-mode .icon { background:#0b1220; border-color:#22304a; }
+    body.dark-mode .title { color:#f1f5f9; }
+    body.dark-mode .msg { color:#cbd5e1; }
+    body.dark-mode .btn-ghost { background:#111b2e; border-color:#22304a; color:#f1f5f9; }
+    body.dark-mode .btn-ghost:hover { background:#0b1220; }
+    body.dark-mode .mini { background:#111b2e; border-color:#22304a; color:#f1f5f9; }
+    body.dark-mode .mini:hover { background:#0b1220; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h2>🔔 Notifications</h2>
+        <p>Visit requests, status updates, and your personal activity feed.</p>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+        <button class="btn btn-ghost" id="refreshBtn">↻ Refresh</button>
+        <button class="btn btn-green" id="markAllBtn">✓ Mark all read</button>
+        <button class="btn btn-back" id="backBtn">← Back</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <span style="font-weight:900;color:#64748b;">⌕</span>
+        <input id="searchInput" placeholder="Search title, message, category..." />
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-filter="all">All <span class="count-pill" id="allCount" style="display:none;">0</span></button>
+        <button class="tab" data-filter="unread">Unread <span class="count-pill" id="unreadCount" style="display:none;">0</span></button>
+        <button class="tab" data-filter="visits">Visits</button>
+        <button class="tab" data-filter="training">Training</button>
+        <button class="tab" data-filter="payments">Payments</button>
+      </div>
+    </div>
+
+    <div class="list" id="list"></div>
+  </div>
+
+<script>
+  let me = { role:'guest' };
+  let raw = [];
+  let activeFilter = 'all';
+  let queryText = '';
+
+  async function loadMe() {
+    const res = await fetch('/api/me');
+    if (res.ok) me = await res.json();
+
+    const role = (me.role || '').toLowerCase();
+    const map = {
+      admin: '/admin_dashboard.html',
+      extension_officer: '/extension_officer_dashboard.html',
+      farmer: '/farmer_dashboard.html',
+      factory_staff: '/factory_staff_dashboard.html'
+    };
+    document.getElementById('backBtn').onclick = () => window.location.href = (map[role] || '/');
+  }
+
+  function escapeHtml(str='') {
+    return String(str).replace(/[&<>"']/g, m => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+    }[m]));
+  }
+
+  function iconFor(category='') {
+    const c = (category || '').toLowerCase();
+    if (c.includes('visit')) return '📍';
+    if (c.includes('train')) return '📚';
+    if (c.includes('pay')) return '💸';
+    if (c.includes('system')) return '🛠️';
+    return '🔔';
+  }
+
+  function chipFor(category='') {
+    const c = (category || 'general').toLowerCase();
+    return c;
+  }
+
+  function applyFilters(items) {
+    let out = [...items];
+
+    if (activeFilter === 'unread') out = out.filter(x => !x.is_read);
+    if (['visits','training','payments'].includes(activeFilter)) {
+      out = out.filter(x => String(x.category || '').toLowerCase().includes(activeFilter));
+    }
+
+    if (queryText) {
+      const q = queryText.toLowerCase();
+      out = out.filter(x =>
+        String(x.title||'').toLowerCase().includes(q) ||
+        String(x.message||'').toLowerCase().includes(q) ||
+        String(x.category||'').toLowerCase().includes(q)
+      );
+    }
+
+    return out;
+  }
+
+  async function fetchNotifications() {
+    const res = await fetch('/api/notifications');
+    const data = await res.json().catch(()=>({}));
+
+    raw = (data && data.success && Array.isArray(data.notifications)) ? data.notifications : [];
+
+    // counts
+    const all = raw.length;
+    const unread = raw.filter(n => !n.is_read).length;
+
+    const allCount = document.getElementById('allCount');
+    const unreadCount = document.getElementById('unreadCount');
+    allCount.textContent = all;
+    unreadCount.textContent = unread;
+    allCount.style.display = all > 0 ? 'inline-flex' : 'none';
+    unreadCount.style.display = unread > 0 ? 'inline-flex' : 'none';
+
+    render();
+  }
+
+  function render() {
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+
+    const items = applyFilters(raw);
+
+    if (!items.length) {
+      list.innerHTML = `
+        <div class="empty">
+          <h3>No notifications found</h3>
+          <p>Try changing your filters or search term.</p>
+        </div>
+      `;
+      return;
+    }
+
+    items.forEach(n => {
+      const el = document.createElement('div');
+      el.className = `item ${n.is_read ? '' : 'unread'}`;
+
+      const created = n.created_at ? new Date(n.created_at).toLocaleString() : '';
+      const category = chipFor(n.category);
+      const hasLink = !!n.link;
+
+      el.innerHTML = `
+        <div class="row1">
+          <div class="left">
+            <div class="icon">${iconFor(n.category)}</div>
+            <div style="min-width:0;">
+              <div class="title">${escapeHtml(n.title || 'Notification')}</div>
+              <div class="meta">${escapeHtml(category)} • ${escapeHtml(created)}</div>
+              <div class="msg">${escapeHtml(n.message || '')}</div>
+
+              <div class="actions">
+                ${!n.is_read ? `<button class="mini read" data-action="read">✓ Mark read</button>` : ''}
+                ${hasLink ? `<button class="mini link" data-action="open">Open</button>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <div class="right">
+            <span class="chip">${escapeHtml(category)}</span>
+          </div>
+        </div>
+      `;
+
+      // whole card click: mark read, then open if link exists
+      el.addEventListener('click', async () => {
+        if (!n.is_read) await markRead(n.id, true);
+        if (n.link) window.location.href = n.link;
+      });
+
+      // prevent button clicks from triggering card click twice
+      el.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const act = btn.dataset.action;
+          if (act === 'read') return markRead(n.id);
+          if (act === 'open' && n.link) {
+            if (!n.is_read) await markRead(n.id, true);
+            window.location.href = n.link;
+          }
+        });
+      });
+
+      list.appendChild(el);
+    });
+  }
+
+  async function markRead(id, silent=false) {
+    await fetch(`/api/notifications/${id}/read`, { method:'PUT' }).catch(()=>{});
+    // update local
+    raw = raw.map(x => x.id === id ? { ...x, is_read: 1 } : x);
+    if (!silent) render();
+    // refresh counts
+    const unread = raw.filter(n => !n.is_read).length;
+    const unreadCount = document.getElementById('unreadCount');
+    unreadCount.textContent = unread;
+    unreadCount.style.display = unread > 0 ? 'inline-flex' : 'none';
+  }
+
+  async function markAllRead() {
+    await fetch('/api/notifications/read-all', { method:'PUT' }).catch(()=>{});
+    raw = raw.map(x => ({ ...x, is_read: 1 }));
+    render();
+    document.getElementById('unreadCount').style.display = 'none';
+  }
+
+  // UI hooks
+  document.getElementById('refreshBtn').onclick = fetchNotifications;
+  document.getElementById('markAllBtn').onclick = markAllRead;
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    queryText = (e.target.value || '').trim();
+    render();
+  });
+
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      activeFilter = t.dataset.filter;
+      render();
+    });
+  });
+
+  // Theme sync (same pattern you use elsewhere)
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/me')
+      .then(r => r.json())
+      .then(d => {
+        const theme = localStorage.getItem(`theme_${d.userId}`) || localStorage.getItem('theme');
+        if (theme === 'dark') document.body.classList.add('dark-mode');
+      })
+      .catch(() => {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') document.body.classList.add('dark-mode');
+      });
+  });
+
+  (async function init(){
+    await loadMe();
+    await fetchNotifications();
+  })();
+</script>
+
+</body>
+</html>

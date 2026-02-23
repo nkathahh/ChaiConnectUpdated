@@ -1,418 +1,662 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manage Visits | chaiConnect</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Farm Visits | chaiConnect</title>
+  <link rel="stylesheet" href="/css/dashboards_style.css" />
   <style>
-    :root {
-      --primary-color: #3498db;
-      --success-color: #2ecc71;
-      --danger-color: #e74c3c;
-      --warning-color: #e67e22;
-      --text-color: #2c3e50;
-      --light-gray: #f7f9fc;
-      --border-color: #ddd;
-    }
-    
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--light-gray);
-      margin: 0;
-      padding: 20px;
+      background: #f8fafc;
+      padding: 24px;
     }
-    
-    .container {
-      max-width: 1200px;
+
+    .wrap {
+      max-width: 1150px;
       margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     }
-    
-    h1 {
-      color: var(--primary-color);
-      margin-bottom: 25px;
+
+    .topbar {
       display: flex;
+      justify-content: space-between;
       align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .title h2 {
+      margin: 0;
+    }
+
+    .title p {
+      margin: 4px 0 0;
+      color: #64748b;
+    }
+
+    .controls {
+      display: flex;
       gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
     }
-    
-    .notification {
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      display: none;
+
+    .btn {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
     }
-    
-    .success {
-      background-color: rgba(46, 204, 113, 0.1);
-      color: var(--success-color);
-      border: 1px solid rgba(46, 204, 113, 0.3);
+
+    .btn-back {
+      background: #334155;
+      color: #fff;
     }
-    
-    .error {
-      background-color: rgba(231, 76, 60, 0.1);
-      color: var(--danger-color);
-      border: 1px solid rgba(231, 76, 60, 0.3);
+
+    .btn-refresh {
+      background: #e2e8f0;
     }
-    
+
+    .btn-primary {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: #f1f5f9;
+    }
+
+    .search {
+      width: min(420px, 100%);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      outline: none;
+      background: #fff;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 14px 0;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .tab.active {
+      background: #0ea5e9;
+      border-color: #0ea5e9;
+      color: #fff;
+    }
+
+    .table-wrap {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .06);
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
     }
-    
-    th, td {
-      padding: 12px;
+
+    th,
+    td {
+      padding: 12px 12px;
+      border-bottom: 1px solid #eef2f7;
       text-align: left;
-      border-bottom: 1px solid var(--border-color);
+      vertical-align: top;
     }
-    
+
     th {
-      background-color: var(--light-gray);
-      font-weight: 500;
+      background: #f8fafc;
+      font-size: 13px;
+      color: #334155;
+      letter-spacing: .2px;
     }
-    
-    .status-requested {
-      color: var(--warning-color);
+
+    td {
+      color: #0f172a;
     }
-    
-    .status-scheduled {
-      color: var(--primary-color);
+
+    .muted {
+      color: #64748b;
+      font-size: 13px;
     }
-    
-    .status-completed {
-      color: var(--success-color);
+
+    .badge {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
     }
-    
-    .status-cancelled {
-      color: var(--danger-color);
+
+    .requested {
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
     }
-    
-    .action-btn {
-      padding: 6px 12px;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      font-weight: 500;
-      margin-right: 5px;
+
+    .scheduled {
+      background: #ecfeff;
+      color: #155e75;
+      border: 1px solid #a5f3fc;
     }
-    
-    .btn-complete {
-      background-color: var(--success-color);
-      color: white;
+
+    .declined {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
     }
-    
-    .btn-cancel {
-      background-color: var(--danger-color);
-      color: white;
+
+    .completed {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #bbf7d0;
     }
-    
-    .btn-schedule {
-      background-color: var(--primary-color);
-      color: white;
-    }
-    
-    .btn-group {
+
+    .row-actions {
       display: flex;
-      gap: 5px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-body.dark-mode {
-  background-color: #0f172a;
-  color: #f1f5f9;
-}
+    .input-dt {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      min-width: 220px;
+    }
 
-body.dark-mode .container {
-  background-color: #1e293b;
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
-}
+    .empty {
+      padding: 18px;
+      text-align: center;
+      color: #64748b;
+    }
 
+    /* Details modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, .55);
+      padding: 16px;
+      z-index: 9999;
+    }
 
-body.dark-mode h1 {
-  color: #f8fafc;
-}
+    .modal.show {
+      display: flex;
+    }
 
+    .modal-box {
+      width: min(640px, 100%);
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, .2);
+    }
 
-body.dark-mode table {
-  background-color: #1e293b;
-  color: #f1f5f9;
-}
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
 
-body.dark-mode th {
-  background-color: #0f172a;
-  color: #f8fafc;
-}
+    .modal-close {
+      background: transparent;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+    }
 
-body.dark-mode td {
-  border-color: #334155;
-  background-color: #1e293b;
-  color: #e2e8f0;
-}
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
 
+    @media (min-width: 720px) {
+      .detail-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
 
-body.dark-mode tbody tr:nth-child(odd) {
-  background-color: #1e2633;
-}
+    .kv {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+    }
 
-body.dark-mode tbody tr:hover {
-  background-color: #334155;
-}
+    .kv .k {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 800;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+    }
 
+    .kv .v {
+      margin-top: 6px;
+      font-weight: 800;
+      color: #0f172a;
+      word-break: break-word;
+    }
 
-body.dark-mode .action-btn {
-  border: none;
-}
+    .kv .sub {
+      margin-top: 6px;
+      color: #334155;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
 
-body.dark-mode .btn-schedule {
-  background-color: var(--primary-color);
-  color: #fff;
-}
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
 
-body.dark-mode .btn-complete {
-  background-color: var(--success-color);
-  color: #fff;
-}
+    .linkish {
+      color: #0ea5e9;
+      text-decoration: none;
+      font-weight: 800;
+    }
 
-body.dark-mode .btn-cancel {
-  background-color: var(--danger-color);
-  color: #fff;
-}
+    .linkish:hover {
+      text-decoration: underline;
+    }
 
-
-body.dark-mode .notification.success {
-  background-color: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.4);
-  color: #4ade80;
-}
-
-body.dark-mode .notification.error {
-  background-color: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
-}
-
-
-body.dark-mode .status-requested {
-  color: #facc15;
-}
-
-body.dark-mode .status-scheduled {
-  color: #60a5fa;
-}
-
-body.dark-mode .status-completed {
-  color: #4ade80;
-}
-
-body.dark-mode .status-cancelled {
-  color: #f87171;
-}
-
+    .copy-btn {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-weight: 800;
+    }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1><i class="fas fa-calendar-alt"></i> Manage Farm Visits</h1>
-    
-    <div id="notification" class="notification"></div>
-    
-    <table id="visitsTable">
-      <thead>
-        <tr>
-          <th>Farmer</th>
-          <th>Phone</th>
-          <th>Preferred Date</th>
-          <th>Scheduled Date</th>
-          <th>Purpose</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Visits will be loaded here -->
-      </tbody>
-    </table>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h2>🚜 Manage Farm Visits</h2>
+        <p>Accept, decline or reschedule farmer visit requests.</p>
+      </div>
+      <div class="controls">
+        <input id="q" class="search" placeholder="Search by farmer name, phone, location, purpose..." />
+        <button class="btn btn-refresh" onclick="loadVisits()">Refresh</button>
+        <button class="btn btn-back" id="backBtn">← Back</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-filter="requested" onclick="setFilter('requested')">Requested</button>
+      <button class="tab" data-filter="scheduled" onclick="setFilter('scheduled')">Scheduled</button>
+      <button class="tab" data-filter="all" onclick="setFilter('all')">All</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Farmer</th>
+            <th>Preferred</th>
+            <th>Scheduled</th>
+            <th>Purpose</th>
+            <th>Status</th>
+            <th style="width:360px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows">
+          <tr>
+            <td colspan="6" class="empty">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+  <!-- Details Modal -->
+  <div class="modal" id="detailsModal" aria-hidden="true">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 style="margin:0;">Visit Details</h3>
+        <button class="modal-close" onclick="closeDetails()">×</button>
+      </div>
+
+      <div id="detailsBody"></div>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeDetails()">Close</button>
+      </div>
+    </div>
+  </div>
+
+
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
+    let me = { role: 'guest' };
+    let filter = 'requested';
+    let all = [];
+
+    async function loadMe() {
+      const res = await fetch('/api/me');
+      if (!res.ok) return;
+      me = await res.json();
+
+      // back link
+      const role = (me.role || '').toLowerCase();
+      const map = {
+        extension_officer: '/extension_officer_dashboard.html',
+        admin: '/admin_dashboard.html'
+      };
+      document.getElementById('backBtn').onclick = () => window.location.href = (map[role] || '/');
+    }
+
+    function fmt(dt) {
+      if (!dt) return '—';
+      try { return new Date(dt).toLocaleString(); } catch { return String(dt); }
+    }
+
+    function badge(status = '') {
+      const s = (status || '').toLowerCase();
+      const cls = ['requested', 'scheduled', 'declined', 'completed'].includes(s) ? s : 'requested';
+      return `<span class="badge ${cls}">${s.toUpperCase()}</span>`;
+    }
+
+    function escapeHtml(str = '') {
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[m]));
+    }
+
+    function setFilter(next) {
+      filter = next;
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.filter === next);
       });
-  });
-</script>
-  
-  <script>
-    // DOM elements
-    const visitsTable = document.getElementById('visitsTable');
-    const notification = document.getElementById('notification');
-    
-    // Fetch all visit requests for the officer
-    async function fetchVisitRequests() {
-      try {
-        showLoading(true);
-        
-        // First get the officer's ID
-        const officerRes = await fetch('/api/extension-officer/me', {
-          credentials: 'include'
-        });
-        
-        if (!officerRes.ok) throw new Error('Failed to fetch officer data');
-        
-        const officerData = await officerRes.json();
-        
-        if (!officerData.success || !officerData.officer_id) {
-          throw new Error('Officer not found');
-        }
-        
-        const officerId = officerData.officer_id;
-        
-        // Then fetch visits assigned to this officer
-        const visitsRes = await fetch(`/api/extension-officer/visits?officer_id=${officerId}`, {
-          credentials: 'include'
-        });
-        
-        if (!visitsRes.ok) throw new Error('Failed to fetch visits');
-        
-        const visitsData = await visitsRes.json();
-        const tbody = visitsTable.querySelector('tbody');
-        tbody.innerHTML = '';
-        
-        if (visitsData.success && visitsData.visits.length > 0) {
-          visitsData.visits.forEach(visit => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${visit.farmer_name}</td>
-              <td>${visit.farmer_phone}</td>
-              <td>${formatDate(visit.preferred_date)}</td>
-              <td>${visit.scheduled_date ? formatDate(visit.scheduled_date) : 'Not scheduled'}</td>
-              <td>${formatPurpose(visit.purpose)}</td>
-              <td class="status-${visit.status}">${formatStatus(visit.status)}</td>
-              <td>
-                <div class="btn-group">
-                  ${visit.status === 'requested' ? `
-                    <button class="action-btn btn-schedule" data-id="${visit.visit_id}">
-                      <i class="fas fa-calendar-check"></i> Schedule
-                    </button>
-                  ` : ''}
-                  
-                  ${visit.status === 'scheduled' ? `
-                    <button class="action-btn btn-complete" data-id="${visit.visit_id}">
-                      <i class="fas fa-check"></i> Complete
-                    </button>
-                    <button class="action-btn btn-cancel" data-id="${visit.visit_id}">
-                      <i class="fas fa-times"></i> Cancel
-                    </button>
-                  ` : ''}
-                </div>
-              </td>
-            `;
-            tbody.appendChild(tr);
-          });
-          
-          // Add event listeners to action buttons
-          document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', handleVisitAction);
-          });
-        } else {
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="7">No visit requests found</td>
-            </tr>
-          `;
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        showNotification(error.message, 'error');
-      } finally {
-        showLoading(false);
+      render();
+    }
+
+    async function loadVisits() {
+      const tbody = document.getElementById('rows');
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">Loading...</td></tr>`;
+
+      const res = await fetch('/api/officer/visits');
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">${escapeHtml(data.message || 'Failed to load visits')}</td></tr>`;
+        return;
       }
+
+      all = data.visits || [];
+      render();
     }
-    
-    // Handle visit actions
-    async function handleVisitAction(e) {
-      const visitId = e.target.closest('button').dataset.id;
-      const action = e.target.closest('button').classList.contains('btn-complete') ? 'complete' : 
-                     e.target.closest('button').classList.contains('btn-cancel') ? 'cancel' : 
-                     'schedule';
-      
-      try {
-        if (action === 'schedule') {
-          window.location.href = `schedule_visit.html?visitId=${visitId}`;
-          return;
-        }
-        
-        if (!confirm(`Are you sure you want to ${action} this visit?`)) return;
-        
-        const res = await fetch(`/api/extension-officer/visits/${visitId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ action })
-        });
-        
-        const data = await res.json();
-        
-        if (data.success) {
-          showNotification(`Visit ${action}d successfully`, 'success');
-          fetchVisitRequests();
-        } else {
-          throw new Error(data.message || `Failed to ${action} visit`);
-        }
-      } catch (error) {
-        showNotification(error.message, 'error');
-        console.error(`Error ${action}ing visit:`, error);
+
+    function matchesQuery(v, q) {
+      const hay = [
+        v.farmer_name, v.farmer_phone, v.farmer_email, v.location,
+        v.purpose, v.status, v.notes
+      ].join(' ').toLowerCase();
+      return hay.includes(q);
+    }
+
+    function render() {
+      const q = (document.getElementById('q').value || '').trim().toLowerCase();
+      let items = all.slice();
+
+      if (filter !== 'all') items = items.filter(v => (v.status || '').toLowerCase() === filter);
+      if (q) items = items.filter(v => matchesQuery(v, q));
+
+      const tbody = document.getElementById('rows');
+      tbody.innerHTML = '';
+
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">No visits found.</td></tr>`;
+        return;
       }
+
+      items.forEach(v => {
+        const tr = document.createElement('tr');
+
+        const isRequested = (v.status || '').toLowerCase() === 'requested';
+        const isScheduled = (v.status || '').toLowerCase() === 'scheduled';
+
+        // default datetime-local value:
+        const defaultDt = v.scheduled_date || v.preferred_date;
+        const dtValue = defaultDt ? new Date(defaultDt).toISOString().slice(0, 16) : '';
+
+        tr.innerHTML = `
+          <td>
+            <div><b>${escapeHtml(v.farmer_name || '—')}</b></div>
+            <div class="muted">${escapeHtml(v.location || '—')}</div>
+            <div class="muted">${escapeHtml(v.farmer_phone || '')}${v.farmer_email ? ' • ' + escapeHtml(v.farmer_email) : ''}</div>
+          </td>
+          <td>${fmt(v.preferred_date)}</td>
+          <td>${fmt(v.scheduled_date)}</td>
+          <td>
+            <div><b>${escapeHtml((v.purpose || '').replaceAll('_', ' '))}</b></div>
+            ${v.notes ? `<div class="muted">${escapeHtml(v.notes)}</div>` : `<div class="muted">—</div>`}
+          </td>
+          <td>${badge(v.status)}</td>
+          <td>
+            <div class="row-actions">
+              ${(isRequested || isScheduled) ? `
+                <input class="input-dt" type="datetime-local" value="${dtValue}" id="dt_${v.visit_id}">
+                <button class="btn btn-primary" onclick="schedule(${v.visit_id})">${isRequested ? 'Accept' : 'Reschedule'}</button>
+              ` : ''}
+              ${isRequested ? `<button class="btn btn-danger" onclick="decline(${v.visit_id})">Decline</button>` : ''}
+              <button class="btn btn-ghost" onclick='openDetails(${JSON.stringify(v)})'>Details</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
-    
-    // Helper functions
-    function formatDate(dateString) {
-      return dateString ? new Date(dateString).toLocaleString() : '';
+
+    async function schedule(visitId) {
+      const inp = document.getElementById(`dt_${visitId}`);
+      const scheduledDate = inp ? inp.value : '';
+      if (!scheduledDate) return alert('Please choose a date and time.');
+
+      const res = await fetch(`/api/schedule-visit/${visitId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduledDate })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return alert(data.message || 'Failed to schedule/reschedule');
+
+      alert(data.message || 'Saved');
+      loadVisits();
     }
-    
-    function formatPurpose(purpose) {
-      return purpose.replace('_', ' ');
+
+    async function decline(visitId) {
+      const note = prompt('Optional: add a reason/note for declining (visible in notes).') || '';
+      if (!confirm('Decline this visit request?')) return;
+
+      const res = await fetch(`/api/officer/visits/${visitId}/decline`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return alert(data.message || 'Failed to decline');
+
+      alert(data.message || 'Declined');
+      loadVisits();
     }
-    
-    function formatStatus(status) {
-      return status.charAt(0).toUpperCase() + status.slice(1);
+
+    document.getElementById('q').addEventListener('input', render);
+    function closeDetails() {
+      const m = document.getElementById('detailsModal');
+      m.classList.remove('show');
+      m.setAttribute('aria-hidden', 'true');
     }
-    
-    function showNotification(message, type) {
-      notification.textContent = message;
-      notification.className = `notification ${type}`;
-      notification.style.display = 'block';
-      
-      setTimeout(() => {
-        notification.style.display = 'none';
-      }, 5000);
+    document.addEventListener('click', (e) => {
+  const m = document.getElementById('detailsModal');
+  if (m.classList.contains('show') && e.target === m) closeDetails();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDetails();
+});
+
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text || '').then(() => {
+        alert('Copied!');
+      }).catch(() => alert('Copy failed'));
     }
-    
-    function showLoading(show) {
-      // Implement loading indicator if needed
+
+    function openDetails(v) {
+      const isRequested = (v.status || '').toLowerCase() === 'requested';
+      const isScheduled = (v.status || '').toLowerCase() === 'scheduled';
+
+      const preferred = fmt(v.preferred_date);
+      const scheduled = v.scheduled_date ? fmt(v.scheduled_date) : 'Not scheduled yet';
+
+      const phone = v.farmer_phone || '';
+      const email = v.farmer_email || '';
+      const location = v.location || '—';
+
+      const dtValue = (v.scheduled_date || v.preferred_date)
+        ? new Date(v.scheduled_date || v.preferred_date).toISOString().slice(0, 16)
+        : '';
+
+      const body = document.getElementById('detailsBody');
+
+      body.innerHTML = `
+    <div class="detail-grid">
+      <div class="kv">
+        <div class="k">Farmer</div>
+        <div class="v">${escapeHtml(v.farmer_name || '—')}</div>
+        <div class="sub">${escapeHtml(location)}</div>
+      </div>
+
+      <div class="kv">
+        <div class="k">Contact</div>
+        <div class="v">
+          ${phone ? `<a class="linkish" href="tel:${escapeHtml(phone)}">${escapeHtml(phone)}</a>` : '—'}
+        </div>
+        <div class="sub">
+          ${email ? `<a class="linkish" href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>` : ''}
+        </div>
+        <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+          ${phone ? `<button class="copy-btn" onclick="copyText('${String(phone).replace(/'/g, "\\'")}')">Copy phone</button>` : ''}
+          ${email ? `<button class="copy-btn" onclick="copyText('${String(email).replace(/'/g, "\\'")}')">Copy email</button>` : ''}
+        </div>
+      </div>
+
+      <div class="kv">
+        <div class="k">Request</div>
+        <div class="v">${escapeHtml((v.purpose || '').replaceAll('_', ' ') || '—')}</div>
+        <div class="sub">${escapeHtml(v.notes || 'No notes provided.')}</div>
+      </div>
+
+      <div class="kv">
+        <div class="k">Timing</div>
+        <div class="v">Preferred: ${escapeHtml(preferred)}</div>
+        <div class="sub">Scheduled: ${escapeHtml(scheduled)}</div>
+      </div>
+
+      <div class="kv">
+        <div class="k">Status</div>
+        <div class="v">${badge(v.status)}</div>
+        <div class="sub">Requested: ${escapeHtml(fmt(v.created_at))} • Updated: ${escapeHtml(fmt(v.updated_at))}</div>
+      </div>
+
+      <div class="kv">
+        <div class="k">Actions</div>
+        ${(isRequested || isScheduled) ? `
+          <div class="sub" style="margin-top:10px;">
+            <input class="input-dt" type="datetime-local" value="${dtValue}" id="dt_modal_${v.visit_id}">
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+              <button class="btn btn-primary" onclick="scheduleFromModal(${v.visit_id})">${isRequested ? 'Accept & Schedule' : 'Reschedule'}</button>
+              ${isRequested ? `<button class="btn btn-danger" onclick="declineFromModal(${v.visit_id})">Decline</button>` : ''}
+            </div>
+          </div>
+        ` : `<div class="sub">No actions available for this status.</div>`}
+      </div>
+    </div>
+  `;
+
+      const m = document.getElementById('detailsModal');
+      m.classList.add('show');
+      m.setAttribute('aria-hidden', 'false');
     }
-    
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', fetchVisitRequests);
+
+    // Modal helpers that reuse your existing routes
+    async function scheduleFromModal(visitId) {
+      const inp = document.getElementById(`dt_modal_${visitId}`);
+      const scheduledDate = inp ? inp.value : '';
+      if (!scheduledDate) return alert('Please choose a date and time.');
+
+      const res = await fetch(`/api/schedule-visit/${visitId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduledDate })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return alert(data.message || 'Failed');
+
+      alert(data.message || 'Saved');
+      closeDetails();
+      loadVisits();
+    }
+
+    async function declineFromModal(visitId) {
+      const note = prompt('Optional: reason/note for declining') || '';
+      if (!confirm('Decline this visit request?')) return;
+
+      const res = await fetch(`/api/officer/visits/${visitId}/decline`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return alert(data.message || 'Failed');
+
+      alert(data.message || 'Declined');
+      closeDetails();
+      loadVisits();
+    }
+
+
+    (async function init() {
+      await loadMe();
+      await loadVisits();
+    })();
   </script>
 </body>
+
 </html>

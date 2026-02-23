@@ -341,116 +341,116 @@ body.dark-mode .btn-cancel:hover {
 </script>
 
   <script>
-    // Set minimum date to today
-    document.getElementById('visitDate').min = new Date().toISOString().split('T')[0];
-    
-    // Form submission
-    document.getElementById('visitRequestForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const visitDate = document.getElementById('visitDate').value;
-      const visitTime = document.getElementById('visitTime').value;
-      const purpose = document.getElementById('visitPurpose').value;
-      const notes = document.getElementById('visitNotes').value;
-      
-      if (!visitDate || !visitTime || !purpose) {
-        showNotification('Please fill all required fields', 'error');
-        return;
+  // Set minimum date to today
+  document.getElementById('visitDate').min = new Date().toISOString().split('T')[0];
+
+  // Form submission
+  document.getElementById('visitRequestForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const visitDate = document.getElementById('visitDate').value;
+    const visitTime = document.getElementById('visitTime').value;
+    const purpose = document.getElementById('visitPurpose').value.trim();
+    const notes = document.getElementById('visitNotes').value.trim();
+
+    if (!visitDate || !visitTime || !purpose) {
+      showNotification('Please fill all required fields', 'error');
+      return;
+    }
+
+    // Backend expects preferredDate (not visit_datetime)
+    const preferredDate = `${visitDate}T${visitTime}:00`;
+
+    try {
+      const response = await fetch('/api/request-visit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ preferredDate, purpose, notes })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to submit request');
       }
-      
-      const visit_datetime = `${visitDate}T${visitTime}:00`;
-      
-      try {
-        const response = await fetch('/api/farmer/request-extension-visit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ visit_datetime, purpose, notes })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          showNotification('Visit request submitted successfully!', 'success');
-          this.reset();
-          loadVisitHistory();
-        } else {
-          throw new Error(data.message || 'Failed to submit request');
-        }
-      } catch (error) {
-        showNotification(error.message, 'error');
-        console.error('Error submitting visit request:', error);
+
+      showNotification(data.message || 'Visit request submitted successfully!', 'success');
+      this.reset();
+      loadVisitHistory();
+    } catch (error) {
+      showNotification(error.message, 'error');
+      console.error('Error submitting visit request:', error);
+    }
+  });
+
+  // Load visit history (uses /api/my-visits from backend)
+  async function loadVisitHistory() {
+    try {
+      const response = await fetch('/api/my-visits', {
+        credentials: 'include'
+      });
+
+      const data = await response.json().catch(() => ({}));
+      const tbody = document.querySelector('#visitHistoryTable tbody');
+      tbody.innerHTML = '';
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to load visit history');
       }
-    });
-    
-    // Load visit history
-    async function loadVisitHistory() {
-      try {
-        const response = await fetch('/api/farmer/my-visit-requests', { 
-          credentials: 'include' 
-        });
-        
-        const data = await response.json();
-        const tbody = document.querySelector('#visitHistoryTable tbody');
-        tbody.innerHTML = '';
-        
-        if (data.success && data.visits.length > 0) {
-          data.visits.forEach(visit => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${formatDate(visit.preferred_date)}</td>
-              <td>${formatPurpose(visit.purpose)}</td>
-              <td class="status-${visit.status}">${formatStatus(visit.status)}</td>
-              
-            `;
-            tbody.appendChild(tr);
-          });
-          
-          // Add event listeners to cancel buttons
-          document.querySelectorAll('.btn-cancel').forEach(btn => {
-            btn.addEventListener('click', cancelVisit);
-          });
-        } else {
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="4">No visit requests found</td>
-            </tr>
+
+      const visits = data.visits || [];
+
+      if (visits.length > 0) {
+        visits.forEach(v => {
+          const date = v.scheduled_date || v.preferred_date;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${formatDate(date)}</td>
+            <td>${escapeHtml(v.purpose || '')}</td>
+            <td class="status-${(v.status || '').toLowerCase()}">${formatStatus(v.status || '')}</td>
           `;
-        }
-      } catch (error) {
-        console.error('Error loading visit history:', error);
-        showNotification('Failed to load visit history', 'error');
+          tbody.appendChild(tr);
+        });
+      } else {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3">No visit requests found</td>
+          </tr>
+        `;
       }
+    } catch (error) {
+      console.error('Error loading visit history:', error);
+      showNotification(error.message || 'Failed to load visit history', 'error');
     }
-    
-    
-    
-    // Helper functions
-    function formatDate(dateString) {
-      return new Date(dateString).toLocaleString();
-    }
-    
-    function formatPurpose(purpose) {
-      return purpose.replace('_', ' ');
-    }
-    
-    function formatStatus(status) {
-      return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
-    }
-    
-    function showNotification(message, type) {
-      const notification = document.getElementById('notification');
-      notification.textContent = message;
-      notification.className = `notification ${type}`;
-      notification.style.display = 'block';
-      
-      setTimeout(() => {
-        notification.style.display = 'none';
-      }, 5000);
-    }
-    
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', loadVisitHistory);
-  </script>
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return '—';
+    return new Date(dateString).toLocaleString();
+  }
+
+  function formatStatus(status) {
+    if (!status) return '—';
+    return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
+  }
+
+  function showNotification(message, type) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    notification.style.display = 'block';
+    setTimeout(() => { notification.style.display = 'none'; }, 5000);
+  }
+
+  function escapeHtml(str = '') {
+    return String(str).replace(/[&<>"']/g, m => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    }[m]));
+  }
+
+  document.addEventListener('DOMContentLoaded', loadVisitHistory);
+</script>
+
 </body>
 </html>

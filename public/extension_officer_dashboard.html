@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,24 +11,35 @@
 
 <body>
   <div class="top-header">
-        <div class="left-section">
-          <button class="menu-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <h2>chaiConnect</h2>
-        </div>
-        <div class="right-icons">
-            <a href="/alerts.html" title="View Alerts" class="alert-link">
-                <i class="fas fa-bell"></i>
-                <span id="alertCount">0</span>
-            </a>
-            <label class="theme-switch">
-              <input type="checkbox" id="themeToggle">
-              <span class="slider"></span>
-            </label>
-            <button class="logout-button" onclick="logout()">Logout</button>
-        </div>
+    <div class="left-section">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h2>chaiConnect</h2>
     </div>
+    <div class="right-icons">
+      <a href="/alerts.html" title="View Alerts" class="alert-link">
+        <i class="fas fa-bell"></i>
+        <span id="alertCount">0</span>
+      </a>
+      <a href="/notifications.html" class="alert-link" title="Notifications" style="position:relative;">
+        <i class="fas fa-inbox"></i>
+        <span id="notifCount" style="
+    position:absolute; top:-6px; right:-10px;
+    background:#ef4444; color:#fff;
+    font-size:12px; font-weight:800;
+    border-radius:999px; padding:2px 7px;
+    display:none;
+  ">0</span>
+      </a>
+
+      <label class="theme-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+  </div>
 
   <div class="sidebar">
     <h3>Extension Dashboard</h3>
@@ -83,11 +95,30 @@
         <p>Address concerns raised by your assigned farmers.</p>
         <button onclick="location.href='/extension_complaints.html'">Respond</button>
       </div>
-      <div class = "card">
+      <div class="card">
         <h3>Load Visit Requests</h3>
         <p>View Requests by various farmers to visit their farms</p>
         <button onclick="location.href='/all_visit_requests.html'">Load Visit Requests</button>
       </div>
+
+      <div class="card">
+        <h3>View Training Materials</h3>
+        <p>Browse all training resources shared by extension officers.</p>
+        <button onclick="location.href='/view_training_materials.html'">View</button>
+      </div>
+
+      <div class="card">
+        <h3>Upload Training Materials</h3>
+        <p>Upload a new training resource (file or text) for farmers to view.</p>
+        <button onclick="location.href='/upload_training.html'">Upload</button>
+      </div>
+
+      <div class="card">
+        <h3>Manage My Training Materials</h3>
+        <p>Edit or delete only the training materials you uploaded.</p>
+        <button onclick="location.href='/manage_training_materials.html'">Manage</button>
+      </div>
+
     </div>
 
     <div class="recent-farmers">
@@ -115,12 +146,13 @@
   </div>
 
   <script>
+    
     fetch('/api/me')
       .then(res => res.json())
       .then(data => {
         document.getElementById('officerName').textContent = data.name;
 
-        fetch('/api/my-assigned-farmers')
+        fetch('/api/assigned-farmers', { credentials: 'include' })
           .then(res => res.json())
           .then(farmers => {
             document.getElementById('farmerCount').textContent = farmers.length;
@@ -133,11 +165,12 @@
               recentFarmers.forEach(farmer => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                  <td>${farmer.farmer_name || '—'}</td>
-                  <td>${farmer.region || '—'}</td>
-                  <td>${farmer.phone || '—'}</td>
-                  <td>${farmer.assigned_since || '—'}</td>
-                `;
+  <td>${farmer.name || '—'}</td>
+  <td>${farmer.location || '—'}</td>
+  <td>${farmer.phone || '—'}</td>
+  <td>—</td>
+`;
+
                 tableBody.appendChild(row);
               });
             }
@@ -156,14 +189,18 @@
         }
       });
 
-       // Fetch upcoming visits count (scheduled but not completed)
-      fetch('/api/extension-officer/upcoming-visits-count')
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            document.getElementById('upcomingVisitsCount').textContent = data.count;
-          }
-        });
+    // Fetch upcoming visits count (scheduled but not completed)
+    fetch('/api/officer/visits?status=scheduled', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('upcomingVisitsCount').textContent = (data.visits || []).length;
+        }
+      })
+      .catch(() => {
+        document.getElementById('upcomingVisitsCount').textContent = '0';
+      });
+
 
     fetch('/api/training-materials/count')
       .then(res => res.json())
@@ -195,6 +232,30 @@
         }
       });
 
+
+      function notificationsUnreadCountHandler(req, res) {
+  if (!req.session.userId) {
+    return res.status(401).json({ success: false, count: 0, message: 'Not logged in' });
+  }
+
+  const userId = req.session.userId;
+
+  db.query(
+    'SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND is_read = 0',
+    [userId],
+    (err, rows) => {
+      if (err) {
+        console.error('Unread count error:', err);
+        return res.status(500).json({ success: false, count: 0, message: 'Database error' });
+      }
+      res.json({ success: true, count: rows[0].count });
+    }
+  );
+}
+
+app.get('/api/notifications/unread-count', notificationsUnreadCountHandler);
+app.get('/api/notifications/count', notificationsUnreadCountHandler); // alias for farmer dashboard
+
     // Visit Requests functionality
     function loadVisitRequests() {
       fetch('/api/visit-requests')
@@ -216,19 +277,19 @@
 
     function renderVisitRequests(requests) {
       const container = document.getElementById('requestsContainer');
-      
+
       if (requests.length === 0) {
         container.innerHTML = '<div class="no-requests">No pending visit requests.</div>';
         return;
       }
-      
+
       let html = '';
-      
+
       requests.forEach(request => {
         const preferredDate = request.preferred_date ? new Date(request.preferred_date) : null;
         const scheduledDate = request.scheduled_date ? new Date(request.scheduled_date) : null;
         const isScheduled = request.status === 'scheduled';
-        
+
         html += `
         <div class="request-card" data-id="${request.visit_id}">
           <div class="request-header">
@@ -252,21 +313,21 @@
         </div>
         `;
       });
-      
+
       container.innerHTML = html;
-      
+
       // Add event listeners to schedule buttons
       document.querySelectorAll('.schedule-btn').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
           const card = this.closest('.request-card');
           const visitId = card.dataset.id;
           const scheduleDate = card.querySelector('.schedule-date').value;
-          
+
           if (!scheduleDate) {
             showToast('Please select a date and time', 'error');
             return;
           }
-          
+
           fetch(`/api/schedule-visit/${visitId}`, {
             method: 'PUT',
             headers: {
@@ -274,19 +335,19 @@
             },
             body: JSON.stringify({ scheduledDate: scheduleDate })
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              showToast('Visit scheduled successfully!');
-              loadVisitRequests();
-            } else {
-              showToast('Error: ' + data.message, 'error');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            showToast('Failed to schedule visit', 'error');
-          });
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                showToast('Visit scheduled successfully!');
+                loadVisitRequests();
+              } else {
+                showToast('Error: ' + data.message, 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              showToast('Failed to schedule visit', 'error');
+            });
         });
       });
     }
@@ -304,11 +365,11 @@
         <span>${message}</span>
       `;
       document.body.appendChild(toast);
-      
+
       setTimeout(() => {
         toast.classList.add('show');
       }, 10);
-      
+
       setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => {
@@ -316,51 +377,51 @@
         }, 300);
       }, 3000);
     }
- // Load all visit-related data
-function loadVisitData() {
-  // Load pending visit requests
-  fetch('/api/visit-requests')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        renderPendingVisits(data.requests);
+    // Load all visit-related data
+    function loadVisitData() {
+      // Load pending visit requests
+      fetch('/api/visit-requests')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            renderPendingVisits(data.requests);
+          }
+        });
+
+      // Load scheduled visits
+      fetch('/api/upcoming-visits')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            renderScheduledVisits(data.visits);
+          }
+        });
+
+      // Load training sessions
+      fetch('/api/training-sessions')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            renderTrainingSessions(data.sessions);
+          }
+        });
+    }
+
+    // Render pending visit requests
+    function renderPendingVisits(requests) {
+      const container = document.getElementById('pendingVisitsContainer');
+
+      if (requests.length === 0) {
+        container.innerHTML = '<p class="text-muted">No pending visit requests.</p>';
+        return;
       }
-    });
 
-  // Load scheduled visits
-  fetch('/api/upcoming-visits')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        renderScheduledVisits(data.visits);
-      }
-    });
+      let html = '<div class="list-group">';
 
-  // Load training sessions
-  fetch('/api/training-sessions')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        renderTrainingSessions(data.sessions);
-      }
-    });
-}
+      requests.forEach(request => {
+        const preferredDate = new Date(request.preferred_date);
 
-// Render pending visit requests
-function renderPendingVisits(requests) {
-  const container = document.getElementById('pendingVisitsContainer');
-  
-  if (requests.length === 0) {
-    container.innerHTML = '<p class="text-muted">No pending visit requests.</p>';
-    return;
-  }
-
-  let html = '<div class="list-group">';
-  
-  requests.forEach(request => {
-    const preferredDate = new Date(request.preferred_date);
-    
-    html += `
+        html += `
     <div class="list-group-item">
       <div class="d-flex justify-content-between">
         <h5>${request.farmer_name}</h5>
@@ -384,36 +445,36 @@ function renderPendingVisits(requests) {
       </div>
     </div>
     `;
-  });
-  
-  html += '</div>';
-  container.innerHTML = html;
+      });
 
-  // Add event listeners
-  document.querySelectorAll('.schedule-btn').forEach(btn => {
-    btn.addEventListener('click', scheduleVisit);
-  });
-  
-  document.querySelectorAll('.reject-btn').forEach(btn => {
-    btn.addEventListener('click', rejectVisit);
-  });
-}
+      html += '</div>';
+      container.innerHTML = html;
 
-// Render scheduled visits
-function renderScheduledVisits(visits) {
-  const container = document.getElementById('scheduledVisitsContainer');
-  
-  if (visits.length === 0) {
-    container.innerHTML = '<p class="text-muted">No upcoming visits scheduled.</p>';
-    return;
-  }
+      // Add event listeners
+      document.querySelectorAll('.schedule-btn').forEach(btn => {
+        btn.addEventListener('click', scheduleVisit);
+      });
 
-  let html = '<div class="list-group">';
-  
-  visits.forEach(visit => {
-    const visitDate = new Date(visit.scheduled_date);
-    
-    html += `
+      document.querySelectorAll('.reject-btn').forEach(btn => {
+        btn.addEventListener('click', rejectVisit);
+      });
+    }
+
+    // Render scheduled visits
+    function renderScheduledVisits(visits) {
+      const container = document.getElementById('scheduledVisitsContainer');
+
+      if (visits.length === 0) {
+        container.innerHTML = '<p class="text-muted">No upcoming visits scheduled.</p>';
+        return;
+      }
+
+      let html = '<div class="list-group">';
+
+      visits.forEach(visit => {
+        const visitDate = new Date(visit.scheduled_date);
+
+        html += `
     <div class="list-group-item">
       <div class="d-flex justify-content-between">
         <h5>${visit.farmer_name}</h5>
@@ -434,90 +495,90 @@ function renderScheduledVisits(visits) {
       </div>
     </div>
     `;
-  });
-  
-  html += '</div>';
-  container.innerHTML = html;
+      });
 
-  // Add event listeners
-  document.querySelectorAll('.complete-btn').forEach(btn => {
-    btn.addEventListener('click', completeVisit);
-  });
-  
-  document.querySelectorAll('.reschedule-btn').forEach(btn => {
-    btn.addEventListener('click', showRescheduleForm);
-  });
-}
+      html += '</div>';
+      container.innerHTML = html;
 
-// Schedule a visit
-function scheduleVisit() {
-  const visitId = this.dataset.id;
-  const card = this.closest('.list-group-item');
-  const dateInput = card.querySelector('.schedule-date-input');
-  const scheduledDate = dateInput.value;
-  
-  if (!scheduledDate) {
-    showToast('Please select a date and time', 'error');
-    return;
-  }
+      // Add event listeners
+      document.querySelectorAll('.complete-btn').forEach(btn => {
+        btn.addEventListener('click', completeVisit);
+      });
 
-  fetch(`/api/schedule-visit/${visitId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ scheduledDate })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      showToast('Visit scheduled successfully!');
-      loadVisitData(); // Refresh all visit data
-    } else {
-      showToast(data.message || 'Error scheduling visit', 'error');
+      document.querySelectorAll('.reschedule-btn').forEach(btn => {
+        btn.addEventListener('click', showRescheduleForm);
+      });
     }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    showToast('Failed to schedule visit', 'error');
-  });
-}
 
-// Mark visit as complete
-function completeVisit() {
-  const visitId = this.dataset.id;
-  
-  if (!confirm('Mark this visit as completed?')) return;
+    // Schedule a visit
+    function scheduleVisit() {
+      const visitId = this.dataset.id;
+      const card = this.closest('.list-group-item');
+      const dateInput = card.querySelector('.schedule-date-input');
+      const scheduledDate = dateInput.value;
 
-  fetch(`/api/complete-visit/${visitId}`, {
-    method: 'PUT'
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      showToast('Visit marked as completed');
-      loadVisitData(); // Refresh all visit data
-    } else {
-      showToast(data.message || 'Error completing visit', 'error');
+      if (!scheduledDate) {
+        showToast('Please select a date and time', 'error');
+        return;
+      }
+
+      fetch(`/api/schedule-visit/${visitId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ scheduledDate })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showToast('Visit scheduled successfully!');
+            loadVisitData(); // Refresh all visit data
+          } else {
+            showToast(data.message || 'Error scheduling visit', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showToast('Failed to schedule visit', 'error');
+        });
     }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    showToast('Failed to complete visit', 'error');
-  });
-}
 
-// Load data when page loads
-document.addEventListener('DOMContentLoaded', loadVisitData);
+    // Mark visit as complete
+    function completeVisit() {
+      const visitId = this.dataset.id;
+
+      if (!confirm('Mark this visit as completed?')) return;
+
+      fetch(`/api/complete-visit/${visitId}`, {
+        method: 'PUT'
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showToast('Visit marked as completed');
+            loadVisitData(); // Refresh all visit data
+          } else {
+            showToast(data.message || 'Error completing visit', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showToast('Failed to complete visit', 'error');
+        });
+    }
+
+    // Load data when page loads
+    document.addEventListener('DOMContentLoaded', loadVisitData);
     // Initial load of visit requests when page loads
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       loadVisitRequests();
     });
 
 
     function toggleSidebar() {
-  document.querySelector('.sidebar').classList.toggle('active');
-}
+      document.querySelector('.sidebar').classList.toggle('active');
+    }
 
   </script>
   <script src="logout.js"></script>

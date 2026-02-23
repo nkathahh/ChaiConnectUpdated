@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Training Materials | chaiConnect</title>
+  <link rel="stylesheet" href="/css/dashboards_style.css" />
+  <style>
+    body {
+      background: #f8fafc;
+      padding: 24px;
+    }
+
+    .wrap {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .btn-back {
+      background: #334155;
+      color: #fff;
+    }
+
+    .btn-new {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-edit {
+      background: #facc15;
+    }
+
+    .btn-del {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .notice {
+      padding: 12px;
+      border-radius: 12px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin: 10px 0 18px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      font-size: 14px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #94a3b8;
+      box-shadow: 0 0 0 3px rgba(148, 163, 184, .25);
+    }
+
+    .clear-btn {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #e2e8f0;
+      font-weight: 700;
+    }
+
+    .no-results {
+      padding: 14px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      color: #64748b;
+      background: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h2 style="margin:0;">🛠️ Manage Training Materials</h2>
+        <p style="margin:4px 0 0; color:#64748b;" id="subtitle"></p>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-new" id="newBtn" style="display:none;">+ Upload New</button>
+        <button class="btn btn-back" id="backBtn">← Back</button>
+      </div>
+    </div>
+
+    <div id="block" class="notice" style="display:none;"></div>
+    <div class="search-row" id="searchRow" style="display:none;">
+      <input id="searchInput" class="search-input" type="text"
+        placeholder="Search by title, description, uploader..." />
+      <button class="clear-btn" id="clearSearchBtn" type="button">Clear</button>
+    </div>
+
+    <div id="list"></div>
+  </div>
+
+  <script>
+    let me = { role: 'guest', userId: null };
+    let allManageItems = [];
+    let visibleManageItems = [];
+
+
+    async function loadMe() {
+      const res = await fetch('/api/me');
+      if (!res.ok) return;
+      me = await res.json();
+    }
+
+    function goBack() {
+      const role = (me.role || '').toLowerCase();
+      const map = {
+        admin: '/admin_dashboard.html',
+        extension_officer: '/extension_officer_dashboard.html'
+      };
+      window.location.href = map[role] || '/';
+    }
+
+    async function deleteDoc(id) {
+      if (!confirm('Delete this training material?')) return;
+      const res = await fetch(`/api/training-materials/${id}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return alert(data.message || 'Delete failed');
+      alert(data.message || 'Deleted');
+      fetchList();
+    }
+
+    function escapeHtml(str = '') {
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[m]));
+    }
+
+    function buildSearchText(doc) {
+      const title = (doc.title || '').toLowerCase();
+      const desc = (doc.description || '').toLowerCase();
+      const uploader = (doc.uploaded_by || '').toLowerCase();
+      return `${title} ${desc} ${uploader}`;
+    }
+
+    function renderList(listData) {
+      const list = document.getElementById('list');
+      list.innerHTML = '';
+
+      if (!listData || listData.length === 0) {
+        list.innerHTML = `<div class="no-results">No matching materials found.</div>`;
+        return;
+      }
+
+      listData.forEach(doc => {
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.dataset.search = buildSearchText(doc);
+
+        el.innerHTML = `
+      <div class="meta">
+        <div>
+          <strong>${escapeHtml(doc.title || 'Untitled')}</strong>
+          <div style="color:#64748b; font-size:13px;">
+            Uploaded by <b>${escapeHtml(doc.uploaded_by || 'Unknown')}</b>
+          </div>
+        </div>
+        <div style="color:#64748b; font-size:13px;">
+          ${doc.upload_date ? new Date(doc.upload_date).toLocaleString() : '—'}
+        </div>
+      </div>
+
+      <div style="margin-top:8px; color:#334155;">${escapeHtml(doc.description || '')}</div>
+
+      <div class="actions">
+        ${doc.can_edit ? `<button class="btn btn-edit" onclick="window.location.href='/view_training_materials.html'">Edit</button>` : ''}
+        ${doc.can_delete ? `<button class="btn btn-del" onclick="deleteDoc(${doc.id})">Delete</button>` : ''}
+      </div>
+    `;
+        list.appendChild(el);
+      });
+    }
+
+    function applyManageSearch() {
+      const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      if (!q) return renderList(visibleManageItems);
+
+      const filtered = visibleManageItems.filter(doc => buildSearchText(doc).includes(q));
+      renderList(filtered);
+    }
+
+
+    async function fetchList() {
+      const list = document.getElementById('list');
+      list.innerHTML = `<div class="no-results">Loading...</div>`;
+
+      const res = await fetch('/training-materials');
+      const items = await res.json();
+
+      allManageItems = Array.isArray(items) ? items : [];
+
+      if (!allManageItems || allManageItems.length === 0) {
+        document.getElementById('searchRow').style.display = 'none';
+        list.innerHTML = `<div class="card"><p style="margin:0;color:#64748b;">No materials yet.</p></div>`;
+        return;
+      }
+
+      const role = (me.role || '').toLowerCase();
+
+      visibleManageItems = allManageItems;
+
+      // Extension officers only manage their own uploads
+      if (role === 'extension_officer') {
+        visibleManageItems = allManageItems.filter(x => Number(x.officer_id) === Number(me.userId));
+      }
+
+      if (!visibleManageItems || visibleManageItems.length === 0) {
+        document.getElementById('searchRow').style.display = 'none';
+        list.innerHTML = `<div class="card"><p style="margin:0;color:#64748b;">Nothing to manage here.</p></div>`;
+        return;
+      }
+
+      // show search row only if user is allowed + we have data
+      document.getElementById('searchRow').style.display = 'flex';
+
+      // render with active search query (if any)
+      applyManageSearch();
+    }
+
+
+    (async function init() {
+      await loadMe();
+      document.getElementById('backBtn').onclick = goBack;
+
+      const role = (me.role || '').toLowerCase();
+      const subtitle = document.getElementById('subtitle');
+
+      if (role !== 'extension_officer' && role !== 'admin') {
+        document.getElementById('block').style.display = 'block';
+        document.getElementById('block').textContent = 'You are not allowed to manage training materials.';
+        return;
+      }
+
+      if (role === 'extension_officer') {
+        subtitle.textContent = 'You can edit/delete only the materials you uploaded.';
+        document.getElementById('newBtn').style.display = 'inline-block';
+        document.getElementById('newBtn').onclick = () => window.location.href = '/upload_training.html';
+      } else {
+        subtitle.textContent = 'Admin can delete any material. Editing is restricted to the uploader.';
+      }
+
+      document.getElementById('searchInput').addEventListener('input', applyManageSearch);
+
+      document.getElementById('clearSearchBtn').addEventListener('click', () => {
+        document.getElementById('searchInput').value = '';
+        renderList(visibleManageItems);
+      });
+
+      fetchList();
+    })();
+  </script>
+</body>
+
+</html>

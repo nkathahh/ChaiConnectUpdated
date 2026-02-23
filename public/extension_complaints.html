@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,83 +8,85 @@
   <link rel="stylesheet" href="css/complaints.css">
   <style>
     body.dark-mode {
-  background-color: #0f172a;
-  color: #f1f5f9;
-}
+      background-color: #0f172a;
+      color: #f1f5f9;
+    }
 
-body.dark-mode h2 {
-  color: #f8fafc;
-}
+    body.dark-mode h2 {
+      color: #f8fafc;
+    }
 
-body.dark-mode .complaint-card {
-  background-color: #1e293b;
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
-}
+    body.dark-mode .complaint-card {
+      background-color: #1e293b;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    }
 
-body.dark-mode textarea {
-  background-color: #0f172a;
-  color: #f1f5f9;
-  border: 1px solid #334155;
-}
+    body.dark-mode textarea {
+      background-color: #0f172a;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+    }
 
-body.dark-mode button.btn-progress {
-  background-color: #eab308;
-  color: #0f172a;
-}
+    body.dark-mode button.btn-progress {
+      background-color: #eab308;
+      color: #0f172a;
+    }
 
-body.dark-mode button.btn-resolve {
-  background-color: #22c55e;
-  color: #0f172a;
-}
+    body.dark-mode button.btn-resolve {
+      background-color: #22c55e;
+      color: #0f172a;
+    }
 
-body.dark-mode .status-resolved {
-  color: #4ade80;
-}
+    body.dark-mode .status-resolved {
+      color: #4ade80;
+    }
 
-body.dark-mode .status-in_progress {
-  color: #facc15;
-}
+    body.dark-mode .status-in_progress {
+      color: #facc15;
+    }
 
-body.dark-mode .status-pending {
-  color: #f87171;
-}
+    body.dark-mode .status-pending {
+      color: #f87171;
+    }
   </style>
 </head>
+
 <body>
   <h2>Extension Services Complaints</h2>
   <div id="complaintsContainer">Loading complaints...</div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
-      });
-  });
-</script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/me')
+        .then(res => res.json())
+        .then(data => {
+          const userId = data.userId;
+          if (!userId) return;
+          const theme = localStorage.getItem(`theme_${userId}`);
+          if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+          } else {
+            document.body.classList.remove('dark-mode');
+          }
+        })
+        .catch(() => {
+          const fallbackTheme = localStorage.getItem('theme');
+          if (fallbackTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+          }
+        });
+    });
+  </script>
 
   <script>
+    // 1) Load extension complaints
     fetch('/api/extension/complaints')
       .then(res => res.json())
       .then(data => {
         const container = document.getElementById('complaintsContainer');
         container.innerHTML = '';
 
-        if (!data.success || data.complaints.length === 0) {
+        if (!data.success || !data.complaints || data.complaints.length === 0) {
           container.innerHTML = '<p>No complaints found.</p>';
           return;
         }
@@ -93,45 +96,88 @@ body.dark-mode .status-pending {
           div.className = 'complaint-card';
 
           div.innerHTML = `
-            <p><strong>Farmer ID:</strong> ${complaint.farmer_id}</p>
-            <p><strong>Category:</strong> ${complaint.category}</p>
-            <p><strong>Date:</strong> ${new Date(complaint.complaint_date).toLocaleString()}</p>
-            <p><strong>Status:</strong> <span class="status-${complaint.status}">${complaint.status.replace('_', ' ')}</span></p>
-            <p><strong>Complaint:</strong> ${complaint.complaint_text}</p>
-            <p><strong>Admin Notes:</strong> ${complaint.admin_notes || '—'}</p>
-            ${complaint.status !== 'resolved' ? `
-              <textarea placeholder="Add your notes...">${complaint.admin_notes || ''}</textarea>
-              <div class="actions">
-                <button class="btn-progress" onclick="updateComplaint(${complaint.complaint_id}, this, 'in_progress')">Mark In Progress</button>
-                <button class="btn-resolve" onclick="updateComplaint(${complaint.complaint_id}, this, 'resolved')">Resolve</button>
-              </div>
-            ` : ''}
-          `;
+          <p><strong>Farmer ID:</strong> ${complaint.farmer_id}</p>
+          <p><strong>Category:</strong> ${complaint.category}</p>
+          <p><strong>Date:</strong> ${new Date(complaint.complaint_date).toLocaleString()}</p>
+          <p><strong>Status:</strong>
+            <span class="status-${complaint.status}">
+              ${String(complaint.status).replace('_', ' ')}
+            </span>
+          </p>
+          <p><strong>Complaint:</strong> ${escapeHtml(complaint.complaint_text)}</p>
+
+          <hr style="opacity:0.2">
+
+          <div class="comment-section">
+            <p><strong>Your response to the farmer:</strong></p>
+            <textarea class="officer-comment" placeholder="Type your response..."></textarea>
+            <div class="actions">
+              <button class="btn-progress" onclick="sendComment(${complaint.complaint_id}, this)">Send Comment</button>
+            </div>
+            <small class="hint">You cannot change status. Only admin can resolve complaints.</small>
+          </div>
+        `;
 
           container.appendChild(div);
+
+          // Optional: load thread if you implement GET /api/complaints/:id
+          // loadThread(complaint.complaint_id, div);
         });
-      });
-
-    function updateComplaint(id, btn, status) {
-      const card = btn.closest('.complaint-card');
-      const notes = card.querySelector('textarea').value;
-
-      fetch(`/api/extension/complaints/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ admin_notes: notes, status: status })
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert('Complaint updated successfully');
-          location.reload();
-        } else {
-          alert('Error: ' + (data.message || 'Could not update complaint'));
-        }
+      .catch(() => {
+        document.getElementById('complaintsContainer').innerHTML =
+          '<p>Could not load complaints.</p>';
       });
+
+    // 2) Send comment (extension officer)
+    function sendComment(complaintId, btn) {
+      const card = btn.closest('.complaint-card');
+      const textarea = card.querySelector('.officer-comment');
+      const comment = textarea.value.trim();
+
+      if (!comment) {
+        alert('Please type a comment first.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      fetch(`/api/extension/complaints/${complaintId}/comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment_text: comment })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            textarea.value = '';
+            alert('Comment sent.');
+            // Optionally reload thread UI here instead of full reload
+            // location.reload();
+          } else {
+            alert('Error: ' + (data.message || 'Could not send comment'));
+          }
+        })
+        .catch(() => alert('Network error. Could not send comment.'))
+        .finally(() => {
+          btn.disabled = false;
+          btn.textContent = 'Send Comment';
+        });
+    }
+
+    // Basic XSS-safe escaping for complaint text
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
     }
   </script>
 
 </body>
+
 </html>

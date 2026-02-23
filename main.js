@@ -53,6 +53,26 @@ const trainingStorage = multer.diskStorage({
 });
 const uploadTraining = multer({ storage: trainingStorage });
 
+//Policy uploads
+const policyStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const fs = require('fs');
+    const uploadDir = 'uploads/policies';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9) + ext;
+    cb(null, uniqueName);
+  }
+});
+
+const uploadPolicy = multer({ storage: policyStorage });
+
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -70,12 +90,88 @@ db.connect(err => {
   console.log('Connected to MySQL');
 });
 
+function createNotification({ user_id, role, category, title, message, link }) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      INSERT INTO notifications 
+      (user_id, role, category, title, message, link, is_read, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, 0, NOW())
+    `;
+
+    db.query(
+      sql,
+      [user_id, role, category || 'general', title, message, link || null],
+      (err, result) => {
+        if (err) return reject(err);
+        resolve(result);
+      }
+    );
+  });
+}
+
+
 function logActivity(userId, action, details = '') {
   const query = `INSERT INTO activity_logs (user_id, action, details) VALUES (?, ?, ?)`;
   db.query(query, [userId, action, details], (err) => {
     if (err) console.error('Failed to log activity:', err);
   });
 }
+function requireAdmin(req, res, next) {
+  if (!req.session.userId || req.session.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Admins only' });
+  }
+  next();
+}
+function requireAuth(req, res, next) {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
+  next();
+}
+
+// EO only (upload + edit routes)
+function requireExtensionOfficer(req, res, next) {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
+  if (req.session.role !== 'extension_officer') {
+    return res.status(403).json({ success: false, message: 'Extension officers only' });
+  }
+  next();
+}
+
+// Admin only (optional if you already have requireAdmin)
+function requireAdminOnly(req, res, next) {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
+  if (req.session.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Admin only' });
+  }
+  next();
+}
+
+// Admin OR EO (ONLY for routes where both are allowed)
+function requireExtensionOrAdmin(req, res, next) {
+  const role = req.session.role;
+  if (role !== 'extension_officer' && role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Forbidden' });
+  }
+  next();
+}
+
+function requireExtensionOfficer(req, res, next) {
+  const role = req.session.role;
+  if (!req.session.userId || role !== 'extension_officer') {
+    return res.status(403).json({ success: false, message: 'Unauthorized' });
+  }
+  next();
+}
+
+
+
+
+
 
 // Register route
 app.post('/register', upload.single('profilePicture'), async (req, res) => {
@@ -1292,7 +1388,7 @@ app.get('/admin/unpaid-deliveries', (req, res) => {
 });
 
 //upload policy documents - admin
-app.post('/admin/upload-policy', upload.single('policyFile'), (req, res) => {
+app.post('/admin/upload-policy', uploadPolicy.single('policyFile'), (req, res) => {
   const { title, description} = req.body;
   const file = req.file;
   const uploaded_by = req.session.userId;
@@ -1317,10 +1413,10 @@ app.post('/admin/upload-policy', upload.single('policyFile'), (req, res) => {
   });
 });
 
-//View policies 
+// View policies (public)
 app.get('/policies', (req, res) => {
   const query = `
-    SELECT title, description, file_path, uploaded_at
+    SELECT document_id, title, description, file_path, uploaded_at
     FROM policy_documents
     ORDER BY uploaded_at DESC
   `;
@@ -1333,6 +1429,7 @@ app.get('/policies', (req, res) => {
     res.json(results);
   });
 });
+
 
 // Finance Report: total payments per farmer
 app.get('/admin/report/finance', (req, res) => {
@@ -2197,87 +2294,222 @@ app.get('/api/trainings', (req, res) => {
 
 
 
-// Extension Officer: Get visit requests
-app.get('/api/visit-requests', (req, res) => {
-    if (!req.session.userId || req.session.role !== 'extension_officer') {
-        return res.status(403).json({ success: false, message: 'Unauthorized' });
-    }
+// Extension Officer: Get visit requests - requested, scheduled, declined, completed
+app.get('/api/officer/visits', requireExtensionOfficer, (req, res) => {
+  const userId = req.session.userId;
+  const status = (req.query.status || '').trim().toLowerCase();
 
-    const userId = req.session.userId;
+  db.query(
+    `SELECT officer_id FROM extension_officers WHERE user_id = ?`,
+    [userId],
+    (err, officerResults) => {
+      if (err) {
+        console.error('Error fetching officer info:', err);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+      if (!officerResults || officerResults.length === 0) {
+        return res.status(404).json({ success: false, message: 'Extension officer profile not found for this account' });
+      }
 
-    // First get officer_id
-    const getOfficerQuery = `SELECT officer_id FROM extension_officers WHERE user_id = ?`;
-    
-    db.query(getOfficerQuery, [userId], (err, officerResults) => {
-        if (err || officerResults.length === 0) {
-            return res.status(500).json({ success: false, message: 'Error fetching officer info' });
+      const officerId = officerResults[0].officer_id;
+
+// 👇 IMPORTANT CHANGE
+// Use BOTH officerId and userId in case your farmer_visits table
+// stores user_id instead of officer_id
+
+let whereStatus = '';
+const params = [officerId, userId]; // ← changed
+
+if (status) {
+  whereStatus = ` AND v.status = ? `;
+  params.push(status);
+}
+
+const query = `
+  SELECT
+    v.visit_id,
+    v.farmer_id,
+    u.name AS farmer_name,
+    u.phone AS farmer_phone,
+    u.email AS farmer_email,
+    fp.location,
+    v.preferred_date,
+    v.scheduled_date,
+    v.actual_date,
+    v.purpose,
+    v.notes,
+    v.status,
+    v.created_at,
+    v.updated_at
+  FROM farmer_visits v
+  JOIN users u ON v.farmer_id = u.user_id
+  LEFT JOIN farmer_profile fp ON u.user_id = fp.farmer_id
+  WHERE (v.officer_id = ? OR v.officer_id = ?)   -- 👈 changed
+  ${whereStatus}
+  ORDER BY COALESCE(v.scheduled_date, v.preferred_date, v.created_at) DESC
+`;
+
+
+      db.query(query, params, (err, results) => {
+        if (err) {
+          console.error('Error fetching officer visits:', err);
+          return res.status(500).json({ success: false, message: 'Database error' });
         }
-
-        const officerId = officerResults[0].officer_id;
-
-        const query = `
-            SELECT 
-                v.visit_id,
-                v.farmer_id,
-                u.name AS farmer_name,
-                u.phone AS farmer_phone,
-                fp.location,
-                v.preferred_date,
-                v.purpose,
-                v.notes,
-                v.status
-            FROM farmer_visits v
-            JOIN users u ON v.farmer_id = u.user_id
-            LEFT JOIN farmer_profile fp ON u.user_id = fp.farmer_id
-            WHERE v.officer_id = ? AND v.status = 'requested'
-            ORDER BY v.preferred_date ASC
-        `;
-
-        db.query(query, [officerId], (err, results) => {
-            if (err) {
-                console.error('Error fetching visit requests:', err);
-                return res.status(500).json({ success: false, message: 'Database error' });
-            }
-
-            res.json({ success: true, requests: results });
-        });
-    });
+        return res.json({ success: true, visits: results });
+      });
+    }
+  );
 });
 
-// Extension Officer: Schedule/Update visit
-app.put('/api/schedule-visit/:visitId', (req, res) => {
-    if (!req.session.userId || req.session.role !== 'extension_officer') {
-        return res.status(403).json({ success: false, message: 'Unauthorized' });
+
+// Extension Officer: Accept/Reschedule visit
+app.put('/api/schedule-visit/:visitId', requireExtensionOfficer, (req, res) => {
+  const userId = req.session.userId;
+  const visitId = req.params.visitId;
+  const { scheduledDate, notes } = req.body;
+
+  if (!scheduledDate) {
+    return res.status(400).json({ success: false, message: 'Scheduled date is required' });
+  }
+
+  // Optional: detect whether it's schedule vs reschedule
+  const beforeSql = `
+    SELECT scheduled_date, farmer_id
+    FROM farmer_visits
+    WHERE visit_id = ?
+    LIMIT 1
+  `;
+
+  db.query(beforeSql, [visitId], (bErr, beforeRows) => {
+    if (bErr) {
+      console.error('Error reading visit before schedule:', bErr);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    if (!beforeRows || beforeRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Visit not found' });
     }
 
-    const { scheduledDate, notes } = req.body;
-    const visitId = req.params.visitId;
-
-    if (!scheduledDate) {
-        return res.status(400).json({ success: false, message: 'Scheduled date is required' });
-    }
+    const wasScheduled = !!beforeRows[0].scheduled_date;
+    const farmerId = beforeRows[0].farmer_id;
 
     const query = `
-        UPDATE farmer_visits 
-        SET scheduled_date = ?, 
-            notes = ?,
-            status = 'scheduled'
-        WHERE visit_id = ? AND status = 'requested'
+      UPDATE farmer_visits v
+      JOIN extension_officers e ON v.officer_id = e.officer_id
+      SET
+        v.scheduled_date = ?,
+        v.notes = ?,
+        v.status = 'scheduled',
+        v.updated_at = NOW()
+      WHERE v.visit_id = ?
+        AND e.user_id = ?
+        AND v.status IN ('requested', 'scheduled')
     `;
 
-    db.query(query, [scheduledDate, notes || null, visitId], (err, result) => {
-        if (err) {
-            console.error('Error scheduling visit:', err);
-            return res.status(500).json({ success: false, message: 'Database error' });
-        }
+    db.query(query, [scheduledDate, notes || null, visitId, userId], async (err, result) => {
+      if (err) {
+        console.error('Error scheduling/rescheduling visit:', err);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Visit not found, not yours, or cannot be rescheduled in its current status'
+        });
+      }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: 'Visit request not found or already scheduled' });
-        }
+      // ✅ NOTIFICATION GOES HERE
+      try {
+        await createNotification({
+          user_id: farmerId,
+          role: 'farmer',
+          category: 'visits',
+          title: wasScheduled ? 'Visit Rescheduled' : 'Visit Scheduled',
+          message: wasScheduled
+            ? `Your extension visit has been rescheduled to ${new Date(scheduledDate).toLocaleString()}.`
+            : `Your extension visit has been scheduled for ${new Date(scheduledDate).toLocaleString()}.`,
+          link: '/extension_services.html'
+        });
+      } catch (nErr) {
+        console.error('Failed to create notification (schedule):', nErr);
+        // do not block the main action
+      }
 
-        res.json({ success: true, message: 'Visit scheduled successfully' });
+      return res.json({ success: true, message: wasScheduled ? 'Visit rescheduled successfully' : 'Visit scheduled successfully' });
     });
+  });
 });
+
+
+// Extension Officer: Decline a requested visit (must belong to this officer)
+app.put('/api/officer/visits/:visitId/decline', requireExtensionOfficer, (req, res) => {
+  const userId = req.session.userId;
+  const visitId = req.params.visitId;
+  const { note } = req.body;
+
+  // get farmer_id first so we can notify after update
+  db.query(
+    `SELECT farmer_id FROM farmer_visits WHERE visit_id = ? LIMIT 1`,
+    [visitId],
+    (preErr, preRows) => {
+      if (preErr) {
+        console.error('Error reading visit before decline:', preErr);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+      if (!preRows || preRows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Visit not found' });
+      }
+
+      const farmerId = preRows[0].farmer_id;
+
+      const query = `
+        UPDATE farmer_visits v
+        JOIN extension_officers e ON v.officer_id = e.officer_id
+        SET
+          v.status = 'declined',
+          v.notes = COALESCE(?, v.notes),
+          v.updated_at = NOW()
+        WHERE v.visit_id = ?
+          AND e.user_id = ?
+          AND v.status = 'requested'
+      `;
+
+      db.query(query, [note || null, visitId, userId], async (err, result) => {
+        if (err) {
+          console.error('Error declining visit:', err);
+          return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        if (result.affectedRows === 0) {
+          return res.status(404).json({
+            success: false,
+            message: 'Visit not found, not yours, or it is not in requested status'
+          });
+        }
+
+        // ✅ NOTIFICATION GOES HERE
+        try {
+          await createNotification({
+            user_id: farmerId,
+            role: 'farmer',
+            category: 'visits',
+            title: 'Visit Declined',
+            message: note
+              ? `Your visit request was declined. Reason: ${note}`
+              : 'Your visit request was declined by the extension officer.',
+            link: '/extension_services.html'
+          });
+        } catch (nErr) {
+          console.error('Failed to create notification (decline):', nErr);
+        }
+
+        return res.json({ success: true, message: 'Visit declined' });
+      });
+    }
+  );
+});
+
+
+
+
 // Schedule Visit API endpoint
 app.post('/api/schedule-visit', (req, res) => {
     // Check if user is logged in and is an extension officer
@@ -2389,29 +2621,45 @@ app.post('/api/schedule-visit', (req, res) => {
                     ) VALUES (?, ?, ?, ?, ?, 'scheduled')
                 `;
 
-                db.query(insertVisitQuery, 
-                    [farmerId, officerId, visitDate, purpose, notes || null], 
-                    (err, result) => {
-                        if (err) {
-                            console.error('Error scheduling visit:', err);
-                            return res.status(500).json({ 
-                                success: false, 
-                                message: 'Failed to schedule visit' 
-                            });
-                        }
+                db.query(
+  insertVisitQuery,
+  [farmerId, officerId, visitDate, purpose, notes || null],
+  async (err, result) => {
+    if (err) {
+      console.error('Error scheduling visit:', err);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to schedule visit'
+      });
+    }
 
-                        // Log the activity
-                        logActivity(
-                            officerUserId, 
-                            'Visit Scheduled', 
-                            `Scheduled visit with farmer ID ${farmerId} for ${visitDate}`
-                        );
+    // Log the activity
+    logActivity(
+      officerUserId,
+      'Visit Scheduled',
+      `Scheduled visit with farmer ID ${farmerId} for ${visitDate}`
+    );
 
-                        res.json({ 
-                            success: true, 
-                            message: 'Visit scheduled successfully',
-                            visitId: result.insertId
-                        });
+    // ✅ TRIGGER NOTIFICATION TO FARMER (PUT IT HERE)
+    try {
+      await createNotification({
+        user_id: farmerId,
+        role: 'farmer',
+        category: 'visits',
+        title: 'Visit Scheduled',
+        message: `Your extension officer scheduled a visit for ${new Date(visitDate).toLocaleString()}.`,
+        link: '/extension_services.html'
+      });
+    } catch (nErr) {
+      console.error('Failed to create notification (officer schedule):', nErr);
+      // don't block success response
+    }
+
+    return res.json({
+      success: true,
+      message: 'Visit scheduled successfully',
+      visitId: result.insertId
+    });
                     }
                 );
             });
@@ -2629,21 +2877,37 @@ app.get('/api/farmer/:farmerId/profile', (req, res) => {
 
 
 // Upload training materials route
-app.post('/api/upload-training', uploadTraining.single('file'), (req, res) => {
-  console.log('Upload request received:', req.body, req.file);
+app.post('/api/upload-training', requireExtensionOfficer, uploadTraining.single('file'), (req, res) => {
+  const { title, description, material_type, text_content } = req.body;
   const officerId = req.session.userId;
-  const { title, description } = req.body;
-  const file = req.file;
- console.log('Officer ID from session:', officerId);
- 
-  if (!officerId || !file) {
-    return res.status(400).json({ success: false, message: 'Missing file or unauthorized' });
+
+  if (!title) {
+    return res.status(400).json({ success: false, message: 'Title is required' });
   }
 
-  const query = `INSERT INTO training_materials (officer_id, title, description, filename) VALUES (?, ?, ?, ?)`;
-  db.query(query, [officerId, title, description, file.filename], (err, result) => {
+  const type = material_type === 'text' ? 'text' : 'file';
+
+  let filename = null;
+  let text = null;
+
+  if (type === 'file') {
+    if (!req.file) return res.status(400).json({ success: false, message: 'File is required' });
+    filename = req.file.filename;
+  } else {
+    if (!text_content || !text_content.trim()) {
+      return res.status(400).json({ success: false, message: 'Text content is required' });
+    }
+    text = text_content.trim();
+  }
+
+  const q = `
+    INSERT INTO training_materials (title, description, filename, material_type, text_content, officer_id, upload_date)
+    VALUES (?, ?, ?, ?, ?, ?, NOW())
+  `;
+
+  db.query(q, [title, description || null, filename, type, text, officerId], (err) => {
     if (err) {
-      console.error('Upload failed:', err);
+      console.error('Upload training error:', err);
       return res.status(500).json({ success: false, message: 'Database error' });
     }
     res.json({ success: true, message: 'Training material uploaded' });
@@ -2664,11 +2928,21 @@ app.get('/api/training-materials/count', (req, res) => {
   });
 });
 
-app.get('/training-materials', (req, res) => {
+app.get('/training-materials', requireAuth, (req, res) => {
   const query = `
-    SELECT id, title, description, filename, upload_date
-    FROM training_materials
-    ORDER BY upload_date DESC
+    SELECT
+      tm.id,
+      tm.title,
+      tm.description,
+      tm.filename,
+      tm.material_type,
+      tm.text_content,
+      tm.upload_date,
+      tm.officer_id,
+      u.name AS uploaded_by
+    FROM training_materials tm
+    JOIN users u ON u.user_id = tm.officer_id
+    ORDER BY tm.upload_date DESC
   `;
 
   db.query(query, (err, results) => {
@@ -2677,17 +2951,141 @@ app.get('/training-materials', (req, res) => {
       return res.status(500).json({ success: false, message: 'Database error' });
     }
 
-    const formattedResults = results.map(row => ({
-      id: row.id,
-      title: row.title,
-      description: row.description,
-      upload_date: row.upload_date,
-      file_path: `/uploads/training/${row.filename}`
-    }));
+    const formatted = results.map(row => {
+      const isOwner = Number(row.officer_id) === Number(req.session.userId);
+      const isEO = req.session.role === 'extension_officer';
+      const isAdmin = req.session.role === 'admin';
 
-    res.json(formattedResults);
+      return {
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        upload_date: row.upload_date,
+        officer_id: row.officer_id,
+        uploaded_by: row.uploaded_by,
+
+        material_type: row.material_type,
+        text_content: row.material_type === 'text' ? row.text_content : null,
+        file_path: row.filename ? `/uploads/training_materials/${row.filename}` : null,
+
+        // ✅ FINAL RULES
+        can_edit: isEO && isOwner,                  // only uploader extension officer
+        can_delete: (isEO && isOwner) || isAdmin    // uploader EO OR admin
+      };
+    });
+
+    res.json(formatted);
   });
 });
+
+
+app.put('/api/training-materials/:id', requireExtensionOfficer, (req, res) => {
+  const id = req.params.id;
+  const { title, description, text_content } = req.body;
+  const userId = req.session.userId;
+
+  db.query(`SELECT officer_id, material_type FROM training_materials WHERE id = ?`, [id], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, message: 'Database error' });
+    if (!rows.length) return res.status(404).json({ success: false, message: 'Not found' });
+
+    const material = rows[0];
+    if (Number(material.officer_id) !== Number(userId)) {
+      return res.status(403).json({ success: false, message: 'Only the uploader can edit this material' });
+    }
+
+    const type = material.material_type;
+    const safeText = (type === 'text') ? (text_content || '') : null;
+
+    const q = `
+      UPDATE training_materials
+      SET title = ?, description = ?, text_content = ?, updated_at = NOW()
+      WHERE id = ?
+    `;
+
+    db.query(q, [title, description, safeText, id], (err2) => {
+      if (err2) return res.status(500).json({ success: false, message: 'Database error' });
+      res.json({ success: true, message: 'Updated' });
+    });
+  });
+});
+
+app.delete('/api/training-materials/:id', requireExtensionOrAdmin, (req, res) => {
+  const id = req.params.id;
+  const userId = req.session.userId;
+  const role = req.session.role;
+
+  db.query(`SELECT officer_id, filename FROM training_materials WHERE id = ?`, [id], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, message: 'Database error' });
+    if (!rows.length) return res.status(404).json({ success: false, message: 'Not found' });
+
+    const ownerId = rows[0].officer_id;
+    const filename = rows[0].filename;
+
+    const isOwnerEO = role === 'extension_officer' && Number(ownerId) === Number(userId);
+    const isAdmin = role === 'admin';
+
+    if (!isOwnerEO && !isAdmin) {
+      return res.status(403).json({ success: false, message: 'Not allowed' });
+    }
+
+    db.query(`DELETE FROM training_materials WHERE id = ?`, [id], (err2) => {
+      if (err2) return res.status(500).json({ success: false, message: 'Database error' });
+
+      // delete file if exists
+      if (filename) {
+        const fs = require('fs');
+        const filePath = require('path').join(__dirname, 'uploads', 'training_materials', filename);
+        fs.unlink(filePath, () => {}); // ignore errors
+      }
+
+      res.json({ success: true, message: 'Deleted' });
+    });
+  });
+});
+
+// Farmer: get my assigned extension officer (name, email, phone)
+app.get('/api/farmer/my-extension-officer', (req, res, next) => {
+  if (req.session.role !== 'farmer') {
+    return res.status(403).json({ success: false, message: 'Forbidden' });
+  }
+  next();
+}
+  , (req, res) => {
+    const farmerId = req.session.userId;
+
+  const query = `
+    SELECT
+      u.user_id AS officer_user_id,
+      u.name AS officer_name,
+      u.email AS officer_email,
+      u.phone AS officer_phone,
+      eo.officer_id,
+      eo.region,
+      eo.specialization,
+      DATE_FORMAT(fa.assigned_at, '%Y-%m-%d') AS assigned_since
+    FROM farmer_assignments fa
+    JOIN extension_officers eo ON fa.officer_id = eo.officer_id
+    JOIN users u ON eo.user_id = u.user_id
+    WHERE fa.farmer_id = ?
+    LIMIT 1
+  `;
+
+  db.query(query, [farmerId], (err, rows) => {
+    if (err) {
+      console.error('Error fetching farmer officer:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    if (!rows || rows.length === 0) {
+      return res.json({ success: true, assigned: false, officer: null });
+    }
+
+    return res.json({ success: true, assigned: true, officer: rows[0] });
+  });
+});
+
+
+
 
 
 // Farmer submits a complaint
@@ -2748,13 +3146,14 @@ app.get('/api/farmer/my-complaints', (req, res) => {
 
 // --- Extension Officer gets extension complaints only ---
 app.get('/api/extension/complaints', (req, res) => {
-  if (req.session.role !== 'extension_officer') {
+  if (!req.session.userId || req.session.role !== 'extension_officer') {
     return res.status(403).json({ success: false, message: 'Not authorized' });
   }
 
   const query = `
-    SELECT * FROM complaints
-    WHERE category = 'extension' AND status != 'resolved'
+    SELECT complaint_id, farmer_id, complaint_text, complaint_date, status, category
+    FROM complaints
+    WHERE category='extension'
     ORDER BY complaint_date DESC
   `;
 
@@ -2764,27 +3163,6 @@ app.get('/api/extension/complaints', (req, res) => {
   });
 });
 
-app.put('/api/extension/complaints/:id', (req, res) => {
-  const { id } = req.params;
-  const { admin_notes, status } = req.body;
-  if (req.session.role !== 'extension_officer') {
-    return res.status(403).json({ success: false, message: 'Unauthorized' });
-  }
-
-  db.query('SELECT category FROM complaints WHERE complaint_id = ?', [id], (err, rows) => {
-    if (err || rows.length === 0) return res.status(404).json({ success: false, message: 'Complaint not found' });
-    const allowed = ['extension'];
-    if (!allowed.includes(rows[0].category)) return res.status(403).json({ success: false, message: 'Not allowed' });
-
-    db.query('UPDATE complaints SET admin_notes = ?, status = ? WHERE complaint_id = ?',
-      [admin_notes, status, id],
-      err2 => {
-        if (err2) return res.status(500).json({ success: false });
-        res.json({ success: true });
-      }
-    );
-  });
-});
 
 // --- Admin handles: account, payment, other ---
 app.get('/api/admin/complaints', (req, res) => {
@@ -2803,11 +3181,13 @@ app.get('/api/admin/complaints', (req, res) => {
 app.put('/api/admin/complaints/:id', (req, res) => {
   const { id } = req.params;
   const { admin_notes, status } = req.body;
-  if (req.session.role !== 'admin') return res.status(403).json({ success: false });
+   if (!req.session.userId || req.session.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Unauthorized' });
+  }
 
   db.query('SELECT category FROM complaints WHERE complaint_id = ?', [id], (err, rows) => {
     if (err || rows.length === 0) return res.status(404).json({ success: false });
-    const allowed = ['account', 'payment', 'other'];
+    const allowed = ['account','delivery','payment','extension','other'];
     if (!allowed.includes(rows[0].category)) return res.status(403).json({ success: false });
 
     db.query('UPDATE complaints SET admin_notes = ?, status = ? WHERE complaint_id = ?',
@@ -2917,45 +3297,6 @@ app.put('/admin/complaints/:id', async (req, res) => {
 });
 
 
-
-// Get complaints for the extension officer (assuming all open ones for now)
-app.get('/api/extension/complaints', (req, res) => {
-  const userId = req.session.userId;
-  if (!userId) return res.status(403).json({ success: false, message: 'Not logged in' });
-
-  const query = `
-    SELECT complaint_id, farmer_id, complaint_text, complaint_date, status, category, admin_notes
-    FROM complaints
-    WHERE status != 'resolved'
-    ORDER BY complaint_date DESC
-  `;
-  db.query(query, (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: 'Database error' });
-    res.json({ success: true, complaints: results });
-  });
-});
-
-// Update complaint status and notes
-app.put('/api/extension/complaints/:id', (req, res) => {
-  const userId = req.session.userId;
-  const { id } = req.params;
-  const { admin_notes, status } = req.body;
-
-  if (!userId) return res.status(403).json({ success: false, message: 'Unauthorized' });
-
-  const query = `
-    UPDATE complaints
-    SET admin_notes = ?, status = ?
-    WHERE complaint_id = ?
-  `;
-  db.query(query, [admin_notes, status, id], (err, result) => {
-    if (err) return res.status(500).json({ success: false, message: 'Database error' });
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Complaint not found' });
-    }
-    res.json({ success: true });
-  });
-});
 
 
 app.post('/api/farmer/submit-complaint', (req, res) => {
@@ -3080,12 +3421,322 @@ app.post('/admin/suspend-user/:userId', (req, res) => {
   });
 });
 
+//Admin Edit Policy
+app.put('/admin/policies/:id', requireAdmin, (req, res) => {
+  const { id } = req.params;
+  const { title, description } = req.body;
+
+  const docId = parseInt(id, 10);
+  if (!Number.isInteger(docId)) {
+    return res.status(400).json({ success: false, message: 'Invalid policy ID' });
+  }
+
+  if (!title) {
+    return res.status(400).json({ success: false, message: 'Title is required' });
+  }
+
+  const sql = `UPDATE policy_documents SET title = ?, description = ? WHERE document_id = ?`;
+
+  db.query(sql, [title, description || '', docId], (err, result) => {
+    if (err) {
+      console.error('Update policy error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Policy not found' });
+    }
+    res.json({ success: true, message: 'Policy updated' });
+  });
+});
+
+app.delete('/admin/policies/:id', requireAdmin, (req, res) => {
+  const { id } = req.params;
+
+  const getFileQuery = `SELECT file_path FROM policy_documents WHERE document_id = ?`;
+
+  db.query(getFileQuery, [id], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(404).json({ success: false, message: 'Policy not found' });
+    }
+
+    const filePath = path.join(__dirname, results[0].file_path);
+
+    db.query(`DELETE FROM policy_documents WHERE document_id = ?`, [id], (err2) => {
+      if (err2) {
+        console.error(err2);
+        return res.status(500).json({ success: false });
+      }
+
+      const fs = require('fs');
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      res.json({ success: true, message: 'Policy deleted successfully' });
+    });
+  });
+});
 
 
+app.get('/api/notifications/count', (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ success:false });
 
+  db.query(
+    `SELECT COUNT(*) AS count
+     FROM notifications
+     WHERE user_id = ? AND is_read = 0`,
+    [req.session.userId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ success:false, message:'DB error' });
+      res.json({ success:true, count: rows[0].count });
+    }
+  );
+});
 
+function createNotification({ user_id, role, category, title, message, link }) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      INSERT INTO notifications 
+      (user_id, role, category, title, message, link, is_read, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, 0, NOW())
+    `;
 
+    db.query(
+      sql,
+      [user_id, role, category || 'general', title, message, link || null],
+      (err, result) => {
+        if (err) return reject(err);
+        resolve(result);
+      }
+    );
+  });
+}
 
+app.get('/api/notifications', (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+
+  const sql = `
+    SELECT 
+      notification_id AS id,
+      title,
+      message,
+      category,
+      link,
+      is_read,
+      created_at
+    FROM notifications
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+  `;
+
+  db.query(sql, [req.session.userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching notifications:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({
+      success: true,
+      notifications: results
+    });
+  });
+});
+
+app.get('/api/notifications', (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+
+  const sql = `
+    SELECT 
+      notification_id AS id,
+      title,
+      message,
+      category,
+      link,
+      is_read,
+      created_at
+    FROM notifications
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+  `;
+
+  db.query(sql, [req.session.userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching notifications:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({
+      success: true,
+      notifications: results
+    });
+  });
+});
+
+app.get('/api/notifications/unread-count', (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ success: false });
+  }
+
+  const sql = `
+    SELECT COUNT(*) AS count
+    FROM notifications
+    WHERE user_id = ?
+    AND is_read = 0
+  `;
+
+  db.query(sql, [req.session.userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching unread count:', err);
+      return res.status(500).json({ success: false });
+    }
+
+    res.json({
+      success: true,
+      count: results[0].count
+    });
+  });
+});
+
+app.post('/api/extension/complaints/:id/comment', (req, res) => {
+  if (!req.session.userId || req.session.role !== 'extension_officer') {
+    return res.status(403).json({ success: false, message: 'Unauthorized' });
+  }
+
+  const complaintId = req.params.id;
+  const officerId = req.session.userId;
+  const { comment_text } = req.body;
+
+  if (!comment_text || !comment_text.trim()) {
+    return res.status(400).json({ success: false, message: 'Comment is required' });
+  }
+
+  db.query(
+    `SELECT complaint_id, status
+     FROM complaints
+     WHERE complaint_id=? AND category='extension'`,
+    [complaintId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ success: false, message: 'Database error' });
+      if (!rows.length) return res.status(404).json({ success: false, message: 'Complaint not found' });
+
+      if (rows[0].status === 'resolved') {
+        return res.status(403).json({
+          success: false,
+          message: 'This complaint is resolved. You cannot add new replies.'
+        });
+      }
+
+      db.query(
+        `INSERT INTO complaint_comments (complaint_id, author_user_id, author_role, comment_text)
+         VALUES (?, ?, 'extension_officer', ?)`,
+        [complaintId, officerId, comment_text.trim()],
+        (err2) => {
+          if (err2) return res.status(500).json({ success: false, message: 'Database error' });
+          return res.json({ success: true });
+        }
+      );
+    }
+  );
+});
+app.patch('/api/admin/complaints/:id/status', (req, res) => {
+  if (!req.session.userId || req.session.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Unauthorized' });
+  }
+
+  const complaintId = req.params.id;
+  const { status } = req.body;
+
+  const allowed = ['open', 'in_progress', 'resolved'];
+  if (!allowed.includes(status)) {
+    return res.status(400).json({ success: false, message: 'Invalid status' });
+  }
+
+  db.query(
+    `UPDATE complaints SET status=?, updated_at=NOW() WHERE complaint_id=?`,
+    [status, complaintId],
+    (err, result) => {
+      if (err) return res.status(500).json({ success: false, message: 'Database error' });
+      if (!result.affectedRows) return res.status(404).json({ success: false, message: 'Complaint not found' });
+      res.json({ success: true });
+    }
+  );
+});
+
+app.get('/api/complaints/:id', (req, res) => {
+  if (!req.session.userId || !req.session.role) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
+
+  const complaintId = req.params.id;
+  const userId = req.session.userId;
+  const role = req.session.role;
+
+  let complaintSql = `SELECT * FROM complaints WHERE complaint_id=?`;
+  const params = [complaintId];
+
+  if (role === 'farmer') {
+    complaintSql += ` AND farmer_id=?`;
+    params.push(userId);
+  } else if (role === 'extension_officer') {
+    complaintSql += ` AND category='extension'`;
+  } else if (role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Unauthorized' });
+  }
+
+  db.query(complaintSql, params, (err, rows) => {
+    if (err) return res.status(500).json({ success: false, message: 'Database error' });
+    if (!rows.length) return res.status(404).json({ success: false, message: 'Not found' });
+
+    const complaint = rows[0];
+
+    db.query(
+      `SELECT comment_id, author_user_id, author_role, comment_text, created_at
+       FROM complaint_comments
+       WHERE complaint_id=?
+       ORDER BY created_at ASC`,
+      [complaintId],
+      (err2, comments) => {
+        if (err2) return res.status(500).json({ success: false, message: 'Database error' });
+        res.json({ success: true, complaint, comments });
+      }
+    );
+  });
+});
+
+app.get('/api/extension/complaints/:id/thread', (req, res) => {
+  if (!req.session.userId || req.session.role !== 'extension_officer') {
+    return res.status(403).json({ success: false, message: 'Unauthorized' });
+  }
+
+  const complaintId = req.params.id;
+
+  db.query(
+    `SELECT * FROM complaints WHERE complaint_id=? AND category='extension'`,
+    [complaintId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ success: false, message: 'Database error' });
+      if (!rows.length) return res.status(404).json({ success: false, message: 'Complaint not found' });
+
+      const complaint = rows[0];
+
+      db.query(
+        `SELECT comment_id, author_role, comment_text, created_at
+         FROM complaint_comments
+         WHERE complaint_id=?
+         ORDER BY created_at ASC`,
+        [complaintId],
+        (err2, comments) => {
+          if (err2) return res.status(500).json({ success: false, message: 'Database error' });
+          res.json({ success: true, complaint, comments });
+        }
+      );
+    }
+  );
+});
 
 
 // Start server

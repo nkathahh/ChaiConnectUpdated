@@ -163,7 +163,103 @@
       font-weight: 600;
     }
 
-    
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 9999;
+      padding: 16px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      width: min(600px, 100%);
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      max-height: 85vh;
+      overflow: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .modal-close {
+      font-size: 22px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 9999;
+      padding: 16px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      width: min(600px, 100%);
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      max-height: 85vh;
+      overflow: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .modal-close {
+      font-size: 22px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
   </style>
 </head>
 
@@ -205,28 +301,42 @@
       <tbody></tbody>
     </table>
 
-    <div id="editUserContainer" style="display:none;">
-      <h3>Edit User</h3>
-      <form id="editUserForm">
-        <input type="hidden" id="editUserId">
-        <label>Name</label>
-        <input type="text" id="editName" required>
-        <label>Email</label>
-        <input type="email" id="editEmail" required>
-        <label>Phone</label>
-        <input type="text" id="editPhone" required>
-        <label>Role</label>
-        <select id="editRole" required>
-          <option value="farmer">Farmer</option>
-          <option value="factory_staff">Factory Staff</option>
-          <option value="extension_officer">Extension Officer</option>
-        </select>
-        <div style="display: flex; gap: 1rem;">
-          <button type="submit">Update</button>
-          <button type="button" onclick="hideEditForm()">Cancel</button>
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit User</h3>
+          <button type="button" class="modal-close" onclick="closeEditModal()">×</button>
         </div>
-      </form>
+
+        <form id="editUserForm">
+          <input type="hidden" id="editUserId" />
+
+          <label>Name</label>
+          <input type="text" id="editName" required />
+
+          <label>Email</label>
+          <input type="email" id="editEmail" required />
+
+          <label>Phone</label>
+          <input type="text" id="editPhone" required />
+
+          <label>Role</label>
+          <select id="editRole" required>
+            <option value="farmer">Farmer</option>
+            <option value="factory_staff">Factory Staff</option>
+            <option value="extension_officer">Extension Officer</option>
+            <option value="admin">Admin</option>
+          </select>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button type="submit" class="btn-primary">Update User</button>
+          </div>
+        </form>
+      </div>
     </div>
+
   </main>
 
   <script>
@@ -310,17 +420,44 @@
     }
 
     function showEditForm(user) {
-      document.getElementById('editUserContainer').style.display = 'block';
       document.getElementById('editUserId').value = user.user_id;
-      document.getElementById('editName').value = user.name;
-      document.getElementById('editEmail').value = user.email;
-      document.getElementById('editPhone').value = user.phone;
-      document.getElementById('editRole').value = user.role;
+      document.getElementById('editName').value = user.name || '';
+      document.getElementById('editEmail').value = user.email || '';
+      document.getElementById('editPhone').value = user.phone || '';
+      document.getElementById('editRole').value = user.role || 'farmer';
+
+      const modal = document.getElementById('editUserModal');
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+
+      setTimeout(() => document.getElementById('editName').focus(), 0);
     }
 
     function hideEditForm() {
-      document.getElementById('editUserContainer').style.display = 'none';
+      const modal = document.getElementById('editUserModal');
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
     }
+
+    document.addEventListener('click', (e) => {
+      const modal = document.getElementById('editUserModal');
+      if (!modal.classList.contains('show')) return;
+      if (e.target === modal) hideEditForm();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') hideEditForm();
+    });
+
+    function closeEditModal() {
+  hideEditForm();
+}
+
+
+
+
 
     document.getElementById('editUserForm').addEventListener('submit', async (e) => {
       e.preventDefault();
