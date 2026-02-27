@@ -2,19 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact Us | ChaiConnect</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us — ChaiConnect</title>
+  <link rel="stylesheet" href="./css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css"/>
 </head>
 <body>
-    <header>
+
+  <header>
     <nav class="navbar">
       <div class="logo">ChaiConnect</div>
-      <button class="hamburger" onclick="toggleNav()">
-          <i class="fas fa-bars"></i>
-      </button>
+      <button class="hamburger" onclick="toggleNav()"><i class="fas fa-bars"></i></button>
       <ul class="nav-links" id="navLinks">
         <li><a href="index.html">Home</a></li>
         <li><a href="aboutus.html">About Us</a></li>
@@ -25,17 +23,22 @@
       </ul>
     </nav>
   </header>
-  <div class="contact-container">
-    <header class="contact-header">
-      <h1>Contact <span>ChaiConnect</span></h1>
-      <p>We're here to support farmers, factories, and officers. Reach out to us anytime!</p>
-    </header>
 
+  <div class="page-hero">
+    <div class="page-hero-content">
+      <span class="section-tag">Get In Touch</span>
+      <h1>Contact ChaiConnect</h1>
+      <p>We're here to support farmers, factories, and officers. Reach out to us anytime!</p>
+    </div>
+  </div>
+
+  <div class="contact-container">
     <main class="contact-content">
+
       <form action="/contact-submit" method="POST" class="contact-form">
         <div class="form-group">
           <label for="name">Full Name</label>
-          <input type="text" name="name" id="name" required placeholder="Your name" />
+          <input type="text" name="name" id="name" required placeholder="Your full name" />
         </div>
         <div class="form-group">
           <label for="email">Email Address</label>
@@ -43,27 +46,58 @@
         </div>
         <div class="form-group">
           <label for="subject">Subject</label>
-          <input type="text" name="subject" id="subject" required placeholder="Subject of your message" />
+          <input type="text" name="subject" id="subject" required placeholder="What's this about?" />
         </div>
         <div class="form-group">
           <label for="message">Message</label>
-          <textarea name="message" id="message" rows="5" required placeholder="Write your message here..."></textarea>
+          <textarea name="message" id="message" rows="6" required placeholder="Write your message here..."></textarea>
         </div>
-        <button type="submit">Send Message</button>
+        <button type="submit">Send Message →</button>
       </form>
 
       <aside class="contact-info">
         <h2>Our Contacts</h2>
-        <p><strong>Email:</strong> support@chaiconnect.co.ke</p>
-        <p><strong>Phone:</strong> +254 712 345 678</p>
-        <p><strong>Address:</strong> ChaiConnect HQ, Nairobi, Kenya</p>
+
+        <div class="contact-info-item">
+          <span class="contact-info-icon">✉️</span>
+          <div>
+            <strong style="display:block;color:rgba(255,255,255,.5);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem;">Email</strong>
+            support@chaiconnect.co.ke
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <span class="contact-info-icon">📞</span>
+          <div>
+            <strong style="display:block;color:rgba(255,255,255,.5);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem;">Phone</strong>
+            +254 712 345 678
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <span class="contact-info-icon">📍</span>
+          <div>
+            <strong style="display:block;color:rgba(255,255,255,.5);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem;">Address</strong>
+            ChaiConnect HQ, Nairobi, Kenya
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <span class="contact-info-icon">🕒</span>
+          <div>
+            <strong style="display:block;color:rgba(255,255,255,.5);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem;">Hours</strong>
+            Mon–Fri: 8AM–6PM EAT
+          </div>
+        </div>
       </aside>
+
     </main>
   </div>
+
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-section">
-        <h3>About ChaiConnect</h3>
+        <h3>🍃 ChaiConnect</h3>
         <p>Revolutionizing Kenya's tea supply chain through innovative technology solutions that connect farmers, factories, and agricultural officers in a seamless digital ecosystem.</p>
         <div class="social-links">
           <a href="#" class="social-link">📘</a>
@@ -72,18 +106,15 @@
           <a href="#" class="social-link">📱</a>
         </div>
       </div>
-      
       <div class="footer-section">
         <h3>Quick Links</h3>
         <ul>
-          <li><a href="#home">Home</a></li>
-          <li><a href="#features">Features</a></li>
+          <li><a href="index.html">Home</a></li>
           <li><a href="aboutus.html">About Us</a></li>
           <li><a href="register.html">Register</a></li>
-          <li><a href="contactus.html">Contact Us</a></li>
+          <li><a href="#">Contact Us</a></li>
         </ul>
       </div>
-      
       <div class="footer-section">
         <h3>Services</h3>
         <ul>
@@ -93,25 +124,23 @@
           <li><a href="#">USSD Integration</a></li>
         </ul>
       </div>
-      
       <div class="footer-section">
         <h3>Contact Info</h3>
         <p>📍 Nairobi, Kenya</p>
         <p>📞 +254 700 000 000</p>
         <p>✉️ info@chaiconnect.co.ke</p>
-        <p>🕒 Mon-Fri: 8AM-6PM</p>
+        <p>🕒 Mon–Fri: 8AM–6PM</p>
       </div>
     </div>
-    
     <div class="footer-bottom">
       <p>&copy; 2025 ChaiConnect. All rights reserved. | Privacy Policy | Terms of Service</p>
     </div>
   </footer>
 
   <script>
-  function toggleNav() {
-    document.getElementById('navLinks').classList.toggle('show');
-  }
-</script>
+    function toggleNav() {
+      document.getElementById('navLinks').classList.toggle('show');
+    }
+  </script>
 </body>
 </html>

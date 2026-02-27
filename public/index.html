@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChaiConnect Tea Management System</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChaiConnect — Kenya's Tea Management System</title>
   <link rel="stylesheet" href="./css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body>
+
   <header>
     <nav class="navbar">
       <div class="logo">ChaiConnect</div>
-      <button class="hamburger" onclick="toggleNav()">
-          <i class="fas fa-bars"></i>
-      </button>
+      <button class="hamburger" onclick="toggleNav()"><i class="fas fa-bars"></i></button>
       <ul class="nav-links" id="navLinks">
         <li><a href="#">Home</a></li>
         <li><a href="aboutus.html">About Us</a></li>
@@ -29,53 +26,110 @@
 
   <section class="hero">
     <div class="hero-content">
-      <h1>Digitizing Kenya's Tea Supply Chain</h1>
-      <p>Connect farmers, factories and officers with real-time delivery, payment, and quality data—on web</p>
-      <a href="login.html" class="btn hero-btn">Get Started</a>
+      <div class="hero-eyebrow">🇰🇪 Kenya's Tea Supply Chain Platform</div>
+      <h1>Connecting Every <em>Leaf</em><br>of Kenya's Tea Industry</h1>
+      <p>Real-time delivery, payment, and quality data for farmers, factories and officers — all in one platform.</p>
+      <div class="hero-actions">
+        <a href="register.html" class="btn-primary">Get Started Free</a>
+        <a href="faqs.html" class="btn-outline">Learn More</a>
+      </div>
     </div>
   </section>
 
+  <div class="stats-strip">
+    <div class="stat-item">
+      <span class="stat-num">5,000+</span>
+      <span class="stat-label">Farmers Connected</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">120+</span>
+      <span class="stat-label">Factories Onboarded</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">99.9%</span>
+      <span class="stat-label">Uptime</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">KES 2B+</span>
+      <span class="stat-label">Payments Processed</span>
+    </div>
+  </div>
+
   <section class="features" id="features">
-    <h2>System Features</h2>
+    <div class="section-header">
+      <span class="section-tag">Platform Features</span>
+      <h2>Everything You Need to Manage Tea</h2>
+      <p>A complete digital ecosystem designed for every stakeholder in Kenya's tea industry.</p>
+    </div>
     <div class="feature-grid">
       <div class="feature-item">
+        <span class="feature-icon">🌿</span>
         <h3>Farmer Dashboard</h3>
-        <p>View delivery history, payment details, and training updates via mobile or USSD.</p>
+        <p>View delivery history, payment details, and training updates via mobile or USSD — even without a smartphone.</p>
       </div>
       <div class="feature-item">
+        <span class="feature-icon">🏭</span>
         <h3>Factory Integration</h3>
-        <p>Real-time tracking of incoming tea, quality assessment, and farmer feedback.</p>
+        <p>Real-time tracking of incoming tea, quality assessment, and automated farmer feedback and notifications.</p>
       </div>
       <div class="feature-item">
+        <span class="feature-icon">👨‍🌾</span>
         <h3>Extension Services</h3>
-        <p>Field officers can plan and track training sessions and provide digital reports.</p>
+        <p>Field officers can plan and track training sessions, log visits, and provide digital reports instantly.</p>
       </div>
       <div class="feature-item">
+        <span class="feature-icon">🔐</span>
         <h3>Role-Based Access</h3>
-        <p>Admins, staff, and officers have secure access to assigned features only.</p>
+        <p>Admins, factory staff, and field officers have secure access to their assigned features only.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📊</span>
+        <h3>Reports & Analytics</h3>
+        <p>Generate actionable insights on delivery trends, quality scores, and payment histories at any time.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📱</span>
+        <h3>USSD Integration</h3>
+        <p>Accessible via basic phones through USSD — no internet or smartphone required for core features.</p>
       </div>
     </div>
   </section>
 
   <section class="testimonials">
-    <h2>What Farmers Are Saying</h2>
+    <div class="section-header">
+      <span class="section-tag">Farmer Voices</span>
+      <h2>What the Community Says</h2>
+      <p>Real feedback from farmers and officers across Kenya's tea country.</p>
+    </div>
     <div class="testimonial-grid">
       <div class="testimonial">
-        <p>"ChaiConnect made it easy to track my deliveries and payments. A real game changer!"</p>
-        <span>– Mary W., Nyeri</span>
+        <p>"ChaiConnect made it easy to track my deliveries and payments. No more waiting weeks to find out how much I've earned — it's a real game changer!"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">MW</div>
+          <div>
+            <span class="author-name">Mary W.</span>
+            <span class="author-place">Tea Farmer, Nyeri</span>
+          </div>
+        </div>
       </div>
       <div class="testimonial">
-        <p>"The USSD feature helps me even when I’m in the field. No smartphone needed!"</p>
-        <span>– Daniel M., Kericho</span>
+        <p>"The USSD feature helps me even when I'm deep in the field with no internet. No smartphone needed and I get all the info I need on delivery days."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">DM</div>
+          <div>
+            <span class="author-name">Daniel M.</span>
+            <span class="author-place">Tea Farmer, Kericho</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
-  
+
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-section">
-        <h3>About ChaiConnect</h3>
-        <p>Revolutionizing Kenya's tea supply chain through innovative technology solutions that connect farmers, factories and agricultural officers in a seamless digital ecosystem.</p>
+        <h3>🍃 ChaiConnect</h3>
+        <p>Revolutionizing Kenya's tea supply chain through innovative technology that connects farmers, factories, and agricultural officers in a seamless digital ecosystem.</p>
         <div class="social-links">
           <a href="#" class="social-link">📘</a>
           <a href="#" class="social-link">🐦</a>
@@ -83,18 +137,16 @@
           <a href="#" class="social-link">📱</a>
         </div>
       </div>
-      
       <div class="footer-section">
         <h3>Quick Links</h3>
         <ul>
-          <li><a href="#home">Home</a></li>
+          <li><a href="#">Home</a></li>
           <li><a href="#features">Features</a></li>
           <li><a href="aboutus.html">About Us</a></li>
           <li><a href="register.html">Register</a></li>
           <li><a href="contactus.html">Contact Us</a></li>
         </ul>
       </div>
-      
       <div class="footer-section">
         <h3>Services</h3>
         <ul>
@@ -104,27 +156,23 @@
           <li><a href="#">USSD Integration</a></li>
         </ul>
       </div>
-      
       <div class="footer-section">
         <h3>Contact Info</h3>
         <p>📍 Nairobi, Kenya</p>
         <p>📞 +254 700 000 000</p>
         <p>✉️ info@chaiconnect.co.ke</p>
-        <p>🕒 Mon-Fri: 8AM-6PM</p>
+        <p>🕒 Mon–Fri: 8AM–6PM</p>
       </div>
     </div>
-    
     <div class="footer-bottom">
       <p>&copy; 2025 ChaiConnect. All rights reserved. | Privacy Policy | Terms of Service</p>
     </div>
   </footer>
-  <script src="main.js"></script>
+
   <script>
-  function toggleNav() {
-    document.getElementById('navLinks').classList.toggle('show');
-  }
-</script>
-
+    function toggleNav() {
+      document.getElementById('navLinks').classList.toggle('show');
+    }
+  </script>
 </body>
-
 </html>

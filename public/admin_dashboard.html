@@ -1,230 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="/css/dashboards_style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — ChaiConnect</title>
+  <link rel="stylesheet" href="/css/dashboards_style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-
 <body>
-  <!-- Top Floating Header -->
+
+  <!-- ===== TOP HEADER ===== -->
   <div class="top-header">
     <div class="left-section">
-      <button class="menu-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
+      <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
       </button>
-      <h2>chaiConnect</h2>
+      <h2>ChaiConnect</h2>
     </div>
     <div class="right-icons">
-      <a href="/alerts.html" title="View Alerts" class="alert-link">
+      <a href="/alerts.html" class="alert-link" title="Alerts">
         <i class="fas fa-bell"></i>
         <span id="alertCount">0</span>
       </a>
-      <label class="theme-switch">
-        <input type="checkbox" id="themeToggle">
+      <label class="theme-switch" title="Toggle dark mode">
+        <input type="checkbox" id="themeToggle" />
         <span class="slider"></span>
       </label>
-      <button class="logout-button" onclick="logout()">Logout</button>
+      <button class="logout-button" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
     </div>
   </div>
 
-  <div class="sidebar">
-    <h3>Admin Dashboard</h3>
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar" id="sidebar">
+    <h3>Admin Panel</h3>
     <ul>
-      <li><a href="#" class="active">Home</a></li>
-      <li><a href="view_profile.html">View My Profile</a></li>
-      <li><a href="assign_roles.html">Create New Users</a></li>
-      <li><a href="manage_users.html">View All System Users</a></li>
-      <li><a href="/farmer_mismatches.html">Review Mismatches</a></li>
-      <li><a href="/suspended_accounts.html">View suspended accounts</a></li>
-      <li><a href="/view_policies.html">View uploaded policies</a></li>
-      <!--<li><a href="#logout" onclick="logout()">Logout</a></li>-->
+      <li><a href="#" class="active"><i class="fas fa-house"></i> Home</a></li>
+      <li><a href="view_profile.html"><i class="fas fa-user-circle"></i> My Profile</a></li>
+      <li><a href="assign_roles.html"><i class="fas fa-user-plus"></i> Create New Users</a></li>
+      <li><a href="manage_users.html"><i class="fas fa-users"></i> All System Users</a></li>
+      <li><a href="/farmer_mismatches.html"><i class="fas fa-flag"></i> Review Mismatches</a></li>
+      <li><a href="/suspended_accounts.html"><i class="fas fa-ban"></i> Suspended Accounts</a></li>
+      <li><a href="/view_policies.html"><i class="fas fa-file-lines"></i> View Policies</a></li>
     </ul>
   </div>
 
+  <!-- ===== MAIN CONTENT ===== -->
   <div class="main-content">
+
     <section id="overview">
       <h1 id="welcomeMessage">Welcome, Admin</h1>
-      <p>Oversee the operations of ChaiConnect.</p>
+      <p>Manage and oversee all ChaiConnect operations from one place.</p>
     </section>
 
-    <!-- Stat Summary Cards -->
+    <!-- Stat Cards -->
     <div class="dashboard-cards">
       <div class="stat-card">
-        <p>Total Farmers</p>
-        <h2 id="totalFarmers">Loading...</h2>
+        <p><i class="fas fa-seedling"></i> &nbsp;Total Farmers</p>
+        <h2 id="totalFarmers">—</h2>
       </div>
       <div class="stat-card">
-        <p>Total Factory Staff</p>
-        <h2 id="totalFactoryStaff">Loading...</h2>
+        <p><i class="fas fa-industry"></i> &nbsp;Factory Staff</p>
+        <h2 id="totalFactoryStaff">—</h2>
       </div>
       <div class="stat-card">
-        <p>Total Extension Officers</p>
-        <h2 id="totalExtensionOfficers">Loading...</h2>
+        <p><i class="fas fa-person-digging"></i> &nbsp;Extension Officers</p>
+        <h2 id="totalExtensionOfficers">—</h2>
       </div>
       <div class="stat-card">
-        <p>Tea Delivered Today</p>
-        <h2 id="teaDeliveredToday">Loading...</h2>
+        <p><i class="fas fa-calendar-day"></i> &nbsp;Tea Delivered Today</p>
+        <h2 id="teaDeliveredToday">—</h2>
       </div>
       <div class="stat-card">
-        <p>Tea Delivered This Month</p>
-        <h2 id="teaDeliveredThisMonth">Loading...</h2>
+        <p><i class="fas fa-calendar-week"></i> &nbsp;This Month</p>
+        <h2 id="teaDeliveredThisMonth">—</h2>
       </div>
       <div class="stat-card">
-        <p>Tea Delivered Overall</p>
-        <h2 id="teaDeliveredOverall">Loading...</h2>
+        <p><i class="fas fa-boxes-stacked"></i> &nbsp;Total Delivered</p>
+        <h2 id="teaDeliveredOverall">—</h2>
       </div>
     </div>
 
-
-    <!-- Feature Actions -->
+    <!-- Action Cards -->
     <div class="card-actions">
       <div class="card">
-        <h3>Manage Users</h3>
-        <p>View, add, or remove farmers, factory staff and extension officers.</p>
+        <h3><i class="fas fa-users"></i> Manage Users</h3>
+        <p>View, add, or remove farmers, factory staff and extension officers from the system.</p>
         <button onclick="location.href='/manage_users.html'">Manage</button>
       </div>
-
       <div class="card">
-        <h3>Add new users</h3>
-        <p>Add new users(Factory Staff/Extension Officers) to the system to newly added system users.</p>
+        <h3><i class="fas fa-user-plus"></i> Add New Users</h3>
+        <p>Create accounts for new factory staff or extension officers in the system.</p>
         <button onclick="location.href='/assign_roles.html'">Add</button>
       </div>
       <div class="card">
-        <h3>Create Alerts</h3>
-        <p>Send important notifications and updates to various user groups.</p>
+        <h3><i class="fas fa-bell"></i> Create Alerts</h3>
+        <p>Send important notifications and updates to all user groups across the platform.</p>
         <button onclick="location.href='/create_alert.html'">Create</button>
       </div>
-
       <div class="card">
-        <h3>Set Payment Rates</h3>
-        <p>Configure and update the payment rates per kilogram for tea deliveries.</p>
+        <h3><i class="fas fa-coins"></i> Set Payment Rates</h3>
+        <p>Configure and update the payment rate per kilogram for tea deliveries.</p>
         <button onclick="location.href='/set_rates.html'">Set Rates</button>
       </div>
       <div class="card">
-        <h3>Review Complaints</h3>
-        <p>Review and resolve complaints submitted by farmers.</p>
+        <h3><i class="fas fa-comment-dots"></i> Review Complaints</h3>
+        <p>Review and resolve complaints submitted by farmers and other users.</p>
         <button onclick="location.href='/admin_complaints.html'">Review</button>
       </div>
-
       <div class="card">
-        <h3>Issue Payments</h3>
+        <h3><i class="fas fa-money-bill-transfer"></i> Issue Payments</h3>
         <p>Process and distribute payments for verified tea deliveries to farmers.</p>
         <button onclick="location.href='/issue_payments.html'">Issue</button>
       </div>
       <div class="card">
-        <h3>View Issued Payments</h3>
+        <h3><i class="fas fa-receipt"></i> View Issued Payments</h3>
         <p>Track and review all payments that have been issued to farmers.</p>
         <button onclick="location.href='/admin_view_payments.html'">View</button>
       </div>
-
       <div class="card">
-        <h3>System Activity</h3>
-        <p>Track key platform actions and activity logs.</p>
+        <h3><i class="fas fa-timeline"></i> System Activity</h3>
+        <p>Track key platform actions and audit all user activity logs.</p>
         <button onclick="location.href='/system_logs.html'">Monitor</button>
       </div>
-
       <div class="card">
-        <h3>Analytics Dashboard</h3>
-        <p>Explore platform usage, trends and performance.</p>
+        <h3><i class="fas fa-chart-line"></i> Analytics</h3>
+        <p>Explore platform usage trends, delivery data, and performance metrics.</p>
         <button onclick="location.href='/analytics.html'">Analytics</button>
       </div>
-
       <div class="card">
-        <h3>Reports</h3>
-        <p>Generate system reports for finance, training, and productivity.</p>
+        <h3><i class="fas fa-file-chart-column"></i> Reports</h3>
+        <p>Generate system reports for finance, training, and productivity insights.</p>
         <button onclick="location.href='/reports.html'">View Reports</button>
       </div>
-
       <div class="card">
-        <h3>Upload Policy Documents</h3>
-        <p>Create and upload documents for the system and upload for the users to view.</p>
+        <h3><i class="fas fa-upload"></i> Upload Policies</h3>
+        <p>Create and upload policy documents visible to all users in the system.</p>
         <button onclick="location.href='/policies.html'">Upload</button>
       </div>
-
       <div class="card">
-        <h3>View all mismatch reports/Flagged accounts</h3>
-        <p>Review mismatch reports and complaints raised by factory staff on farmers.</p>
+        <h3><i class="fas fa-triangle-exclamation"></i> Mismatch Reports</h3>
+        <p>Review mismatch reports and flagged accounts raised by factory staff.</p>
         <button onclick="location.href='/farmer_mismatches.html'">View</button>
       </div>
-
       <div class="card">
-        <h3>View Training Materials</h3>
-        <p>View all training resources shared and delete if necessary.</p>
+        <h3><i class="fas fa-book-open"></i> Training Materials</h3>
+        <p>View all training resources shared across the platform and delete if needed.</p>
         <button onclick="location.href='/view_training_materials.html'">View</button>
       </div>
-      
-
-
-
-      
     </div>
 
   </div>
-  <div id="logoutToast" class="toast">✅ Logged out successfully</div>
+
+  <div id="logoutToast" class="toast">
+    <i class="fas fa-check-circle"></i> Logged out successfully
+  </div>
+
+  <script>
+    // Welcome message
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/me')
+        .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+        .then(data => {
+          document.getElementById('welcomeMessage').textContent = `Welcome, ${data.name || 'Admin'}`;
+        })
+        .catch(() => {});
+
+      // Dashboard stats
+      fetch('/api/dashboard-stats')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('totalFarmers').textContent           = data.totalFarmers           ?? '—';
+          document.getElementById('totalFactoryStaff').textContent      = data.totalFactoryStaff      ?? '—';
+          document.getElementById('totalExtensionOfficers').textContent = data.totalExtensionOfficers ?? '—';
+          document.getElementById('teaDeliveredToday').textContent      = data.teaDeliveredToday      ? `${data.teaDeliveredToday} kg`      : '—';
+          document.getElementById('teaDeliveredThisMonth').textContent  = data.teaDeliveredThisMonth  ? `${data.teaDeliveredThisMonth} kg`  : '—';
+          document.getElementById('teaDeliveredOverall').textContent    = data.teaDeliveredOverall    ? `${data.teaDeliveredOverall} kg`    : '—';
+        })
+        .catch(() => {});
+
+      // Alert count
+      fetch('/alerts/count')
+        .then(res => res.json())
+        .then(data => {
+          const badge = document.getElementById('alertCount');
+          if (data.count > 0) { badge.textContent = data.count; badge.style.display = 'inline-block'; }
+        })
+        .catch(() => {});
+    });
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    function logout() {
+      fetch('/logout', { method: 'POST' }).then(() => {
+        document.getElementById('logoutToast').classList.add('show');
+        setTimeout(() => window.location.href = '/', 1500);
+      });
+    }
+  </script>
+
+  <script src="/alertCount.js"></script>
+  <script src="/logout.js"></script>
+  <script src="/darkLight.js"></script>
 </body>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => {
-        if (!res.ok) throw new Error('Not authenticated');
-        return res.json();
-      })
-      .then(data => {
-        const name = data.name || 'Admin';
-        document.getElementById('welcomeMessage').textContent = `Welcome, ${name}`;
-      })
-      .catch(err => {
-        console.error('Error fetching user info:', err);
-        document.getElementById('welcomeMessage').textContent = 'Welcome, Admin';
-      });
-  });
-
-
-
-  document.addEventListener("DOMContentLoaded", () => {
-    fetch('/api/dashboard-stats')
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('totalFarmers').textContent = data.totalFarmers;
-        document.getElementById('totalFactoryStaff').textContent = data.totalFactoryStaff;
-        document.getElementById('totalExtensionOfficers').textContent = data.totalExtensionOfficers;
-        document.getElementById('teaDeliveredToday').textContent = `${data.teaDeliveredToday} kg`;
-        document.getElementById('teaDeliveredThisMonth').textContent = `${data.teaDeliveredThisMonth} kg`;
-        document.getElementById('teaDeliveredOverall').textContent = `${data.teaDeliveredOverall} kg`;
-      })
-      .catch(err => {
-        console.error('Failed to load dashboard stats', err);
-      });
-  });
-
-
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/alerts/count')
-      .then(res => res.json())
-      .then(data => {
-        const count = data.count;
-        const badge = document.getElementById('alertCount');
-        if (count > 0) {
-          badge.textContent = count;
-          badge.style.display = 'inline-block';
-        }
-      })
-      .catch(err => console.error('Failed to load alert count:', err));
-  });
-
-  function toggleSidebar() {
-  document.querySelector('.sidebar').classList.toggle('active');
-}
-</script>
-<script src="/alertCount.js"></script>
-
-
-
-<script src="/logout.js"></script>
-<script src="/darkLight.js"></script>
-
 </html>

@@ -1,94 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link rel="stylesheet" href="./css/style.css">
-    <style>
-      body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #5bae66;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .login-container {
-      background: #ffffffdd;
-      padding: 30px 40px;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 420px;
-    }
-
-    .login-container h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      color: #004d40;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 5px;
-      color: #333;
-    }
-
-    .form-group input[type="text"],
-    .form-group input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-      background-color: #f9f9f9;
-      transition: border-color 0.3s ease;
-    }
-
-    .form-group input:focus {
-      border-color: #5bae66;
-      outline: none;
-    }
-
-    
-
-    .toggle-link {
-      text-align: center;
-      margin-top: 1rem;
-      font-size: 14px;
-    }
-
-    .toggle-link a {
-      color: #1a73e8;
-    }
-
-    
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — ChaiConnect</title>
+  <link rel="stylesheet" href="./css/style.css">
 </head>
-<body class="register-page">
-  <div class="login-container">
-    <h2>Login to ChaiConnect</h2>
-    <form action="/login" method="POST">
-      <div class="form-group">
-        <label for="identifier">ID Number or Email</label>
-        <input type="text" name="identifier" id="identifier" required>
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" name="password" id="password" required>
-      </div>
-      <input type="submit" value="Login"/>
-    </form>
-    <p class="toggle-link">Don't have an account? <a href="register.html">Register</a></p>
-    <button class="back-to-home" onclick="window.location.href='index.html'">Back to Home</button>
-  </div>
-</body>
+<body class="auth-page">
 
+  <div class="auth-center">
+    <div class="login-container">
+      <div class="auth-logo">
+        <span>🍃 ChaiConnect</span>
+      </div>
+      <h2>Welcome Back</h2>
+      <p class="auth-subtitle">Sign in to your ChaiConnect account to continue</p>
+
+      <form action="/login" method="POST">
+        <div class="form-group">
+          <label for="identifier">ID Number or Email</label>
+          <input type="text" name="identifier" id="identifier" required placeholder="e.g. 12345678 or you@mail.com" />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" required placeholder="Enter your password" />
+        </div>
+        <input type="submit" value="Sign In →" />
+      </form>
+
+      <p class="toggle-link">Don't have an account? <a href="register.html">Register here</a></p>
+      <button class="back-to-home" onclick="window.location.href='index.html'">← Back to Home</button>
+    </div>
+  </div>
+
+</body>
 </html>
