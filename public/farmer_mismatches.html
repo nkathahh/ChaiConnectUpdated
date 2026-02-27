@@ -176,6 +176,7 @@ body.dark-mode h2 {
 </head>
 
 <body>
+  <script src="theme.js"></script>
   <div class="container">
     <button class="backToDB" onclick="location.href='/admin_dashboard.html'">← Back to Dashboard</button>
     <h2>Flagged Farmer Mismatches</h2>
@@ -202,28 +203,6 @@ body.dark-mode h2 {
     </table>
   </div>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
-      });
-  });
-</script>
 
   <script>
     let allMismatches = [];

@@ -130,6 +130,7 @@ body.dark-mode .backToDB:hover {
 </head>
 
 <body>
+  <script src="theme.js"></script>
 
   <div class="container">
     
@@ -153,28 +154,6 @@ body.dark-mode .backToDB:hover {
     </table>
   </div>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
-      });
-  });
-</script>
 
   <script>
     let suspendedUsers = [];

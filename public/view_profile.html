@@ -251,6 +251,7 @@
 </head>
 
 <body>
+  <script src="theme.js"></script>
   <div class="page">
     <div class="topbar">
       <div class="title-wrap">
@@ -365,21 +366,6 @@
       else backBtn.href = '/login.html';
     }
 
-    async function applyThemeFromUser() {
-      try {
-        const res = await fetch('/api/me');
-        const data = await res.json();
-        const userId = data.userId;
-
-        // Use per-user theme if exists, else fallback
-        const theme = userId ? localStorage.getItem(`theme_${userId}`) : localStorage.getItem('theme');
-        if (theme === 'dark') document.body.classList.add('dark-mode');
-        else document.body.classList.remove('dark-mode');
-      } catch {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') document.body.classList.add('dark-mode');
-      }
-    }
 
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
       e.preventDefault();

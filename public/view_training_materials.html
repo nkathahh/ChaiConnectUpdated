@@ -259,6 +259,7 @@
 </head>
 
 <body>
+    <script src="theme.js"></script>
     <div class="wrap">
         <div class="topbar">
             <div class="title">
@@ -306,118 +307,119 @@
                 </form>
             </div>
         </div>
+    </div>
 
-        <script>
-            let me = { role: 'guest' };
-            let currentDoc = null;
-            let allMaterials = [];
+    <script>
+        let me = { role: 'guest' };
+        let currentDoc = null;
+        let allMaterials = [];
 
-            async function loadMe() {
-                const res = await fetch('/api/me');
-                if (!res.ok) return;
-                me = await res.json();
-                const role = (me.role || '').toLowerCase();
-                const back = document.getElementById('backBtn');
+        async function loadMe() {
+            const res = await fetch('/api/me');
+            if (!res.ok) return;
+            me = await res.json();
+            const role = (me.role || '').toLowerCase();
+            const back = document.getElementById('backBtn');
 
-                const map = {
-                    admin: '/admin_dashboard.html',
-                    extension_officer: '/extension_officer_dashboard.html',
-                    farmer: '/farmer_dashboard.html',
-                    factory_staff: '/factory_staff_dashboard.html'
-                };
-                back.onclick = () => window.location.href = (map[role] || '/');
+            const map = {
+                admin: '/admin_dashboard.html',
+                extension_officer: '/extension_officer_dashboard.html',
+                farmer: '/farmer_dashboard.html',
+                factory_staff: '/factory_staff_dashboard.html'
+            };
+            back.onclick = () => window.location.href = (map[role] || '/');
+        }
+
+        function escapeHtml(str = '') {
+            return String(str).replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            }[m]));
+        }
+
+        function openModal(doc) {
+            currentDoc = doc;
+            document.getElementById('editId').value = doc.id;
+            document.getElementById('editTitle').value = doc.title || '';
+            document.getElementById('editDescription').value = doc.description || '';
+
+            const isText = doc.material_type === 'text';
+            document.getElementById('textLabel').style.display = isText ? 'block' : 'none';
+            document.getElementById('editText').style.display = isText ? 'block' : 'none';
+            document.getElementById('editText').value = isText ? (doc.text_content || '') : '';
+
+            const modal = document.getElementById('editModal');
+            modal.classList.add('show');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('editModal');
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+            currentDoc = null;
+        }
+
+        // click outside closes
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('editModal');
+            if (modal.classList.contains('show') && e.target === modal) closeModal();
+        });
+        // ESC closes
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        async function deleteDoc(id) {
+            if (!confirm('Delete this training material?')) return;
+            const res = await fetch(`/api/training-materials/${id}`, { method: 'DELETE' });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) return alert(data.message || 'Delete failed');
+            alert(data.message || 'Deleted');
+            fetchMaterials();
+        }
+
+        function buildSearchText(doc) {
+            const title = (doc.title || '').toLowerCase();
+            const desc = (doc.description || '').toLowerCase();
+            const uploader = (doc.uploaded_by || '').toLowerCase();
+            const type = (doc.material_type || '').toLowerCase();
+            return `${title} ${desc} ${uploader} ${type}`;
+        }
+
+        function renderMaterials(list) {
+            const grid = document.getElementById('materialsGrid');
+            grid.innerHTML = '';
+
+            if (!list || list.length === 0) {
+                grid.innerHTML = `<div class="no-results">No matching training materials found.</div>`;
+                return;
             }
 
-            function escapeHtml(str = '') {
-                return String(str).replace(/[&<>"']/g, m => ({
-                    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-                }[m]));
-            }
+            list.forEach(doc => {
+                const uploadedBy = doc.uploaded_by ? escapeHtml(doc.uploaded_by) : 'Unknown';
+                const uploadedAt = doc.upload_date ? new Date(doc.upload_date).toLocaleString() : '—';
+                const typeTag = doc.material_type === 'text'
+                    ? `<span class="tag text">TEXT</span>`
+                    : `<span class="tag">FILE</span>`;
 
-            function openModal(doc) {
-                currentDoc = doc;
-                document.getElementById('editId').value = doc.id;
-                document.getElementById('editTitle').value = doc.title || '';
-                document.getElementById('editDescription').value = doc.description || '';
+                const fileOrText = doc.material_type === 'text'
+                    ? `<div class="text-box">${escapeHtml(doc.text_content || '')}</div>`
+                    : (doc.file_path
+                        ? `<a class="file-link" href="${doc.file_path}" target="_blank">📎 Open file</a>`
+                        : `<p style="color:#ef4444;margin:10px 0 0;">Missing file link</p>`);
 
-                const isText = doc.material_type === 'text';
-                document.getElementById('textLabel').style.display = isText ? 'block' : 'none';
-                document.getElementById('editText').style.display = isText ? 'block' : 'none';
-                document.getElementById('editText').value = isText ? (doc.text_content || '') : '';
-
-                const modal = document.getElementById('editModal');
-                modal.classList.add('show');
-                modal.setAttribute('aria-hidden', 'false');
-            }
-
-            function closeModal() {
-                const modal = document.getElementById('editModal');
-                modal.classList.remove('show');
-                modal.setAttribute('aria-hidden', 'true');
-                currentDoc = null;
-            }
-
-            // click outside closes
-            document.addEventListener('click', (e) => {
-                const modal = document.getElementById('editModal');
-                if (modal.classList.contains('show') && e.target === modal) closeModal();
-            });
-            // ESC closes
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeModal();
-            });
-
-            async function deleteDoc(id) {
-                if (!confirm('Delete this training material?')) return;
-                const res = await fetch(`/api/training-materials/${id}`, { method: 'DELETE' });
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) return alert(data.message || 'Delete failed');
-                alert(data.message || 'Deleted');
-                fetchMaterials();
-            }
-
-            function buildSearchText(doc) {
-                const title = (doc.title || '').toLowerCase();
-                const desc = (doc.description || '').toLowerCase();
-                const uploader = (doc.uploaded_by || '').toLowerCase();
-                const type = (doc.material_type || '').toLowerCase();
-                return `${title} ${desc} ${uploader} ${type}`;
-            }
-
-            function renderMaterials(list) {
-                const grid = document.getElementById('materialsGrid');
-                grid.innerHTML = '';
-
-                if (!list || list.length === 0) {
-                    grid.innerHTML = `<div class="no-results">No matching training materials found.</div>`;
-                    return;
-                }
-
-                list.forEach(doc => {
-                    const uploadedBy = doc.uploaded_by ? escapeHtml(doc.uploaded_by) : 'Unknown';
-                    const uploadedAt = doc.upload_date ? new Date(doc.upload_date).toLocaleString() : '—';
-                    const typeTag = doc.material_type === 'text'
-                        ? `<span class="tag text">TEXT</span>`
-                        : `<span class="tag">FILE</span>`;
-
-                    const fileOrText = doc.material_type === 'text'
-                        ? `<div class="text-box">${escapeHtml(doc.text_content || '')}</div>`
-                        : (doc.file_path
-                            ? `<a class="file-link" href="${doc.file_path}" target="_blank">📎 Open file</a>`
-                            : `<p style="color:#ef4444;margin:10px 0 0;">Missing file link</p>`);
-
-                    const actions = `
+                const actions = `
       <div class="actions">
         ${doc.can_edit ? `<button class="btn btn-edit" onclick='openModal(${JSON.stringify(doc)})'>Edit</button>` : ''}
         ${doc.can_delete ? `<button class="btn btn-delete" onclick="deleteDoc(${doc.id})">Delete</button>` : ''}
       </div>
     `;
 
-                    const el = document.createElement('div');
-                    el.className = 'card';
-                    el.dataset.search = buildSearchText(doc);
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.dataset.search = buildSearchText(doc);
 
-                    el.innerHTML = `
+                el.innerHTML = `
       <div class="meta">
         <div>
           <strong>${escapeHtml(doc.title || 'Untitled')}</strong>
@@ -431,65 +433,67 @@
         ${actions}
       </div>
     `;
-                    grid.appendChild(el);
-                });
-            }
-
-            function applySearch() {
-                const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-                if (!q) return renderMaterials(allMaterials);
-
-                const filtered = allMaterials.filter(doc => buildSearchText(doc).includes(q));
-                renderMaterials(filtered);
-            }
-
-            async function fetchMaterials() {
-                const grid = document.getElementById('materialsGrid');
-                grid.innerHTML = `<div class="no-results">Loading...</div>`;
-
-                const res = await fetch('/training-materials');
-                const items = await res.json();
-
-                allMaterials = Array.isArray(items) ? items : [];
-                applySearch(); // keep current search active after refresh
-            }
-
-
-            document.getElementById('editForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const id = document.getElementById('editId').value;
-                const title = document.getElementById('editTitle').value.trim();
-                const description = document.getElementById('editDescription').value.trim();
-                const text_content = (currentDoc && currentDoc.material_type === 'text')
-                    ? document.getElementById('editText').value
-                    : undefined;
-
-                const res = await fetch(`/api/training-materials/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, description, text_content })
-                });
-
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) return alert(data.message || 'Update failed');
-
-                alert(data.message || 'Updated');
-                closeModal();
-                fetchMaterials();
+                grid.appendChild(el);
             });
-            document.getElementById('searchInput').addEventListener('input', applySearch);
-            document.getElementById('clearSearchBtn').addEventListener('click', () => {
-                document.getElementById('searchInput').value = '';
-                renderMaterials(allMaterials);
+        }
+
+        function applySearch() {
+            const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+            if (!q) return renderMaterials(allMaterials);
+
+            const filtered = allMaterials.filter(doc => buildSearchText(doc).includes(q));
+            renderMaterials(filtered);
+        }
+
+        async function fetchMaterials() {
+            const grid = document.getElementById('materialsGrid');
+            grid.innerHTML = `<div class="no-results">Loading...</div>`;
+
+            const res = await fetch('/training-materials');
+            const items = await res.json();
+
+            allMaterials = Array.isArray(items) ? items : [];
+            applySearch(); // keep current search active after refresh
+        }
+
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('editId').value;
+            const title = document.getElementById('editTitle').value.trim();
+            const description = document.getElementById('editDescription').value.trim();
+            const text_content = (currentDoc && currentDoc.material_type === 'text')
+                ? document.getElementById('editText').value
+                : undefined;
+
+            const res = await fetch(`/api/training-materials/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description, text_content })
             });
 
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) return alert(data.message || 'Update failed');
 
-            (async function init() {
-                await loadMe();
-                await fetchMaterials();
-            })();
-        </script>
+            alert(data.message || 'Updated');
+            closeModal();
+            fetchMaterials();
+        });
+        document.getElementById('searchInput').addEventListener('input', applySearch);
+        document.getElementById('clearSearchBtn').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            renderMaterials(allMaterials);
+        });
+
+
+        (async function init() {
+            await loadMe();
+            await fetchMaterials();
+        })();
+
+    </script>
+
 </body>
 
 </html>

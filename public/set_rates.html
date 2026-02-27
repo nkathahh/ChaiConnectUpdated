@@ -94,6 +94,7 @@ body.dark-mode .btn:hover {
   </style>
 </head>
 <body>
+  <script src="theme.js"></script>
   <div class="container">
     <div class="top-bar">
       <h2>Set Payment Rates</h2>
@@ -132,28 +133,6 @@ body.dark-mode .btn:hover {
     </div>
   </div>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
-      });
-  });
-</script>
 
 
   <script>

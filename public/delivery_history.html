@@ -2,397 +2,173 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Delivery History | ChaiConnect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-    .btn-back {
-      background-color: #555;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: background-color 0.3s;
-    }
-
-    .btn-back:hover {
-      background-color: #333;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 25px;
-    }
-    .status-badge {
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-    .status-pending {
-      background-color: #fff3e0;
-      color: #e65100;
-    }
-    .status-scheduled {
-      background-color: #e3f2fd;
-      color: #1565c0;
-    }
-    .status-completed {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-    }
-    .status-cancelled {
-      background-color: #ffebee;
-      color: #c62828;
-    }
-    .table-responsive {
-      overflow-x: auto;
-    }
-    .table th {
-      background-color: #2e7d32;
-      color: white;
-    }
-    .actions-dropdown .dropdown-menu {
-      min-width: 150px;
-    }
-    /* Dark Mode Styles */
-body.dark-mode {
-  background: #0f172a;
-  color: #f1f5f9;
-}
-
-body.dark-mode .container {
-  background: #1e293b;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-}
-
-/* Headings */
-body.dark-mode h2 {
-  color: #f8fafc;
-}
-
-/* Back Button */
-body.dark-mode .btn-back {
-  background-color: #334155;
-  color: #f1f5f9;
-}
-body.dark-mode .btn-back:hover {
-  background-color: #1e293b;
-}
-
-/* Table Styling */
-body.dark-mode .table {
-  background-color: #1e293b;
-  color: #f1f5f9;
-}
-body.dark-mode .table th {
-  background-color: #0f172a;
-  color: #f8fafc;
-}
-body.dark-mode .table td {
-  background-color: #1e293b;
-  color: #e2e8f0;
-  border-color: #334155;
-}
-
-/* Alternate Row Backgrounds */
-body.dark-mode .table tbody tr:nth-child(odd) {
-  background-color: #1e2633;
-}
-body.dark-mode .table tbody tr:nth-child(even) {
-  background-color: #0f172a;
-}
-
-/* Row Hover */
-body.dark-mode .table tbody tr:hover {
-  background-color: #334155;
-}
-
-/* Status Badges */
-body.dark-mode .status-badge {
-  font-weight: 600;
-}
-body.dark-mode .status-pending {
-  background-color: #facc15;
-  color: #1e293b;
-}
-body.dark-mode .status-scheduled {
-  background-color: #38bdf8;
-  color: #0f172a;
-}
-body.dark-mode .status-completed {
-  background-color: #22c55e;
-  color: #0f172a;
-}
-body.dark-mode .status-cancelled {
-  background-color: #f87171;
-  color: #1e293b;
-}
-
-/* Text Utilities */
-body.dark-mode .text-muted {
-  color: #94a3b8 !important;
-}
-body.dark-mode .text-success {
-  color: #4ade80 !important;
-}
-body.dark-mode .text-danger {
-  color: #f87171 !important;
-}
-
-/* Modal & Form Controls */
-body.dark-mode .modal-content {
-  background-color: #1e293b;
-  color: #f1f5f9;
-  border: 1px solid #334155;
-}
-body.dark-mode .form-control {
-  background-color: #0f172a;
-  color: #f1f5f9;
-  border: 1px solid #334155;
-}
-
-/* Button Fixes */
-body.dark-mode .btn-secondary {
-  background-color: #334155;
-  border-color: #334155;
-}
-body.dark-mode .btn-danger {
-  background-color: #ef4444;
-  border-color: #dc2626;
-}
-body.dark-mode .btn-danger:hover {
-  background-color: #dc2626;
-}
-body.dark-mode .btn-outline-success {
-  color: #4ade80;
-  border-color: #4ade80;
-}
-body.dark-mode .btn-outline-success:hover {
-  background-color: #4ade80;
-  color: #0f172a;
-}
-
-    
-  </style>
+  <title>Delivery History — ChaiConnect</title>
+  <link rel="stylesheet" href="/css/farmer_dashboard_items.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <a href="/farmer_dashboard.html" class="btn-back">
+  <script src="theme.js"></script>
+
+  <div class="page-wrapper wide">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1><i class="fas fa-truck"></i> My Delivery History</h1>
+        <p>Full record of all your tea deliveries and payment statuses.</p>
+      </div>
+      <a href="/farmer_dashboard.html" class="btn-back-dashboard">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
       </a>
-      <h2 class="mb-0"><i class="fas fa-history me-2"></i> My Delivery History</h2>
     </div>
 
-
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
-        <thead>
-          <tr>
-            <th>Delivery Date</th>
-            <th>Status</th>
-            <th>Estimated Qty (kg)</th>
-            <th>Actual Qty (kg)</th>
-            <th>Collection Center</th>
-            <th>Quality Grade</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="deliveryTableBody">
-          <tr>
-            <td colspan="8" class="text-center py-4">
-              <div class="spinner-border text-success" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <div class="text-muted" id="resultCount">Showing 0 results</div>
-      <button class="btn btn-outline-success" onclick="downloadCSV()">
-        <i class="fas fa-file-csv me-2"></i> Export to CSV
+    <!-- Result count + export -->
+    <div class="toolbar">
+      <div class="search-box">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Search by status, grade, center…" oninput="filterTable()" />
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="downloadCSV()">
+        <i class="fas fa-file-csv"></i> Export CSV
       </button>
     </div>
+
+    <div class="section-card" style="padding:0; overflow:hidden;">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Delivery Date</th>
+              <th>Status</th>
+              <th>Est. Qty (kg)</th>
+              <th>Actual Qty (kg)</th>
+              <th>Collection Center</th>
+              <th>Quality Grade</th>
+              <th>Payment</th>
+            </tr>
+          </thead>
+          <tbody id="deliveryTableBody">
+            <tr class="loading-row">
+              <td colspan="7">
+                <span class="spinner"></span>&nbsp; Loading deliveries…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:.5rem;">
+      <span id="resultCount" style="font-size:.85rem; color:var(--text-light);">Showing 0 results</span>
+    </div>
+
   </div>
 
-  <!-- Cancel Request Modal -->
-  <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Cancel Delivery Request</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>Are you sure you want to cancel this delivery request?</p>
-          <textarea id="cancelReason" class="form-control mt-3" placeholder="Reason for cancellation (optional)"></textarea>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-danger" onclick="confirmCancel()">Confirm Cancel</button>
-        </div>
+  <!-- Cancel Modal -->
+  <div id="cancelModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fas fa-ban" style="color:var(--red);"></i> Cancel Delivery Request</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <p style="color:var(--text-mid);margin-bottom:1rem;">Are you sure you want to cancel this delivery request?</p>
+      <div class="form-group">
+        <label>Reason for cancellation (optional)</label>
+        <textarea id="cancelReason" placeholder="Describe the reason…"></textarea>
+      </div>
+      <div class="btn-group right">
+        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        <button class="btn btn-danger" onclick="confirmCancel()">Confirm Cancel</button>
       </div>
     </div>
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
-      });
-  });
-</script>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-  let cancelModal = null;
-  let currentRequestId = null;
-  let allDeliveries = [];
+    let allDeliveries = [];
+    let currentRequestId = null;
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
-    await loadDeliveries();
-  });
+    document.addEventListener('DOMContentLoaded', loadDeliveries);
 
-  async function loadDeliveries() {
-    try {
-      console.log("Fetching all delivery history...");
-      const response = await fetch('/api/delivery-history', {
-        credentials: 'include'
-      });
+    async function loadDeliveries() {
+      try {
+        const res = await fetch('/api/delivery-history', { credentials: 'include' });
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+        allDeliveries = await res.json();
+        allDeliveries.sort((a, b) => new Date(b.delivery_date) - new Date(a.delivery_date));
+        renderTable(allDeliveries);
+      } catch (err) {
+        document.getElementById('deliveryTableBody').innerHTML = `
+          <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--red);">
+            <i class="fas fa-exclamation-circle"></i> ${err.message || 'Failed to load. Please try again.'}
+          </td></tr>`;
+      }
+    }
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error response:", errorText);
-        throw new Error(`Server returned ${response.status}: ${errorText}`);
+    function statusBadge(status) {
+      const map = { pending:'badge-pending', scheduled:'badge-scheduled', completed:'badge-completed', cancelled:'badge-cancelled' };
+      return `<span class="badge ${map[status] || 'badge-pending'}">${status || '—'}</span>`;
+    }
+
+    function paymentBadge(ps) {
+      return ps === 'paid'
+        ? `<span class="badge badge-paid"><i class="fas fa-check-circle"></i> Paid</span>`
+        : `<span class="badge badge-unpaid"><i class="fas fa-hourglass-half"></i> ${ps || 'Unpaid'}</span>`;
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('deliveryTableBody');
+      document.getElementById('resultCount').textContent = `Showing ${data.length} result${data.length !== 1 ? 's' : ''}`;
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-light);">
+          <i class="fas fa-info-circle"></i> No delivery records found.
+        </td></tr>`;
+        return;
       }
 
-      const deliveries = await response.json();
-      console.log("All deliveries from server:", deliveries);
-
-      allDeliveries = deliveries;
-      deliveries.sort((a, b) => new Date(b.delivery_date) - new Date(a.delivery_date));
-      renderTable(deliveries);
-    } catch (error) {
-      console.error('Full error:', error);
-      document.getElementById('deliveryTableBody').innerHTML = `
+      tbody.innerHTML = data.map(d => `
         <tr>
-          <td colspan="8" class="text-center py-4 text-danger">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            ${error.message || 'Failed to load delivery history. Please try again later.'}
-          </td>
-        </tr>
-      `;
-    }
-  }
-
-  function renderTable(data) {
-    const tbody = document.getElementById('deliveryTableBody');
-    document.getElementById('resultCount').textContent = `Showing ${data.length} results`;
-    tbody.innerHTML = '';
-
-    if (data.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center py-4 text-muted">
-            <i class="fas fa-info-circle me-2"></i>
-            No delivery records found.
-          </td>
-        </tr>
-      `;
-      return;
+          <td>${new Date(d.delivery_date).toLocaleDateString('en-KE')}</td>
+          <td>${statusBadge(d.status)}</td>
+          <td>${d.estimated_quantity ?? '—'} kg</td>
+          <td>${d.quantity_kg ?? '—'} kg</td>
+          <td>${d.collection_center || '—'}</td>
+          <td>${d.quality_grade || '—'}</td>
+          <td>${paymentBadge(d.payment_status)}</td>
+        </tr>`).join('');
     }
 
-    data.forEach(d => {
-      const paymentBadge = d.payment_status === 'paid'
-        ? `<i class="fas fa-check-circle text-success me-1"></i> Paid`
-        : `<i class="fas fa-exclamation-circle text-warning me-1"></i> ${d.payment_status || 'Unpaid'}`;
-
-      const statusClass = d.status ? `status-${d.status}` : '';
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${new Date(d.delivery_date).toLocaleDateString()}</td>
-        <td><span class="status-badge ${statusClass}">${d.status || '—'}</span></td>
-        <td>${d.estimated_quantity} kg</td>
-        <td>${d.quantity_kg || '—'} kg</td>
-        <td>${d.collection_center || '—'}</td>
-        <td>${d.quality_grade || '—'}</td>
-        <td>${paymentBadge}</td>
-      `;
-      tbody.appendChild(row);
-    });
-  }
-
-  function downloadCSV() {
-    if (allDeliveries.length === 0) {
-      alert('No data available to export');
-      return;
+    function filterTable() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allDeliveries.filter(d =>
+        (d.status || '').toLowerCase().includes(q) ||
+        (d.quality_grade || '').toLowerCase().includes(q) ||
+        (d.collection_center || '').toLowerCase().includes(q) ||
+        (d.payment_status || '').toLowerCase().includes(q)
+      );
+      renderTable(filtered);
     }
 
-    const headers = [
-      "Delivery Date", "Status", "Estimated Qty (kg)",
-      "Actual Qty (kg)", "Collection Center", "Quality Grade", "Payment Status"
-    ];
+    function downloadCSV() {
+      if (!allDeliveries.length) { alert('No data to export.'); return; }
+      const headers = ['Delivery Date','Status','Est. Qty (kg)','Actual Qty (kg)','Collection Center','Quality Grade','Payment Status'];
+      const rows = allDeliveries.map(d => [
+        new Date(d.delivery_date).toLocaleDateString(),
+        d.status, d.estimated_quantity, d.quantity_kg,
+        d.collection_center, d.quality_grade, d.payment_status
+      ]);
+      const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      a.download = 'delivery_history.csv';
+      a.click();
+    }
 
-    const rows = allDeliveries.map(del => [
-      new Date(del.delivery_date).toLocaleDateString(),
-      del.status || '',
-      del.estimated_quantity || '',
-      del.quantity_kg || '',
-      del.collection_center || '',
-      del.quality_grade || '',
-      del.payment_status || ''
-    ]);
-
-    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'delivery_history.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-</script>
+    function closeModal() { document.getElementById('cancelModal').classList.remove('show'); }
+    document.getElementById('cancelModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  </script>
 
 </body>
 </html>

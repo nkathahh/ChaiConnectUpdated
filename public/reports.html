@@ -164,6 +164,7 @@ body.dark-mode .back-btn:hover {
   </style>
 </head>
 <body>
+  <script src="theme.js"></script>
   <div class="header">ChaiConnect Admin - Reports</div>
   <div class="container">
     <h2>📊 Generate and Export System Reports</h2>
@@ -186,28 +187,7 @@ body.dark-mode .back-btn:hover {
     <button class="back-btn" onclick="location.href='/admin_dashboard.html'">← Back to Dashboard</button>
   </div>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
-      });
-  });
-</script>
+  
 
   <script>
     let currentData = [];

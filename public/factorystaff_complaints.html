@@ -59,32 +59,11 @@ body.dark-mode {
   <link rel="stylesheet" href="css/complaints.css">
 </head>
 <body>
+  <script src="theme.js"></script>
   <h2>Delivery Complaints</h2>
   <a href="/factory_staff_dashboard.html" class="back-button">← Back to Dashboard</a>
   <div id="complaintsContainer">Loading complaints...</div>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(res => res.json())
-      .then(data => {
-        const userId = data.userId;
-        if (!userId) return;
-        const theme = localStorage.getItem(`theme_${userId}`);
-        if (theme === 'dark') {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      })
-      .catch(() => {
-        const fallbackTheme = localStorage.getItem('theme');
-        if (fallbackTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-        }
-      });
-  });
-</script>
 
   <script>
     fetch('/api/factory/complaints')

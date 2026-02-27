@@ -172,6 +172,7 @@
 </head>
 
 <body>
+  <script src="theme.js"></script>
   <div class="wrap">
     <div class="header">
       <div>
@@ -390,19 +391,6 @@
     });
   });
 
-  // Theme sync (same pattern you use elsewhere)
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/me')
-      .then(r => r.json())
-      .then(d => {
-        const theme = localStorage.getItem(`theme_${d.userId}`) || localStorage.getItem('theme');
-        if (theme === 'dark') document.body.classList.add('dark-mode');
-      })
-      .catch(() => {
-        const theme = localStorage.getItem('theme');
-        if (theme === 'dark') document.body.classList.add('dark-mode');
-      });
-  });
 
   (async function init(){
     await loadMe();

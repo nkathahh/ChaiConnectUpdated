@@ -264,6 +264,7 @@
 </head>
 
 <body>
+  <script src="theme.js"></script>
   <main class="main-content">
     <div class="top-actions">
       <a href="/admin_dashboard.html" class="back-btn">← Back to Dashboard</a>
@@ -339,39 +340,6 @@
 
   </main>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const theme = localStorage.getItem('theme');
-      if (theme === 'dark') {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
-    });
-  </script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      fetch('/api/me')
-        .then(res => res.json())
-        .then(data => {
-          const userId = data.userId;
-          if (!userId) return;
-
-          const themeKey = `theme_${userId}`;
-          const theme = localStorage.getItem(themeKey);
-
-          if (theme === 'dark') {
-            document.body.classList.add('dark-mode');
-          } else {
-            document.body.classList.remove('dark-mode');
-          }
-        })
-        .catch(err => {
-          console.error('Failed to get theme:', err);
-        });
-    });
-  </script>
 
 
   <script>

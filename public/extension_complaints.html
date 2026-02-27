@@ -52,31 +52,10 @@
 </head>
 
 <body>
+  <script src="theme.js"></script>
   <h2>Extension Services Complaints</h2>
   <div id="complaintsContainer">Loading complaints...</div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      fetch('/api/me')
-        .then(res => res.json())
-        .then(data => {
-          const userId = data.userId;
-          if (!userId) return;
-          const theme = localStorage.getItem(`theme_${userId}`);
-          if (theme === 'dark') {
-            document.body.classList.add('dark-mode');
-          } else {
-            document.body.classList.remove('dark-mode');
-          }
-        })
-        .catch(() => {
-          const fallbackTheme = localStorage.getItem('theme');
-          if (fallbackTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-          }
-        });
-    });
-  </script>
 
   <script>
     // 1) Load extension complaints
