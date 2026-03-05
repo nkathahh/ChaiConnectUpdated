@@ -3,18 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register — ChaiConnect</title>
+  <title>Register ChaiConnect</title>
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body class="auth-page">
 
-  <div class="auth-center">
-    <div class="register-container">
+  <div class="auth-split">
+
+    <!-- Visual panel -->
+    <div class="auth-visual">
+      <div class="auth-visual-bg"></div>
+      <div class="auth-visual-copy">
+        <h2>Join Thousands<br>of Farmers<br><em>Already Connected.</em></h2>
+        <p>Track deliveries, monitor payments, and stay informed — from farm to factory.</p>
+      </div>
+    </div>
+
+    <!-- Form panel -->
+    <div class="auth-form-panel">
       <div class="auth-logo">
         <span>🍃 ChaiConnect</span>
       </div>
-      <h2>Create Your Account</h2>
-      <p class="auth-subtitle">Join thousands of farmers on ChaiConnect today</p>
+
+      <h2>Create Account</h2>
+      <p class="auth-subtitle">Join the ChaiConnect platform today</p>
 
       <form action="/register" method="post" enctype="multipart/form-data">
         <div class="form-group">
@@ -78,6 +90,7 @@
       <p class="toggle-link">Already have an account? <a href="login.html">Sign in</a></p>
       <button class="back-to-home" onclick="window.location.href='index.html'">← Back to Home</button>
     </div>
+
   </div>
 
   <script>

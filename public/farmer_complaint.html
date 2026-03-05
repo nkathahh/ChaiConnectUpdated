@@ -8,143 +8,270 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-  <script src="theme.js"></script>
+  <script src="/theme.js"></script>
 
-  <div class="page-wrapper narrow">
+  <div class="page-wrapper wide">
 
+    <!-- Page Header -->
     <div class="page-header">
       <div class="page-header-left">
         <h1><i class="fas fa-comment-dots"></i> Complaints</h1>
-        <p>Submit a new complaint or review your complaint history.</p>
+        <p>Submit a new complaint or track the status of existing ones.</p>
       </div>
       <a href="/farmer_dashboard.html" class="btn-back-dashboard">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
       </a>
     </div>
 
-    <!-- Submit complaint -->
-    <div class="section-card">
-      <h2 class="section-card-title"><i class="fas fa-pen-to-square"></i> Submit a Complaint</h2>
+    <div class="complaint-layout">
 
-      <div id="submitNotice"></div>
+      <!-- Submit Form -->
+      <div class="section-card" style="position:sticky;top:1.5rem;align-self:start;">
+        <h2 class="section-card-title"><i class="fas fa-pen-to-square"></i> New Complaint</h2>
+        <p style="font-size:.83rem;color:var(--text-mid);margin-bottom:1.25rem;line-height:1.6;">
+          Describe your issue clearly. Be as specific as possible to help our team resolve it quickly.
+        </p>
 
-      <form id="complaintForm">
-        <div class="form-group">
-          <label for="category">Category</label>
-          <select id="category" required>
-            <option value="">— Select Category —</option>
-            <option value="account">Account</option>
-            <option value="delivery">Delivery</option>
-            <option value="payment">Payment</option>
-            <option value="extension">Extension Services</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="complaintText">Describe your complaint</label>
-          <textarea id="complaintText" rows="5" placeholder="Be as specific as possible…" required></textarea>
-        </div>
-        <div class="btn-group right">
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-paper-plane"></i> Submit Complaint
-          </button>
-        </div>
-      </form>
-    </div>
+        <div id="submitNotice"></div>
 
-    <!-- Complaint history -->
-    <div class="section-card">
-      <h2 class="section-card-title"><i class="fas fa-clock-rotate-left"></i> My Complaint History</h2>
-      <div id="complaintHistory">
-        <div class="empty-state">
-          <div class="spinner"></div>
-          <p style="margin-top:.5rem;color:var(--text-light);">Loading…</p>
+        <form id="complaintForm">
+          <div class="form-group">
+            <label for="category">Category <span style="color:var(--red);">*</span></label>
+            <select id="category" required>
+              <option value="" disabled selected>Select a category</option>
+              <option value="delivery">Delivery Issue</option>
+              <option value="payment">Payment Discrepancy</option>
+              <option value="quality">Quality Grading</option>
+              <option value="extension">Extension Services</option>
+              <option value="account">Account Problem</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="complaintText">
+              Describe your complaint <span style="color:var(--red);">*</span>
+            </label>
+            <textarea
+              id="complaintText"
+              rows="6"
+              placeholder="For example: My delivery on 12 June 2025 was recorded as Grade C, but my leaf was clearly Grade A standard. I have a receipt from the weighbridge."
+              required
+              maxlength="1000"></textarea>
+            <div style="display:flex;justify-content:flex-end;margin-top:.3rem;">
+              <span id="charCount" style="font-size:.72rem;color:var(--text-light);">0 / 1000</span>
+            </div>
+          </div>
+
+          <div class="btn-group right">
+            <button type="reset" class="btn btn-secondary" id="resetBtn">Clear</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <i class="fas fa-paper-plane"></i> Submit Complaint
+            </button>
+          </div>
+        </form>
+
+        <!-- Category guide -->
+        <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+          <p style="font-size:.75rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:.75rem;">What to include</p>
+          <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.8rem;color:var(--text-mid);">
+            <span><i class="fas fa-check" style="color:var(--green-mid);margin-right:.5rem;"></i>Date of the incident</span>
+            <span><i class="fas fa-check" style="color:var(--green-mid);margin-right:.5rem;"></i>Delivery or payment reference number</span>
+            <span><i class="fas fa-check" style="color:var(--green-mid);margin-right:.5rem;"></i>Name of collection centre (if relevant)</span>
+            <span><i class="fas fa-check" style="color:var(--green-mid);margin-right:.5rem;"></i>Expected vs actual outcome</span>
+          </div>
         </div>
       </div>
+
+      <!-- Complaint History -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+          <h2 style="font-size:1rem;font-weight:700;color:var(--green-deep);">
+            <i class="fas fa-clock-rotate-left" style="color:var(--green-bright);margin-right:.4rem;"></i>
+            My Complaint History
+          </h2>
+          <button class="btn btn-secondary btn-sm" onclick="loadComplaintHistory()">
+            <i class="fas fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="tabs" style="margin-bottom:1rem;">
+          <button class="tab-btn active" data-filter="all">All</button>
+          <button class="tab-btn" data-filter="open">Open</button>
+          <button class="tab-btn" data-filter="in_progress">In Progress</button>
+          <button class="tab-btn" data-filter="resolved">Resolved</button>
+        </div>
+
+        <div id="complaintHistory">
+          <div class="empty-state">
+            <div class="spinner"></div>
+            <p style="margin-top:.75rem;">Loading complaints...</p>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      fetch('/api/me')
-        .then(r => r.json())
-        .then(d => {
-          const theme = localStorage.getItem(`theme_${d.userId}`) || localStorage.getItem('theme');
-          if (theme === 'dark') document.body.classList.add('dark-mode');
-        }).catch(() => { if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode'); });
+    let allComplaints = [];
+    let activeFilter = 'all';
+
+    const categoryIcons = {
+      delivery: 'fas fa-truck',
+      payment: 'fas fa-money-bill-wave',
+      quality: 'fas fa-star-half-stroke',
+      extension: 'fas fa-user-tie',
+      account: 'fas fa-user-circle',
+      other: 'fas fa-comment-dots'
+    };
+
+    const categoryLabels = {
+      delivery: 'Delivery Issue',
+      payment: 'Payment Discrepancy',
+      quality: 'Quality Grading',
+      extension: 'Extension Services',
+      account: 'Account Problem',
+      other: 'Other'
+    };
+
+    // Character counter
+    document.getElementById('complaintText').addEventListener('input', function() {
+      document.getElementById('charCount').textContent = `${this.value.length} / 1000`;
+    });
+
+    // Reset char count on form reset
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      setTimeout(() => document.getElementById('charCount').textContent = '0 / 1000', 10);
+    });
+
+    // Filter tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        renderComplaints();
+      });
     });
 
     function showNotice(msg, type = 'success') {
       const el = document.getElementById('submitNotice');
-      el.innerHTML = `<div class="notice notice-${type}"><i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${msg}</div>`;
-      setTimeout(() => el.innerHTML = '', 5000);
+      const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+      el.innerHTML = `<div class="notice notice-${type}"><i class="fas fa-${icon}"></i> ${msg}</div>`;
+      setTimeout(() => el.innerHTML = '', 6000);
+    }
+
+    function statusBadge(s) {
+      const map = {
+        open: 'badge-open',
+        in_progress: 'badge-in-progress',
+        resolved: 'badge-resolved'
+      };
+      const labels = { open: 'Open', in_progress: 'In Progress', resolved: 'Resolved' };
+      return `<span class="badge ${map[s] || 'badge-open'}">${labels[s] || 'Open'}</span>`;
+    }
+
+    function renderComplaints() {
+      const container = document.getElementById('complaintHistory');
+      const filtered = activeFilter === 'all'
+        ? allComplaints
+        : allComplaints.filter(c => c.status === activeFilter);
+
+      if (!filtered.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-comment-slash"></i></div>
+            <h3>${activeFilter === 'all' ? 'No complaints yet' : 'No ' + activeFilter.replace('_', ' ') + ' complaints'}</h3>
+            <p>${activeFilter === 'all' ? 'Complaints you submit will appear here.' : 'Try switching to a different filter.'}</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = `<div class="complaint-history-list">${filtered.map(c => {
+        const icon = categoryIcons[c.category] || 'fas fa-comment-dots';
+        const label = categoryLabels[c.category] || c.category;
+        const dateStr = new Date(c.complaint_date).toLocaleDateString('en-KE', {
+          day: 'numeric', month: 'short', year: 'numeric'
+        });
+        const adminNote = c.admin_notes
+          ? `<div class="complaint-admin-note">
+               <div class="complaint-admin-note-label"><i class="fas fa-reply" style="margin-right:.3rem;"></i> Admin Response</div>
+               ${c.admin_notes}
+             </div>`
+          : '';
+
+        return `
+          <div class="complaint-item">
+            <div class="complaint-item-header">
+              <div class="complaint-category">
+                <i class="${icon}" style="color:var(--green-mid);"></i>
+                ${label}
+              </div>
+              <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                <span class="complaint-date"><i class="fas fa-calendar" style="margin-right:.3rem;"></i>${dateStr}</span>
+                ${statusBadge(c.status)}
+              </div>
+            </div>
+            <div class="complaint-item-body">
+              <div>
+                <div class="complaint-text-label">Your complaint</div>
+                <div class="complaint-text-content">${c.complaint_text}</div>
+              </div>
+              ${adminNote}
+            </div>
+          </div>`;
+      }).join('')}</div>`;
     }
 
     document.getElementById('complaintForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const category       = document.getElementById('category').value;
-      const complaint_text = document.getElementById('complaintText').value;
+      const category = document.getElementById('category').value;
+      const complaint_text = document.getElementById('complaintText').value.trim();
+      const btn = document.getElementById('submitBtn');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:15px;height:15px;border-width:2px;"></span> Submitting...';
+
       try {
-        const res  = await fetch('/api/farmer/submit-complaint', {
+        const res = await fetch('/api/farmer/submit-complaint', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ category, complaint_text })
         });
         const data = await res.json();
         if (data.success) {
-          showNotice('Complaint submitted successfully.');
+          showNotice('Your complaint has been submitted successfully. We will review it shortly.');
           this.reset();
-          loadComplaintHistory();
+          document.getElementById('charCount').textContent = '0 / 1000';
+          await loadComplaintHistory();
         } else {
-          showNotice(data.message || 'Something went wrong.', 'error');
+          showNotice(data.message || 'Something went wrong. Please try again.', 'error');
         }
       } catch {
-        showNotice('An error occurred. Please try again.', 'error');
+        showNotice('An error occurred. Please check your connection and try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
       }
     });
-
-    function statusBadge(status) {
-      const map = { open:'badge-open', in_progress:'badge-in-progress', resolved:'badge-resolved' };
-      return `<span class="badge ${map[status] || 'badge-open'}">${(status || 'open').replace('_', ' ')}</span>`;
-    }
 
     async function loadComplaintHistory() {
       const container = document.getElementById('complaintHistory');
       container.innerHTML = `<div class="empty-state"><div class="spinner"></div></div>`;
       try {
-        const res  = await fetch('/api/farmer/my-complaints');
+        const res = await fetch('/api/farmer/my-complaints');
         const data = await res.json();
-
-        if (!data.success || !data.complaints.length) {
-          container.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon"><i class="fas fa-comment-slash"></i></div>
-              <h3>No complaints yet</h3>
-              <p>Your submitted complaints will appear here.</p>
-            </div>`;
-          return;
-        }
-
-        container.innerHTML = data.complaints.map(c => `
-          <div class="item-card">
-            <div class="item-card-header">
-              <div>
-                <div class="item-card-title">${c.category.charAt(0).toUpperCase() + c.category.slice(1)}</div>
-                <div class="item-card-meta">
-                  <i class="fas fa-calendar"></i>
-                  ${new Date(c.complaint_date).toLocaleString('en-KE', { dateStyle:'medium', timeStyle:'short' })}
-                </div>
-              </div>
-              ${statusBadge(c.status)}
-            </div>
-            <div class="item-card-body">
-              <p><strong>Complaint:</strong> ${c.complaint_text}</p>
-              <p><strong>Admin Notes:</strong> ${c.admin_notes || '—'}</p>
-            </div>
-          </div>`).join('');
-      } catch {
-        container.innerHTML = `<div class="notice notice-error"><i class="fas fa-exclamation-circle"></i> Failed to load complaint history.</div>`;
+        if (!data.success) throw new Error(data.message || 'Failed to load');
+        allComplaints = data.complaints || [];
+        renderComplaints();
+      } catch (err) {
+        container.innerHTML = `
+          <div class="notice notice-error">
+            <i class="fas fa-exclamation-circle"></i> ${err.message || 'Failed to load complaint history.'}
+          </div>`;
       }
     }
 

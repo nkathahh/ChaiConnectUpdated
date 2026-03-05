@@ -28,95 +28,184 @@
     <div class="page-hero-content">
       <span class="section-tag">Help Centre</span>
       <h1>Frequently Asked Questions</h1>
-      <p>Everything you need to know about using ChaiConnect — answered clearly and simply.</p>
+      <p>Everything you need to know about ChaiConnect — answered clearly and simply. Can't find your answer? <a href="contactus.html" style="color:var(--gold-pale);text-decoration:underline;">Contact us directly.</a></p>
     </div>
   </div>
 
-  <section class="faq-section">
-    <h2>Frequently Asked Questions</h2>
+  <!-- FAQ BODY -->
+  <div class="faq-page-body">
 
-    <div class="faq-item">
-      <div class="faq-question">
-        What is ChaiConnect?
-        <span class="faq-toggle">▼</span>
-      </div>
-      <div class="faq-answer">
-        ChaiConnect is a digital platform that connects tea farmers, factory staff, and agricultural extension officers in Kenya, enabling efficient management of tea farming, production, delivery, and quality tracking — all in one place.
-      </div>
+    <!-- FILTER TABS -->
+    <div class="faq-tabs" id="faqTabs">
+      <button class="faq-tab active" data-group="all">All</button>
+      <button class="faq-tab" data-group="general">General</button>
+      <button class="faq-tab" data-group="farmers">Farmers</button>
+      <button class="faq-tab" data-group="factory">Factory Staff</button>
+      <button class="faq-tab" data-group="officers">Extension Officers</button>
+      <button class="faq-tab" data-group="account">Account &amp; Security</button>
     </div>
 
-    <div class="faq-item">
-      <div class="faq-question">
-        Is ChaiConnect a mobile app?
-        <span class="faq-toggle">▼</span>
+    <div class="faq-columns">
+
+      <!-- GENERAL -->
+      <div class="faq-group" data-group="general">
+        <h2 class="faq-group-title">General</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">What is ChaiConnect? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">ChaiConnect is a digital management platform for Kenya's tea supply chain. It connects smallholder farmers, tea factory staff, agricultural extension officers and system administrators in one shared system — enabling real-time delivery logging, transparent payment calculation, quality grading, and field extension services.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Is ChaiConnect free to use? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Registration and access for individual farmers is completely free. Factory and cooperative accounts are set up by system administrators. If you are a factory manager or cooperative administrator looking to onboard your organisation, please contact us to discuss access and any applicable setup process.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Does ChaiConnect work offline or without a smartphone? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Yes. Farmers can access key information via USSD by dialling <strong>*384#</strong> from any mobile phone — no internet connection or smartphone required. Core features such as delivery balance checks, latest grade, and payment status are all available through USSD. SMS notifications are also sent automatically for key events.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Which counties and cooperatives does ChaiConnect support? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">ChaiConnect is currently used by cooperatives across Nyeri, Kericho, Kisii, Meru, Nandi, Embu and Kirinyaga counties. We are actively onboarding new cooperatives. If your cooperative is not yet on the platform, please reach out through the Contact Us page and we will initiate the onboarding process.</div>
+        </div>
       </div>
-      <div class="faq-answer">
-        Currently, ChaiConnect is web-based and accessible via any modern browser. A USSD version is also under development to support users without smartphones or internet access.
+
+      <!-- FARMERS -->
+      <div class="faq-group" data-group="farmers">
+        <h2 class="faq-group-title">For Farmers</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I register as a farmer? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Click the <strong>Register</strong> button on the top navigation. Fill in your full name, national ID number, phone number, email address, location and a profile photo. Once submitted, your details are reviewed by your cooperative's administrator. You will receive an SMS when your account is approved, after which you can log in.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I check my tea delivery history? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Once logged in, your farmer dashboard shows a full list of all deliveries recorded under your farmer ID — including date, weight (kg), quality grade assigned, applicable rate, and the calculated payment amount for each delivery. You can also request a printable statement for any date range.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How is my payment amount calculated? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Payment is calculated as: <strong>Weight (kg) × Grade Rate (KES/kg)</strong>. Grade rates are set by the cooperative administrator and are visible in your dashboard. Grade A receives the highest rate, followed by B, C and D. Any applicable deductions (e.g. transport levies) are shown as separate line items on your statement so you can see exactly how your net payment is arrived at.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">What do the quality grades mean? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Quality grades reflect the condition of the green leaf delivered:
+          <br><br>
+          <strong>Grade A</strong> — Two leaves and a bud, clean, no bruising. Highest rate.<br>
+          <strong>Grade B</strong> — Mostly two-and-a-bud, minor imperfections.<br>
+          <strong>Grade C</strong> — Mixed leaf, some coarse material present.<br>
+          <strong>Grade D</strong> — Coarse, bruised or damaged leaf. Lowest rate.<br>
+          <br>
+          Extension officers can advise on best practices for harvesting Grade A leaf consistently.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">What if I believe my delivery weight was recorded incorrectly? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">If you believe there is an error in a recorded delivery, you should first speak to the factory intake supervisor and reference your delivery slip number. If the issue cannot be resolved at the factory level, contact ChaiConnect support via the Contact Us page or speak to your extension officer, who can raise a formal dispute on your behalf.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I use the USSD service? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Dial <strong>*384#</strong> from the phone number registered to your account. You will be presented with a menu to check your latest delivery, view your running balance, see your most recent quality grade, or hear about upcoming extension training events in your zone. No internet is required — this works on any basic mobile phone.</div>
+        </div>
       </div>
+
+      <!-- FACTORY -->
+      <div class="faq-group" data-group="factory">
+        <h2 class="faq-group-title">For Factory Staff</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">How do factory staff accounts get created? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Factory staff accounts are created and managed by a system administrator. Individual staff members do not self-register — your factory's ChaiConnect administrator will set up your account, assign your role (e.g. intake clerk, factory manager) and provide you with login credentials. Contact your supervisor or the ChaiConnect support team if you need an account set up.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I record an incoming delivery from a farmer? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Log in to your staff dashboard and navigate to <strong>Intake → New Delivery</strong>. Enter the farmer's ID number (or scan if your station has a barcode reader), enter the weight from the weighbridge, assign the quality grade, and confirm. The system will immediately record the delivery, calculate the estimated payment, and trigger an SMS notification to the farmer.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Can I edit a delivery entry after it has been submitted? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Entry corrections can be made within two hours of submission by the recording clerk. After this window, corrections require approval from a factory manager. All edits are logged in the system audit trail — original values and corrected values are both retained for accountability.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I generate an end-of-month payment report? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Navigate to <strong>Reports → Payment Summary</strong>. Select the factory, the month and year, and click Generate. The report will display total deliveries, total weight per farmer, grade breakdown and computed gross payment. You can export the report as a PDF or Excel file for submission to your cooperative's accounts department.</div>
+        </div>
+      </div>
+
+      <!-- OFFICERS -->
+      <div class="faq-group" data-group="officers">
+        <h2 class="faq-group-title">For Extension Officers</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I log a farm visit? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">In your officer dashboard, go to <strong>Visits → Log New Visit</strong>. Select the farmer from your zone, enter the visit date, purpose (agronomic advisory, pest &amp; disease, soil management, etc.), your observations, and any follow-up actions recommended. The farmer's record is updated immediately and the visit is included in your zone report.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I share training materials or bulletins with farmers? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Navigate to <strong>Bulletins → New Bulletin</strong>. Write your title and content (or attach a PDF document), select the target zone or individual farmers, and publish. Farmers with smartphones will see the bulletin in their dashboard. Farmers without internet access will receive an SMS summary with a USSD shortcode to hear key points.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Can I see the delivery and quality trends for farmers in my zone? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Yes. Your dashboard includes a Zone Overview showing delivery volumes and average quality grades for all farmers assigned to your zone. This helps you identify which farmers may benefit from a focused agronomic visit — for example, farmers whose Grade A percentage has declined over recent weeks.</div>
+        </div>
+      </div>
+
+      <!-- ACCOUNT & SECURITY -->
+      <div class="faq-group" data-group="account">
+        <h2 class="faq-group-title">Account &amp; Security</h2>
+
+        <div class="faq-item">
+          <div class="faq-question">I forgot my password. How do I reset it? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">On the login page, click <strong>Forgot Password</strong>. Enter the email address or ID number associated with your account. A password reset link will be sent to your registered email. If you no longer have access to that email, contact ChaiConnect support with your national ID number for identity verification and manual reset.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How is my personal and financial data protected? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">All data is stored in an encrypted database. Passwords are hashed and never stored in plain text. Access to data is strictly controlled by your assigned role — a farmer can only see their own records, factory staff can only see records for their factory, and so on. The platform uses HTTPS for all data in transit. Audit logs are maintained for all sensitive operations.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Can I update my phone number or email address? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Yes. Log in and go to <strong>My Profile → Edit Details</strong>. You can update your phone number, email and location. Note that changes to your national ID number or full name require administrator approval to prevent fraudulent alterations, and you may be asked to provide supporting documentation.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How do I report a problem or give feedback? <span class="faq-toggle">▼</span></div>
+          <div class="faq-answer">Use the <a href="contactus.html">Contact Us</a> page to reach our support team directly. Include as much detail as possible — your farmer ID or account email, the feature you were using, and a description of the issue. For urgent payment disputes, also speak to your cooperative's administrator or extension officer who can escalate on your behalf.</div>
+        </div>
+      </div>
+
+    </div><!-- /faq-columns -->
+
+    <!-- STILL STUCK -->
+    <div class="faq-still-stuck">
+      <h3>Still have a question?</h3>
+      <p>Our support team is available Monday to Friday, 8 AM – 6 PM EAT. We typically respond within one business day.</p>
+      <a href="contactus.html" class="btn-primary">Contact Support</a>
     </div>
 
-    <div class="faq-item">
-      <div class="faq-question">
-        Who can use ChaiConnect?
-        <span class="faq-toggle">▼</span>
-      </div>
-      <div class="faq-answer">
-        ChaiConnect can be used by registered tea farmers, factory staff, and extension officers. Each user gets a personalized dashboard tailored to their specific role and responsibilities.
-      </div>
-    </div>
+  </div><!-- /faq-page-body -->
 
-    <div class="faq-item">
-      <div class="faq-question">
-        How do I register as a farmer?
-        <span class="faq-toggle">▼</span>
-      </div>
-      <div class="faq-answer">
-        Click the "Register" button in the navigation bar and complete the registration form. Your details will be reviewed and approved by the system administrator before you get access.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        Can I update my delivery information?
-        <span class="faq-toggle">▼</span>
-      </div>
-      <div class="faq-answer">
-        Yes. Factory staff can view and update delivery records, and all delivery history is tracked within the system for full transparency across the supply chain.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        How secure is my data on ChaiConnect?
-        <span class="faq-toggle">▼</span>
-      </div>
-      <div class="faq-answer">
-        Data security is our top priority. ChaiConnect uses secure authentication, role-based access controls, and encrypted storage to ensure your personal and financial data remains protected at all times.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        How can I give feedback or report an issue?
-        <span class="faq-toggle">▼</span>
-      </div>
-      <div class="faq-answer">
-        You can use the "Contact Us" page to reach our team directly, or speak with your nearest extension officer. We're committed to continuously improving your ChaiConnect experience.
-      </div>
-    </div>
-
-  </section>
-
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-section">
         <h3>🍃 ChaiConnect</h3>
-        <p>Revolutionizing Kenya's tea supply chain through innovative technology solutions that connect farmers, factories, and agricultural officers in a seamless digital ecosystem.</p>
+        <p>Digitising Kenya's tea supply chain — connecting farmers, factories and agricultural officers in a transparent, efficient ecosystem.</p>
         <div class="social-links">
-          <a href="#" class="social-link">📘</a>
-          <a href="#" class="social-link">🐦</a>
-          <a href="#" class="social-link">📧</a>
-          <a href="#" class="social-link">📱</a>
+          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
         </div>
       </div>
       <div class="footer-section">
@@ -124,36 +213,53 @@
         <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="aboutus.html">About Us</a></li>
-          <li><a href="register.html">Register</a></li>
+          <li><a href="#">FAQs</a></li>
           <li><a href="contactus.html">Contact Us</a></li>
         </ul>
       </div>
       <div class="footer-section">
-        <h3>Services</h3>
+        <h3>For</h3>
         <ul>
-          <li><a href="#">Farmer Portal</a></li>
-          <li><a href="#">Factory Management</a></li>
-          <li><a href="#">Extension Services</a></li>
-          <li><a href="#">USSD Integration</a></li>
+          <li><a href="register.html">Farmers</a></li>
+          <li><a href="register.html">Factory Staff</a></li>
+          <li><a href="register.html">Extension Officers</a></li>
+          <li><a href="contactus.html">Cooperatives &amp; Admins</a></li>
         </ul>
       </div>
       <div class="footer-section">
-        <h3>Contact Info</h3>
+        <h3>Contact</h3>
         <p>📍 Nairobi, Kenya</p>
-        <p>📞 +254 700 000 000</p>
+        <p>📞 +254 712 345 678</p>
         <p>✉️ info@chaiconnect.co.ke</p>
-        <p>🕒 Mon–Fri: 8AM–6PM</p>
+        <p>🕒 Mon–Fri · 8 AM – 6 PM EAT</p>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2025 ChaiConnect. All rights reserved. | Privacy Policy | Terms of Service</p>
+      <p>&copy; 2025 ChaiConnect. All rights reserved. &nbsp;|&nbsp; <a href="#">Privacy Policy</a> &nbsp;|&nbsp; <a href="#">Terms of Service</a></p>
     </div>
   </footer>
 
   <script>
+    // FAQ accordion
     document.querySelectorAll('.faq-item').forEach(item => {
       item.addEventListener('click', () => item.classList.toggle('active'));
     });
+
+    // Tab filter
+    const tabs = document.querySelectorAll('.faq-tab');
+    const groups = document.querySelectorAll('.faq-group');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const group = tab.dataset.group;
+        groups.forEach(g => {
+          g.style.display = (group === 'all' || g.dataset.group === group) ? 'block' : 'none';
+        });
+      });
+    });
+
     function toggleNav() {
       document.getElementById('navLinks').classList.toggle('show');
     }

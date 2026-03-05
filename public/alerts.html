@@ -8,52 +8,188 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-
-    <script src="theme.js"></script>
+  <script src="/theme.js"></script>
 
   <div class="page-wrapper">
 
+    <!-- Page Header -->
     <div class="page-header">
       <div class="page-header-left">
         <h1><i class="fas fa-bell"></i> System Alerts</h1>
-        <p>Important notifications and updates from ChaiConnect.</p>
+        <p>Important notifications and updates from ChaiConnect administrators.</p>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-secondary btn-sm" onclick="loadAlerts()">
+          <i class="fas fa-rotate-right"></i> Refresh
+        </button>
+        <a id="backBtn" href="/" class="btn-back-dashboard">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
       </div>
     </div>
 
+    <!-- Filter tabs -->
+    <div class="tabs" style="margin-bottom:1.25rem;" id="filterTabs">
+      <button class="tab-btn active" data-filter="all">All</button>
+      <button class="tab-btn" data-filter="info">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;margin-right:.35rem;vertical-align:middle;"></span>
+        Info
+      </button>
+      <button class="tab-btn" data-filter="warning">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:.35rem;vertical-align:middle;"></span>
+        Warning
+      </button>
+      <button class="tab-btn" data-filter="critical">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:.35rem;vertical-align:middle;"></span>
+        Critical
+      </button>
+    </div>
+
+    <!-- Alerts list -->
     <div id="alertsContainer">
       <div class="empty-state">
-        <div class="empty-state-icon"><i class="fas fa-bell-slash"></i></div>
-        <h3>Loading alerts…</h3>
+        <div class="spinner"></div>
+        <p style="margin-top:.75rem;">Loading alerts...</p>
       </div>
     </div>
 
   </div>
 
   <script>
+    let allAlerts = [];
+    let activeFilter = 'all';
+
+    const severityConfig = {
+      info: {
+        stripe: 'stripe-info',
+        icon: 'icon-info',
+        iconClass: 'fas fa-circle-info',
+        label: 'sev-info',
+        labelText: 'Info'
+      },
+      warning: {
+        stripe: 'stripe-warning',
+        icon: 'icon-warning',
+        iconClass: 'fas fa-triangle-exclamation',
+        label: 'sev-warning',
+        labelText: 'Warning'
+      },
+      critical: {
+        stripe: 'stripe-critical',
+        icon: 'icon-critical',
+        iconClass: 'fas fa-circle-exclamation',
+        label: 'sev-critical',
+        labelText: 'Critical'
+      },
+      success: {
+        stripe: 'stripe-success',
+        icon: 'icon-success',
+        iconClass: 'fas fa-circle-check',
+        label: 'sev-success',
+        labelText: 'Update'
+      }
+    };
+
+    function getSeverity(alert) {
+      const s = (alert.severity || alert.type || 'info').toLowerCase();
+      if (s.includes('critical') || s.includes('error')) return 'critical';
+      if (s.includes('warning') || s.includes('warn')) return 'warning';
+      if (s.includes('success')) return 'success';
+      return 'info';
+    }
+
+    function timeAgo(dateStr) {
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const mins = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      if (mins < 1) return 'Just now';
+      if (mins < 60) return `${mins} minute${mins !== 1 ? 's' : ''} ago`;
+      if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+      if (days < 7) return `${days} day${days !== 1 ? 's' : ''} ago`;
+      return new Date(dateStr).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function renderAlerts() {
+      const container = document.getElementById('alertsContainer');
+      const filtered = activeFilter === 'all'
+        ? allAlerts
+        : allAlerts.filter(a => getSeverity(a) === activeFilter);
+
+      if (!filtered.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-bell-slash"></i></div>
+            <h3>${activeFilter === 'all' ? 'No alerts right now' : 'No ' + activeFilter + ' alerts'}</h3>
+            <p>${activeFilter === 'all' ? 'You\'re all up to date. New alerts will appear here.' : 'Try switching to a different filter.'}</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = `<div class="alerts-list">${filtered.map(alert => {
+        const sev = getSeverity(alert);
+        const cfg = severityConfig[sev] || severityConfig.info;
+        const isUnread = !alert.read;
+        const dateDisplay = alert.created_at
+          ? new Date(alert.created_at).toLocaleString('en-KE', { dateStyle: 'medium', timeStyle: 'short' })
+          : 'Unknown time';
+        const ago = alert.created_at ? timeAgo(alert.created_at) : '';
+
+        return `
+          <div class="alert-card">
+            <div class="alert-card-stripe ${cfg.stripe}"></div>
+            <div class="alert-card-inner">
+              <div class="alert-icon-wrap ${cfg.icon}">
+                <i class="${cfg.iconClass}"></i>
+              </div>
+              <div class="alert-card-text">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;flex-wrap:wrap;">
+                  <div class="alert-card-title">${alert.title || 'System Alert'}</div>
+                  <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0;">
+                    ${isUnread ? '<div class="alert-unread-dot" title="Unread"></div>' : ''}
+                    <span class="alert-severity ${cfg.label}">${cfg.labelText}</span>
+                  </div>
+                </div>
+                <div class="alert-card-message">${alert.message || ''}</div>
+                <div class="alert-card-time">
+                  <i class="fas fa-clock"></i>
+                  <span>${ago}</span>
+                  <span style="opacity:.5;">|</span>
+                  <span>${dateDisplay}</span>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join('')}</div>`;
+    }
+
+    async function setBackBtn() {
+      try {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        const map = {
+          admin:             '/admin_dashboard.html',
+          extension_officer: '/extension_officer_dashboard.html',
+          farmer:            '/farmer_dashboard.html',
+          factory_staff:     '/factory_staff_dashboard.html'
+        };
+        document.getElementById('backBtn').href = map[(data.role || '').toLowerCase()] || '/';
+      } catch {}
+    }
+
     async function loadAlerts() {
       const container = document.getElementById('alertsContainer');
-      try {
-        const res  = await fetch('/alerts');
-        const data = await res.json();
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="spinner"></div>
+          <p style="margin-top:.75rem;">Loading alerts...</p>
+        </div>`;
 
-        if (data.success && data.alerts.length > 0) {
-          container.innerHTML = data.alerts.map(alert => `
-            <div class="alert-item">
-              <h4><i class="fas fa-triangle-exclamation"></i> ${alert.title}</h4>
-              <p>${alert.message}</p>
-              <small><i class="fas fa-clock"></i>
-                ${new Date(alert.created_at).toLocaleString('en-KE', { dateStyle: 'medium', timeStyle: 'short' })}
-              </small>
-            </div>
-          `).join('');
-        } else {
-          container.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon"><i class="fas fa-bell-slash"></i></div>
-              <h3>No alerts at the moment</h3>
-              <p>You're all caught up! Check back later.</p>
-            </div>`;
-        }
+      try {
+        const res = await fetch('/alerts');
+        const data = await res.json();
+        allAlerts = (data.success && Array.isArray(data.alerts)) ? data.alerts : [];
+        renderAlerts();
       } catch {
         container.innerHTML = `
           <div class="notice notice-error">
@@ -62,7 +198,20 @@
       }
     }
 
-    window.onload = loadAlerts;
+    // Filter tabs
+    document.getElementById('filterTabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+      document.querySelectorAll('#filterTabs .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderAlerts();
+    });
+
+    window.onload = async () => {
+      await setBackBtn();
+      await loadAlerts();
+    };
   </script>
 
 </body>

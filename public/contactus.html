@@ -28,82 +28,199 @@
     <div class="page-hero-content">
       <span class="section-tag">Get In Touch</span>
       <h1>Contact ChaiConnect</h1>
-      <p>We're here to support farmers, factories, and officers. Reach out to us anytime!</p>
+      <p>Whether you are a farmer needing support, a cooperative looking to onboard, or a developer wanting to integrate — we want to hear from you.</p>
     </div>
   </div>
 
+  <!-- CONTACT CARDS ROW -->
+  <section class="contact-cards-row">
+    <div class="contact-quick-card">
+      <div class="cqc-icon">📞</div>
+      <h4>Call Us</h4>
+      <p>+254 712 345 678</p>
+      <span>Mon–Fri · 8 AM – 6 PM EAT</span>
+    </div>
+    <div class="contact-quick-card">
+      <div class="cqc-icon">✉️</div>
+      <h4>Email Us</h4>
+      <p>support@chaiconnect.co.ke</p>
+      <span>Replies within one business day</span>
+    </div>
+    <div class="contact-quick-card">
+      <div class="cqc-icon">📱</div>
+      <h4>WhatsApp</h4>
+      <p>+254 712 345 678</p>
+      <span>For urgent farmer support</span>
+    </div>
+    <div class="contact-quick-card">
+      <div class="cqc-icon">📍</div>
+      <h4>Head Office</h4>
+      <p>Nairobi, Kenya</p>
+      <span>By appointment only</span>
+    </div>
+  </section>
+
+  <!-- MAIN CONTACT BODY -->
   <div class="contact-container">
     <main class="contact-content">
 
-      <form action="/contact-submit" method="POST" class="contact-form">
-        <div class="form-group">
-          <label for="name">Full Name</label>
-          <input type="text" name="name" id="name" required placeholder="Your full name" />
-        </div>
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" name="email" id="email" required placeholder="you@example.com" />
-        </div>
-        <div class="form-group">
-          <label for="subject">Subject</label>
-          <input type="text" name="subject" id="subject" required placeholder="What's this about?" />
-        </div>
-        <div class="form-group">
-          <label for="message">Message</label>
-          <textarea name="message" id="message" rows="6" required placeholder="Write your message here..."></textarea>
-        </div>
-        <button type="submit">Send Message →</button>
-      </form>
+      <!-- FORM -->
+      <div class="contact-form-wrap">
+        <h2>Send Us a Message</h2>
+        <p class="contact-form-sub">Use this form for general enquiries, technical support, payment disputes or cooperative onboarding requests. Please be as specific as possible so we can help you faster.</p>
 
+        <form action="/contact-submit" method="POST" class="contact-form" id="contactForm">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" name="name" id="name" required placeholder="Your full name" />
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" name="phone" id="phone" placeholder="+254 7XX XXX XXX" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" name="email" id="email" required placeholder="you@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="role">I am a…</label>
+            <select name="role" id="role">
+              <option value="" disabled selected>Select your role</option>
+              <option value="farmer">Tea Farmer</option>
+              <option value="factory">Factory Staff / Manager</option>
+              <option value="officer">Extension Officer</option>
+              <option value="cooperative">Cooperative / Administrator</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <select name="subject" id="subject">
+              <option value="" disabled selected>What is this about?</option>
+              <option value="account">Account registration or login issue</option>
+              <option value="delivery">Delivery record error or dispute</option>
+              <option value="payment">Payment query or discrepancy</option>
+              <option value="ussd">USSD / SMS not working</option>
+              <option value="onboarding">Cooperative or factory onboarding</option>
+              <option value="demo">Request a platform demo</option>
+              <option value="other">Other / General enquiry</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="farmer_id">Farmer ID or Account Email <span style="font-weight:300;color:var(--muted)">(if applicable)</span></label>
+            <input type="text" name="farmer_id" id="farmer_id" placeholder="e.g. CC-00123 or your registered email" />
+          </div>
+
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea name="message" id="message" rows="6" required placeholder="Describe your issue or enquiry in as much detail as possible. If reporting a delivery error, include the delivery date and your farmer ID."></textarea>
+          </div>
+
+          <button type="submit">Send Message →</button>
+
+          <p class="form-disclaimer">By submitting this form you agree to our <a href="#">Privacy Policy</a>. We will only use your details to respond to your enquiry.</p>
+        </form>
+      </div>
+
+      <!-- SIDEBAR -->
       <aside class="contact-info">
-        <h2>Our Contacts</h2>
+        <h2>Other Ways to Get Help</h2>
 
         <div class="contact-info-item">
           <span class="contact-info-icon">✉️</span>
           <div>
-            <strong style="display:block;color:rgba(255,255,255,.5);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem;">Email</strong>
+            <strong class="cii-label">General Enquiries</strong>
+            info@chaiconnect.co.ke
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <span class="contact-info-icon">🛠️</span>
+          <div>
+            <strong class="cii-label">Technical Support</strong>
             support@chaiconnect.co.ke
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <span class="contact-info-icon">🏢</span>
+          <div>
+            <strong class="cii-label">Cooperative Onboarding</strong>
+            partners@chaiconnect.co.ke
           </div>
         </div>
 
         <div class="contact-info-item">
           <span class="contact-info-icon">📞</span>
           <div>
-            <strong style="display:block;color:rgba(255,255,255,.5);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem;">Phone</strong>
+            <strong class="cii-label">Phone &amp; WhatsApp</strong>
             +254 712 345 678
-          </div>
-        </div>
-
-        <div class="contact-info-item">
-          <span class="contact-info-icon">📍</span>
-          <div>
-            <strong style="display:block;color:rgba(255,255,255,.5);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem;">Address</strong>
-            ChaiConnect HQ, Nairobi, Kenya
           </div>
         </div>
 
         <div class="contact-info-item">
           <span class="contact-info-icon">🕒</span>
           <div>
-            <strong style="display:block;color:rgba(255,255,255,.5);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem;">Hours</strong>
-            Mon–Fri: 8AM–6PM EAT
+            <strong class="cii-label">Support Hours</strong>
+            Monday – Friday, 8 AM – 6 PM EAT<br>
+            <span style="font-size:.82rem;opacity:.7;">Closed on public holidays</span>
           </div>
         </div>
-      </aside>
 
+        <div class="contact-info-divider"></div>
+
+        <h3 style="font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.1rem;color:var(--gold-pale);margin-bottom:0.8rem;">Quick Self-Help</h3>
+        <ul class="contact-self-help">
+          <li><a href="faqs.html">Browse the FAQ Centre →</a></li>
+          <li><a href="faqs.html#account">Reset your password →</a></li>
+          <li><a href="faqs.html#farmers">Understand your payment grade →</a></li>
+          <li><a href="faqs.html">How to use USSD *384# →</a></li>
+        </ul>
+
+        <div class="contact-info-divider"></div>
+
+        <h3 style="font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.1rem;color:var(--gold-pale);margin-bottom:0.8rem;">Response Times</h3>
+        <div class="response-times">
+          <div class="rt-row">
+            <span>General enquiries</span>
+            <span class="rt-badge">1 business day</span>
+          </div>
+          <div class="rt-row">
+            <span>Payment disputes</span>
+            <span class="rt-badge rt-urgent">2–3 business days</span>
+          </div>
+          <div class="rt-row">
+            <span>Technical support</span>
+            <span class="rt-badge">Same day</span>
+          </div>
+          <div class="rt-row">
+            <span>Onboarding requests</span>
+            <span class="rt-badge rt-urgent">3–5 business days</span>
+          </div>
+        </div>
+
+      </aside>
     </main>
   </div>
 
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-section">
         <h3>🍃 ChaiConnect</h3>
-        <p>Revolutionizing Kenya's tea supply chain through innovative technology solutions that connect farmers, factories, and agricultural officers in a seamless digital ecosystem.</p>
+        <p>Digitising Kenya's tea supply chain — connecting farmers, factories and agricultural officers in a transparent, efficient ecosystem.</p>
         <div class="social-links">
-          <a href="#" class="social-link">📘</a>
-          <a href="#" class="social-link">🐦</a>
-          <a href="#" class="social-link">📧</a>
-          <a href="#" class="social-link">📱</a>
+          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
         </div>
       </div>
       <div class="footer-section">
@@ -111,29 +228,29 @@
         <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="aboutus.html">About Us</a></li>
-          <li><a href="register.html">Register</a></li>
+          <li><a href="faqs.html">FAQs</a></li>
           <li><a href="#">Contact Us</a></li>
         </ul>
       </div>
       <div class="footer-section">
-        <h3>Services</h3>
+        <h3>For</h3>
         <ul>
-          <li><a href="#">Farmer Portal</a></li>
-          <li><a href="#">Factory Management</a></li>
-          <li><a href="#">Extension Services</a></li>
-          <li><a href="#">USSD Integration</a></li>
+          <li><a href="register.html">Farmers</a></li>
+          <li><a href="register.html">Factory Staff</a></li>
+          <li><a href="register.html">Extension Officers</a></li>
+          <li><a href="#">Cooperatives &amp; Admins</a></li>
         </ul>
       </div>
       <div class="footer-section">
-        <h3>Contact Info</h3>
+        <h3>Contact</h3>
         <p>📍 Nairobi, Kenya</p>
-        <p>📞 +254 700 000 000</p>
+        <p>📞 +254 712 345 678</p>
         <p>✉️ info@chaiconnect.co.ke</p>
-        <p>🕒 Mon–Fri: 8AM–6PM</p>
+        <p>🕒 Mon–Fri · 8 AM – 6 PM EAT</p>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2025 ChaiConnect. All rights reserved. | Privacy Policy | Terms of Service</p>
+      <p>&copy; 2025 ChaiConnect. All rights reserved. &nbsp;|&nbsp; <a href="#">Privacy Policy</a> &nbsp;|&nbsp; <a href="#">Terms of Service</a></p>
     </div>
   </footer>
 
@@ -141,6 +258,23 @@
     function toggleNav() {
       document.getElementById('navLinks').classList.toggle('show');
     }
+
+    // Select styling fallback
+    document.querySelectorAll('select').forEach(sel => {
+      sel.addEventListener('change', () => sel.classList.add('has-value'));
+    });
+
+    // Form submission feedback
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('button[type="submit"]');
+      btn.textContent = 'Sending…';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = '✓ Message Sent';
+        btn.style.background = 'var(--moss)';
+      }, 1500);
+    });
   </script>
 </body>
 </html>

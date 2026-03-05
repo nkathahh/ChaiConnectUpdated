@@ -2236,6 +2236,77 @@ app.post('/api/request-visit', (req, res) => {
     });
 });
 
+// Farmer: Cancel a visit request (only if status is 'requested')
+app.put('/api/my-visits/:visitId/cancel', (req, res) => {
+    if (!req.session.userId || req.session.role !== 'farmer') {
+        return res.status(403).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const farmerId = req.session.userId;
+    const visitId  = req.params.visitId;
+    const { reason } = req.body;
+
+    // Fetch the visit first to validate ownership and status
+    db.query(
+        `SELECT farmer_id, status, officer_id FROM farmer_visits WHERE visit_id = ? LIMIT 1`,
+        [visitId],
+        (err, rows) => {
+            if (err) return res.status(500).json({ success: false, message: 'Database error' });
+            if (!rows || rows.length === 0)
+                return res.status(404).json({ success: false, message: 'Visit not found' });
+
+            const visit = rows[0];
+            if (visit.farmer_id !== farmerId)
+                return res.status(403).json({ success: false, message: 'Not your visit' });
+            if (!['requested', 'scheduled'].includes(visit.status))
+                return res.status(400).json({ success: false, message: `Cannot cancel a visit with status: ${visit.status}` });
+
+            const cancelNote = reason ? `Cancelled by farmer: ${reason}` : 'Cancelled by farmer';
+
+            db.query(
+                `UPDATE farmer_visits
+                 SET status = 'cancelled',
+                     notes  = CASE WHEN ? IS NOT NULL THEN ? ELSE notes END,
+                     updated_at = NOW()
+                 WHERE visit_id = ? AND farmer_id = ?`,
+                [reason || null, cancelNote, visitId, farmerId],
+                async (upErr, result) => {
+                    if (upErr) return res.status(500).json({ success: false, message: 'Failed to cancel visit' });
+                    if (result.affectedRows === 0)
+                        return res.status(404).json({ success: false, message: 'Visit not found or already updated' });
+
+                    // Notify the extension officer
+                    try {
+                        // Get officer user_id via officer_id
+                        db.query(
+                            `SELECT u.user_id FROM extension_officers eo JOIN users u ON eo.user_id = u.user_id WHERE eo.officer_id = ? LIMIT 1`,
+                            [visit.officer_id],
+                            async (oErr, oRows) => {
+                                if (!oErr && oRows && oRows.length > 0) {
+                                    await createNotification({
+                                        user_id:  oRows[0].user_id,
+                                        role:     'extension_officer',
+                                        category: 'visits',
+                                        title:    'Visit Cancelled',
+                                        message:  reason
+                                            ? `A farmer cancelled their visit request. Reason: ${reason}`
+                                            : 'A farmer cancelled their visit request.',
+                                        link: '/extension_officer_dashboard.html'
+                                    });
+                                }
+                            }
+                        );
+                    } catch (nErr) {
+                        console.error('Notification error (cancel visit):', nErr);
+                    }
+
+                    return res.json({ success: true, message: 'Visit cancelled successfully' });
+                }
+            );
+        }
+    );
+});
+
 // Farmer: Get all visits
 app.get('/api/my-visits', (req, res) => {
     if (!req.session.userId || req.session.role !== 'farmer') {
@@ -2251,6 +2322,7 @@ app.get('/api/my-visits', (req, res) => {
             v.preferred_date,
             v.purpose,
             v.notes,
+            v.officer_notes,
             v.status,
             u.name AS officer_name,
             u.phone AS officer_phone
@@ -2338,6 +2410,7 @@ const query = `
     v.actual_date,
     v.purpose,
     v.notes,
+    v.officer_notes,
     v.status,
     v.created_at,
     v.updated_at
@@ -2397,7 +2470,7 @@ app.put('/api/schedule-visit/:visitId', requireExtensionOfficer, (req, res) => {
       JOIN extension_officers e ON v.officer_id = e.officer_id
       SET
         v.scheduled_date = ?,
-        v.notes = ?,
+        v.officer_notes = ?,
         v.status = 'scheduled',
         v.updated_at = NOW()
       WHERE v.visit_id = ?
@@ -2466,7 +2539,7 @@ app.put('/api/officer/visits/:visitId/decline', requireExtensionOfficer, (req, r
         JOIN extension_officers e ON v.officer_id = e.officer_id
         SET
           v.status = 'declined',
-          v.notes = COALESCE(?, v.notes),
+          v.officer_notes = ?,
           v.updated_at = NOW()
         WHERE v.visit_id = ?
           AND e.user_id = ?
@@ -3736,6 +3809,87 @@ app.get('/api/extension/complaints/:id/thread', (req, res) => {
       );
     }
   );
+});
+
+app.post('/api/chat', async (req, res) => {
+  if (!req.session?.userId) {
+    return res.status(401).json({ success: false, message: 'Please log in.' });
+  }
+
+  const { messages, context } = req.body;
+
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ success: false, message: 'No messages provided.' });
+  }
+
+  // Keep last 20 turns to avoid overloading the model
+  const trimmedMessages = messages.slice(-20);
+
+  const systemPrompt = `You are Chai Assistant, a friendly AI assistant built into ChaiConnect — a digital tea supply chain platform for smallholder farmers in Kenya.
+
+Help farmers understand their account data, explain payments, grades, and platform features. Be warm, concise, and avoid jargon. Use simple English.
+
+KEY PLATFORM FACTS:
+- Payment = Weight (kg) × Grade Rate (KES/kg)
+- Grade A = Two leaves and a bud, clean. Highest rate.
+- Grade B = Mostly two-and-a-bud, minor imperfections.
+- Grade C = Mixed leaf, some coarse material.
+- Grade D = Coarse or damaged leaf. Lowest rate.
+- USSD: dial *384# from any phone to check account info without internet.
+- Complaints page: farmers can raise delivery or payment disputes.
+- Extension officers conduct farm visits and share training materials.
+
+FARMER'S LIVE ACCOUNT DATA:
+${context || 'Account data not available. Answer general ChaiConnect questions only.'}
+
+RULES:
+- Only answer questions about ChaiConnect, tea farming, or the farmer's account data above.
+- Never invent data or make up payment amounts.
+- For payment disputes, guide the farmer to the Complaints page or their extension officer.
+- Keep responses short and clear. Use bullet points for lists.
+- Today is ${new Date().toLocaleDateString('en-KE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.`;
+
+  try {
+    // Ollama's /api/chat endpoint — works exactly like OpenAI's format
+    const ollamaRes = await fetch('http://localhost:11434/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama3.2',      // change to 'llama3.1' or 'mistral' etc. if you pulled a different model
+        stream: false,           // get the full response at once
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...trimmedMessages
+        ]
+      })
+    });
+
+    if (!ollamaRes.ok) {
+      const errText = await ollamaRes.text();
+      console.error('[/api/chat] Ollama error:', errText);
+      return res.status(502).json({
+        success: false,
+        message: 'AI service error. Make sure Ollama is running: run "ollama serve" in your terminal.'
+      });
+    }
+
+    const data  = await ollamaRes.json();
+    const reply = data?.message?.content?.trim() || 'Sorry, I could not generate a response.';
+
+    return res.json({ success: true, reply });
+
+  } catch (err) {
+    console.error('[/api/chat] Could not reach Ollama:', err.message);
+
+    // Friendly message if Ollama simply isn't running
+    const isConnectionError = err.code === 'ECONNREFUSED' || err.message.includes('fetch');
+    return res.status(502).json({
+      success: false,
+      message: isConnectionError
+        ? 'Ollama is not running. Open a terminal and run: ollama serve'
+        : 'AI service error. Please try again.'
+    });
+  }
 });
 
 

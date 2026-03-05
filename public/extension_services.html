@@ -1,435 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Extension Services | chaiConnect</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <style>
-  :root {
-    --primary-color: #27ae60; /* Green */
-    --primary-hover: #219150;
-    --success-color: #2ecc71;
-    --danger-color: #e74c3c;
-    --text-color: #2c3e50;
-    --light-gray: #f4fdf6;
-    --border-color: #cce8d7;
-  }
-
-  body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--light-gray);
-    margin: 0;
-    padding: 20px;
-  }
-
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  }
-
-  h2 {
-    color: var(--primary-color);
-    margin-bottom: 25px;
-    font-size: 26px;
-    font-weight: 600;
-  }
-
-  .form-group {
-    margin-bottom: 20px;
-  }
-
-  label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: var(--text-color);
-  }
-
-  input, select, textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    background-color: #fefefe;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    font-family: 'Poppins', sans-serif;
-  }
-
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 6px rgba(39, 174, 96, 0.2);
-    outline: none;
-  }
-
-  textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-
-  .btn-submit {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-
-  .btn-submit:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-  }
-
-  .notification {
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: none;
-    font-weight: 500;
-  }
-
-  .success {
-    background-color: rgba(46, 204, 113, 0.15);
-    color: var(--success-color);
-    border: 1px solid rgba(46, 204, 113, 0.3);
-  }
-
-  .error {
-    background-color: rgba(231, 76, 60, 0.15);
-    color: var(--danger-color);
-    border: 1px solid rgba(231, 76, 60, 0.3);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 30px;
-    background-color: white;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  th, td {
-    padding: 14px 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 15px;
-  }
-
-  th {
-    background-color: #e9f9ee;
-    color: var(--text-color);
-    font-weight: 600;
-  }
-
-  .status-pending {
-    color: #f39c12;
-    font-weight: 500;
-  }
-
-  .status-scheduled {
-    color: var(--primary-color);
-    font-weight: 500;
-  }
-
-  .status-completed {
-    color: var(--success-color);
-    font-weight: 500;
-  }
-
-  .status-cancelled {
-    color: var(--danger-color);
-    font-weight: 500;
-  }
-
-  .btn-cancel {
-    background-color: var(--danger-color);
-    color: white;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-
-  .btn-cancel:hover {
-    background-color: #c0392b;
-  }
-
-  body.dark-mode {
-  background-color: #0f172a;
-  color: #f1f5f9;
-}
-
-body.dark-mode .container {
-  background-color: #1e293b;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-}
-
-body.dark-mode h2 {
-  color: #38bdf8;
-}
-
-body.dark-mode label {
-  color: #e2e8f0;
-}
-
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
-  background-color: #1e293b;
-  color: #f1f5f9;
-  border: 1px solid #334155;
-}
-
-body.dark-mode input:focus,
-body.dark-mode select:focus,
-body.dark-mode textarea:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.4);
-}
-
-body.dark-mode .btn-submit {
-  background-color: #22c55e;
-  color: white;
-}
-
-body.dark-mode .btn-submit:hover {
-  background-color: #16a34a;
-}
-
-body.dark-mode .notification.success {
-  background-color: rgba(34, 197, 94, 0.2);
-  border-color: rgba(34, 197, 94, 0.4);
-  color: #4ade80;
-}
-
-body.dark-mode .notification.error {
-  background-color: rgba(248, 113, 113, 0.2);
-  border-color: rgba(248, 113, 113, 0.4);
-  color: #f87171;
-}
-
-body.dark-mode table {
-  background-color: #1e293b;
-  border-color: #334155;
-}
-
-body.dark-mode th {
-  background-color: #0f172a;
-  color: #e2e8f0;
-}
-
-body.dark-mode td {
-  color: #cbd5e1;
-  border-color: #334155;
-}
-
-body.dark-mode .status-pending {
-  color: #facc15;
-}
-
-body.dark-mode .status-scheduled {
-  color: #38bdf8;
-}
-
-body.dark-mode .status-completed {
-  color: #22c55e;
-}
-
-body.dark-mode .status-cancelled {
-  color: #f87171;
-}
-
-body.dark-mode .btn-cancel {
-  background-color: #ef4444;
-}
-
-body.dark-mode .btn-cancel:hover {
-  background-color: #dc2626;
-}
-
-</style>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extension Services — ChaiConnect</title>
+  <link rel="stylesheet" href="/css/farmer_dashboard_items.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-  <script src="theme.js"></script>
-  <div class="container">
-    <h2><i class="fas fa-calendar-plus"></i> Request Extension Visit</h2>
-    
-    <div id="notification" class="notification"></div>
-    
-    <form id="visitRequestForm">
-      <div class="form-group">
-        <label for="visitDate">Preferred Visit Date</label>
-        <input type="date" id="visitDate" class="form-control" required min="">
+  <script src="/theme.js"></script>
+
+  <div class="page-wrapper wide">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1><i class="fas fa-calendar-check"></i> Extension Services</h1>
+        <p>Request a farm visit from your extension officer and track your visit history.</p>
       </div>
-      
-      <div class="form-group">
-        <label for="visitTime">Preferred Visit Time</label>
-        <input type="time" id="visitTime" class="form-control" required>
+      <a href="/farmer_dashboard.html" class="btn-back-dashboard">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <!-- Assigned Officer Banner -->
+    <div id="officerBanner"></div>
+
+    <!-- Main two-column layout -->
+    <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:1.5rem;align-items:start;" id="mainGrid">
+
+      <!-- Request Form -->
+      <div class="section-card" style="position:sticky;top:1.5rem;">
+        <h2 class="section-card-title"><i class="fas fa-calendar-plus"></i> Request a Visit</h2>
+        <p style="font-size:.83rem;color:var(--text-mid);margin-bottom:1.4rem;line-height:1.6;">
+          Choose a date, time and purpose. Your officer will review and confirm the appointment.
+        </p>
+
+        <div id="formNotice"></div>
+
+        <form id="visitRequestForm" novalidate>
+
+          <!-- Date picker -->
+          <div class="form-group">
+            <label>Preferred Date <span style="color:var(--red);">*</span></label>
+            <div class="date-input-styled">
+              <span class="input-icon"><i class="fas fa-calendar-days"></i></span>
+              <input type="date" id="visitDate" required />
+            </div>
+          </div>
+
+          <!-- Time picker -->
+          <div class="form-group">
+            <label>Preferred Time <span style="color:var(--red);">*</span></label>
+            <div class="time-input-styled">
+              <span class="input-icon"><i class="fas fa-clock"></i></span>
+              <input type="time" id="visitTime" required />
+            </div>
+          </div>
+
+          <!-- Purpose selector -->
+          <div class="form-group">
+            <label>Purpose <span style="color:var(--red);">*</span></label>
+            <div class="purpose-selector" id="purposeSelector">
+              <label>
+                <input type="radio" name="visitPurpose" value="routine_check" class="purpose-pill-input" />
+                <span class="purpose-pill-label"><i class="fas fa-leaf"></i> Routine Check</span>
+              </label>
+              <label>
+                <input type="radio" name="visitPurpose" value="training" class="purpose-pill-input" />
+                <span class="purpose-pill-label"><i class="fas fa-book"></i> Training</span>
+              </label>
+              <label>
+                <input type="radio" name="visitPurpose" value="problem_solving" class="purpose-pill-input" />
+                <span class="purpose-pill-label"><i class="fas fa-wrench"></i> Problem Solving</span>
+              </label>
+              <label>
+                <input type="radio" name="visitPurpose" value="harvest_advice" class="purpose-pill-input" />
+                <span class="purpose-pill-label"><i class="fas fa-seedling"></i> Harvest Advice</span>
+              </label>
+              <label>
+                <input type="radio" name="visitPurpose" value="pest_disease" class="purpose-pill-input" />
+                <span class="purpose-pill-label"><i class="fas fa-bug"></i> Pest &amp; Disease</span>
+              </label>
+              <label>
+                <input type="radio" name="visitPurpose" value="soil_assessment" class="purpose-pill-input" />
+                <span class="purpose-pill-label"><i class="fas fa-mountain"></i> Soil Assessment</span>
+              </label>
+              <label>
+                <input type="radio" name="visitPurpose" value="other" class="purpose-pill-input" />
+                <span class="purpose-pill-label"><i class="fas fa-ellipsis"></i> Other</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-group">
+            <label for="visitNotes">
+              Additional Notes
+              <span style="font-weight:400;color:var(--text-light);font-size:.75rem;">(optional)</span>
+            </label>
+            <textarea
+              id="visitNotes"
+              rows="4"
+              placeholder="Describe your concern in detail. The more specific you are, the better prepared your officer will be."
+              maxlength="500"></textarea>
+            <div style="display:flex;justify-content:flex-end;margin-top:.25rem;">
+              <span id="charCount" style="font-size:.72rem;color:var(--text-light);">0 / 500</span>
+            </div>
+          </div>
+
+          <div class="btn-group right">
+            <button type="reset" class="btn btn-secondary">Clear</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <i class="fas fa-paper-plane"></i> Submit Request
+            </button>
+          </div>
+        </form>
       </div>
-      
-      <div class="form-group">
-        <label for="visitPurpose">Purpose</label>
-        <select id="visitPurpose" class="form-control" required>
-          <option value="">-- Select purpose --</option>
-          <option value="routine_check">Routine Check</option>
-          <option value="training">Training</option>
-          <option value="problem_solving">Problem Solving</option>
-          <option value="harvest_advice">Harvest Advice</option>
-          <option value="other">Other</option>
-        </select>
+
+      <!-- Visit History -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+          <h2 style="font-size:1rem;font-weight:700;color:var(--green-deep);">
+            <i class="fas fa-clock-rotate-left" style="color:var(--green-bright);margin-right:.4rem;"></i>
+            My Visit Requests
+          </h2>
+          <button class="btn btn-secondary btn-sm" onclick="loadVisitHistory()">
+            <i class="fas fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="tabs" style="margin-bottom:1rem;" id="filterTabs">
+          <button class="tab-btn active" data-filter="all">
+            All <span class="count-pill" id="cnt-all" style="display:none;"></span>
+          </button>
+          <button class="tab-btn" data-filter="requested">
+            Pending <span class="count-pill" id="cnt-requested" style="display:none;"></span>
+          </button>
+          <button class="tab-btn" data-filter="scheduled">
+            Scheduled <span class="count-pill" id="cnt-scheduled" style="display:none;"></span>
+          </button>
+          <button class="tab-btn" data-filter="completed">Completed</button>
+          <button class="tab-btn" data-filter="cancelled">Cancelled</button>
+        </div>
+
+        <!-- Visit cards -->
+        <div id="visitCards">
+          <div class="empty-state"><div class="spinner"></div></div>
+        </div>
+
+        <div id="tableFooter" style="font-size:.78rem;color:var(--text-light);margin-top:.5rem;"></div>
       </div>
-      
-      <div class="form-group">
-        <label for="visitNotes">Additional Notes</label>
-        <textarea id="visitNotes" class="form-control" placeholder="Any special requests or information..."></textarea>
-      </div>
-      
-      <button type="submit" class="btn-submit">
-        <i class="fas fa-paper-plane"></i> Submit Request
-      </button>
-    </form>
-    
-    <h2 style="margin-top: 40px;"><i class="fas fa-history"></i> Your Visit Requests</h2>
-    
-    <table id="visitHistoryTable">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Purpose</th>
-          <th>Status</th>
-          
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Visits will be loaded here -->
-      </tbody>
-    </table>
+    </div>
+
   </div>
 
+  <!-- Cancel Modal -->
+  <div id="cancelModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fas fa-ban" style="color:var(--red);"></i> Cancel Visit</h3>
+        <button class="modal-close" onclick="closeCancelModal()">x</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.875rem;color:var(--text-mid);margin-bottom:1rem;line-height:1.6;">
+          Are you sure you want to cancel this visit? Your extension officer will be notified.
+        </p>
+        <div class="form-group">
+          <label for="cancelReason">Reason for cancellation <span style="color:var(--text-light);font-weight:400;">(optional)</span></label>
+          <textarea id="cancelReason" rows="3" placeholder="Let your officer know why you are cancelling..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeCancelModal()">Keep Visit</button>
+        <button class="btn btn-danger" id="confirmCancelBtn" onclick="confirmCancel()">
+          <i class="fas fa-ban"></i> Cancel Visit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes Modal -->
+  <div id="notesModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fas fa-note-sticky" style="color:var(--green-mid);"></i> Visit Notes</h3>
+        <button class="modal-close" onclick="closeNotesModal()">x</button>
+      </div>
+      <div class="modal-body">
+        <div id="notesModalContent" style="font-size:.9rem;color:var(--text-mid);line-height:1.7;white-space:pre-wrap;max-height:300px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
-  // Set minimum date to today
-  document.getElementById('visitDate').min = new Date().toISOString().split('T')[0];
+    let allVisits = [];
+    let activeFilter = 'all';
+    let cancelVisitId = null;
 
-  // Form submission
-  document.getElementById('visitRequestForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
+    const purposeLabels = {
+      routine_check: 'Routine Check',
+      training: 'Training',
+      problem_solving: 'Problem Solving',
+      harvest_advice: 'Harvest Advice',
+      pest_disease: 'Pest & Disease',
+      soil_assessment: 'Soil Assessment',
+      other: 'Other'
+    };
 
-    const visitDate = document.getElementById('visitDate').value;
-    const visitTime = document.getElementById('visitTime').value;
-    const purpose = document.getElementById('visitPurpose').value.trim();
-    const notes = document.getElementById('visitNotes').value.trim();
-
-    if (!visitDate || !visitTime || !purpose) {
-      showNotification('Please fill all required fields', 'error');
-      return;
+    function esc(str = '') {
+      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
     }
 
-    // Backend expects preferredDate (not visit_datetime)
-    const preferredDate = `${visitDate}T${visitTime}:00`;
-
-    try {
-      const response = await fetch('/api/request-visit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ preferredDate, purpose, notes })
-      });
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to submit request');
-      }
-
-      showNotification(data.message || 'Visit request submitted successfully!', 'success');
-      this.reset();
-      loadVisitHistory();
-    } catch (error) {
-      showNotification(error.message, 'error');
-      console.error('Error submitting visit request:', error);
+    function statusBadge(s) {
+      const map = {
+        requested: 'badge-pending',
+        scheduled: 'badge-scheduled',
+        completed: 'badge-completed',
+        cancelled: 'badge-cancelled',
+        declined: 'badge-cancelled'
+      };
+      const label = s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Unknown';
+      return `<span class="badge ${map[s] || 'badge-pending'}">${label}</span>`;
     }
-  });
 
-  // Load visit history (uses /api/my-visits from backend)
-  async function loadVisitHistory() {
-    try {
-      const response = await fetch('/api/my-visits', {
-        credentials: 'include'
-      });
+    function buildCountdown(scheduledDate) {
+      const diff = new Date(scheduledDate) - new Date();
+      if (diff < 0) return '';
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      let cls = '', txt = '';
+      if (days === 0 && hours === 0) { cls = 'today'; txt = 'Today'; }
+      else if (days === 0) { cls = 'today'; txt = `In ${hours}h`; }
+      else if (days <= 3) { cls = 'soon'; txt = `In ${days}d`; }
+      else { txt = `In ${days}d`; }
+      return `<span class="countdown-chip ${cls}" style="display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;font-weight:700;padding:.2rem .6rem;border-radius:999px;background:${cls==='today'?'#dcfce7;color:#166534':cls==='soon'?'#fef3c7;color:#92400e':'#dbeafe;color:#1d4ed8'}">
+        <i class="fas fa-clock"></i> ${txt}
+      </span>`;
+    }
 
-      const data = await response.json().catch(() => ({}));
-      const tbody = document.querySelector('#visitHistoryTable tbody');
-      tbody.innerHTML = '';
+    function renderVisits() {
+      const container = document.getElementById('visitCards');
+      const footer = document.getElementById('tableFooter');
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to load visit history');
+      const filtered = activeFilter === 'all'
+        ? allVisits
+        : allVisits.filter(v => v.status === activeFilter);
+
+      footer.textContent = `Showing ${filtered.length} of ${allVisits.length} visit${allVisits.length !== 1 ? 's' : ''}`;
+
+      if (!filtered.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-calendar-xmark"></i></div>
+            <h3>No ${activeFilter !== 'all' ? activeFilter : ''} visit requests</h3>
+            <p>${activeFilter === 'all' ? 'Use the form to request your first visit.' : 'Try switching to a different filter.'}</p>
+          </div>`;
+        return;
       }
 
-      const visits = data.visits || [];
+      container.innerHTML = filtered.map(v => {
+        const displayDate = v.scheduled_date || v.preferred_date;
+        const dateStr = displayDate
+          ? new Date(displayDate).toLocaleDateString('en-KE', { weekday:'short', day:'numeric', month:'short', year:'numeric' })
+          : 'Date not set';
+        const timeStr = displayDate
+          ? new Date(displayDate).toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' })
+          : '';
+        const countdown = v.status === 'scheduled' && v.scheduled_date ? buildCountdown(v.scheduled_date) : '';
+        const canCancel = ['requested', 'scheduled'].includes(v.status);
+        const notesSnippet = v.notes
+          ? `<span style="cursor:pointer;color:var(--green-mid);text-decoration:underline dotted;" onclick="openNotesModal('${esc(v.notes).replace(/'/g,'&#39;')}')">${esc(v.notes.length > 60 ? v.notes.slice(0,60) + '...' : v.notes)}</span>`
+          : '<span style="color:var(--text-light);">No notes</span>';
 
-      if (visits.length > 0) {
-        visits.forEach(v => {
-          const date = v.scheduled_date || v.preferred_date;
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${formatDate(date)}</td>
-            <td>${escapeHtml(v.purpose || '')}</td>
-            <td class="status-${(v.status || '').toLowerCase()}">${formatStatus(v.status || '')}</td>
-          `;
-          tbody.appendChild(tr);
+        return `
+          <div class="visit-card" style="margin-bottom:.85rem;">
+            <div class="visit-card-top">
+              <div class="visit-date-block">
+                <div class="date-main">${dateStr}</div>
+                <div class="date-sub">${timeStr}${countdown ? '&nbsp;' + countdown : ''}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                ${statusBadge(v.status)}
+              </div>
+            </div>
+            <div class="visit-card-body">
+              <div>
+                <div class="vc-field-label">Purpose</div>
+                <div class="vc-field-value">
+                  <span class="purpose-label" style="font-size:.78rem;font-weight:700;padding:.2rem .65rem;border-radius:999px;background:var(--green-xlight);color:var(--green-mid);">
+                    ${purposeLabels[v.purpose] || v.purpose || 'Not specified'}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <div class="vc-field-label">Extension Officer</div>
+                <div class="vc-field-value">${esc(v.officer_name || 'Not assigned')}</div>
+              </div>
+              <div style="grid-column:1/-1;">
+                <div class="vc-field-label">Notes</div>
+                <div class="vc-field-value">${notesSnippet}</div>
+              </div>
+            </div>
+            ${canCancel ? `
+            <div class="visit-card-footer">
+              <button class="btn btn-danger btn-sm" onclick="openCancelModal(${v.visit_id})">
+                <i class="fas fa-ban"></i> Cancel Visit
+              </button>
+            </div>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    function updateCounts() {
+      const counts = {
+        all: allVisits.length,
+        requested: allVisits.filter(v => v.status === 'requested').length,
+        scheduled: allVisits.filter(v => v.status === 'scheduled').length
+      };
+      ['all', 'requested', 'scheduled'].forEach(k => {
+        const el = document.getElementById(`cnt-${k}`);
+        if (el) { el.textContent = counts[k]; el.style.display = counts[k] > 0 ? 'inline-flex' : 'none'; }
+      });
+    }
+
+    async function loadOfficerBanner() {
+      const banner = document.getElementById('officerBanner');
+      try {
+        const res = await fetch('/api/farmer/my-extension-officer', { credentials: 'include' });
+        const data = await res.json();
+        if (!data.success || !data.assigned || !data.officer) {
+          banner.innerHTML = `
+            <div style="background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--radius-md);padding:1.1rem 1.4rem;display:flex;align-items:center;gap:.85rem;color:var(--text-mid);font-size:.875rem;margin-bottom:1.5rem;">
+              <i class="fas fa-user-slash" style="font-size:1.3rem;color:var(--text-light);"></i>
+              <div>
+                <strong style="display:block;color:var(--text-dark);">No extension officer assigned yet</strong>
+                <span>Contact your administrator to request an officer assignment.</span>
+              </div>
+            </div>`;
+          return;
+        }
+        const o = data.officer;
+        banner.innerHTML = `
+          <div style="display:flex;align-items:center;gap:1.25rem;background:linear-gradient(135deg,var(--green-deep),var(--green-mid));border-radius:var(--radius-md);padding:1.25rem 1.6rem;color:white;margin-bottom:1.5rem;flex-wrap:wrap;">
+            <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:1rem;margin-bottom:.35rem;">
+                <i class="fas fa-circle-check" style="color:#86efac;margin-right:.4rem;font-size:.85rem;"></i>
+                ${esc(o.officer_name)}
+              </div>
+              <div style="display:flex;gap:1.25rem;flex-wrap:wrap;font-size:.82rem;opacity:.85;">
+                ${o.officer_phone ? `<span><i class="fas fa-phone" style="margin-right:.3rem;"></i>${esc(o.officer_phone)}</span>` : ''}
+                ${o.officer_email ? `<span><i class="fas fa-envelope" style="margin-right:.3rem;"></i>${esc(o.officer_email)}</span>` : ''}
+                ${o.region        ? `<span><i class="fas fa-map-pin" style="margin-right:.3rem;"></i>${esc(o.region)}</span>` : ''}
+              </div>
+            </div>
+            <div style="text-align:right;font-size:.78rem;opacity:.7;white-space:nowrap;">
+              Assigned since<br><strong>${esc(o.assigned_since || 'N/A')}</strong>
+            </div>
+          </div>`;
+      } catch { banner.innerHTML = ''; }
+    }
+
+    async function loadVisitHistory() {
+      const container = document.getElementById('visitCards');
+      container.innerHTML = `<div class="empty-state"><div class="spinner"></div></div>`;
+      try {
+        const res = await fetch('/api/my-visits', { credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.message || 'Failed to load visits');
+        allVisits = data.visits || [];
+        updateCounts();
+        renderVisits();
+      } catch (err) {
+        container.innerHTML = `
+          <div class="notice notice-error">
+            <i class="fas fa-exclamation-circle"></i> ${err.message}
+          </div>`;
+      }
+    }
+
+    // Form submit
+    document.getElementById('visitRequestForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const visitDate = document.getElementById('visitDate').value;
+      const visitTime = document.getElementById('visitTime').value;
+      const purposeInput = document.querySelector('input[name="visitPurpose"]:checked');
+      const notes = document.getElementById('visitNotes').value.trim();
+
+      if (!visitDate) { showFormNotice('Please select a date.', 'error'); return; }
+      if (!visitTime) { showFormNotice('Please select a time.', 'error'); return; }
+      if (!purposeInput) { showFormNotice('Please select a purpose for the visit.', 'error'); return; }
+
+      const chosen = new Date(`${visitDate}T${visitTime}`);
+      if (chosen < new Date()) { showFormNotice('Please choose a future date and time.', 'error'); return; }
+
+      const btn = document.getElementById('submitBtn');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:15px;height:15px;border-width:2px;"></span> Submitting...';
+
+      try {
+        const res = await fetch('/api/request-visit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            preferredDate: `${visitDate}T${visitTime}:00`,
+            purpose: purposeInput.value,
+            notes: notes || null
+          })
         });
-      } else {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="3">No visit requests found</td>
-          </tr>
-        `;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.message || 'Submission failed');
+        showFormNotice(data.message || 'Visit request submitted. Your officer will confirm the appointment.');
+        this.reset();
+        document.getElementById('charCount').textContent = '0 / 500';
+        await loadVisitHistory();
+      } catch (err) {
+        showFormNotice(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
       }
-    } catch (error) {
-      console.error('Error loading visit history:', error);
-      showNotification(error.message || 'Failed to load visit history', 'error');
+    });
+
+    // Char counter
+    document.getElementById('visitNotes').addEventListener('input', function() {
+      document.getElementById('charCount').textContent = `${this.value.length} / 500`;
+    });
+
+    // Filter tabs
+    document.getElementById('filterTabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+      document.querySelectorAll('#filterTabs .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderVisits();
+    });
+
+    function showFormNotice(msg, type = 'success') {
+      const el = document.getElementById('formNotice');
+      const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+      el.innerHTML = `<div class="notice notice-${type}" style="margin-bottom:1rem;"><i class="fas fa-${icon}"></i> ${msg}</div>`;
+      setTimeout(() => el.innerHTML = '', 7000);
     }
-  }
 
-  function formatDate(dateString) {
-    if (!dateString) return '—';
-    return new Date(dateString).toLocaleString();
-  }
+    function openCancelModal(id) {
+      cancelVisitId = id;
+      document.getElementById('cancelReason').value = '';
+      document.getElementById('cancelModal').classList.add('show');
+    }
+    function closeCancelModal() {
+      document.getElementById('cancelModal').classList.remove('show');
+      cancelVisitId = null;
+    }
 
-  function formatStatus(status) {
-    if (!status) return '—';
-    return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
-  }
+    async function confirmCancel() {
+      if (!cancelVisitId) return;
+      const reason = document.getElementById('cancelReason').value.trim();
+      const btn = document.getElementById('confirmCancelBtn');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;"></span> Cancelling...';
+      try {
+        const res = await fetch(`/api/my-visits/${cancelVisitId}/cancel`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ reason: reason || null })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.message || 'Cancel failed');
+        closeCancelModal();
+        showFormNotice('Visit cancelled successfully.');
+        await loadVisitHistory();
+      } catch (err) {
+        showFormNotice(err.message, 'error');
+        closeCancelModal();
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+      }
+    }
 
-  function showNotification(message, type) {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.className = `notification ${type}`;
-    notification.style.display = 'block';
-    setTimeout(() => { notification.style.display = 'none'; }, 5000);
-  }
+    function openNotesModal(notes) {
+      document.getElementById('notesModalContent').textContent = notes;
+      document.getElementById('notesModal').classList.add('show');
+    }
+    function closeNotesModal() { document.getElementById('notesModal').classList.remove('show'); }
 
-  function escapeHtml(str = '') {
-    return String(str).replace(/[&<>"']/g, m => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-    }[m]));
-  }
+    // Backdrop close
+    ['cancelModal', 'notesModal'].forEach(id => {
+      document.getElementById(id).addEventListener('click', e => {
+        if (e.target === document.getElementById(id)) {
+          id === 'cancelModal' ? closeCancelModal() : closeNotesModal();
+        }
+      });
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeCancelModal(); closeNotesModal(); }
+    });
 
-  document.addEventListener('DOMContentLoaded', loadVisitHistory);
-</script>
+    // Responsive grid
+    function adjustGrid() {
+      const grid = document.getElementById('mainGrid');
+      if (grid) grid.style.gridTemplateColumns = window.innerWidth < 900 ? '1fr' : '1fr 1.6fr';
+    }
+    window.addEventListener('resize', adjustGrid);
+    adjustGrid();
+
+    // Set min date
+    document.getElementById('visitDate').min = new Date().toISOString().split('T')[0];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadOfficerBanner();
+      await loadVisitHistory();
+    });
+  </script>
 
 </body>
 </html>

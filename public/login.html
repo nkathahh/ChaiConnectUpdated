@@ -8,13 +8,25 @@
 </head>
 <body class="auth-page">
 
-  <div class="auth-center">
-    <div class="login-container">
+  <div class="auth-split">
+
+    <!-- Visual panel -->
+    <div class="auth-visual">
+      <div class="auth-visual-bg"></div>
+      <div class="auth-visual-copy">
+        <h2>Kenya's Tea<br>Supply Chain,<br><em>Reimagined.</em></h2>
+        <p>Real-time delivery, payments and quality data — all in one platform.</p>
+      </div>
+    </div>
+
+    <!-- Form panel -->
+    <div class="auth-form-panel">
       <div class="auth-logo">
         <span>🍃 ChaiConnect</span>
       </div>
+
       <h2>Welcome Back</h2>
-      <p class="auth-subtitle">Sign in to your ChaiConnect account to continue</p>
+      <p class="auth-subtitle">Sign in to your account to continue</p>
 
       <form action="/login" method="POST">
         <div class="form-group">
@@ -31,6 +43,7 @@
       <p class="toggle-link">Don't have an account? <a href="register.html">Register here</a></p>
       <button class="back-to-home" onclick="window.location.href='index.html'">← Back to Home</button>
     </div>
+
   </div>
 
 </body>

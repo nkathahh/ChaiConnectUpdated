@@ -1,499 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Training Materials | chaiConnect</title>
-    <link rel="stylesheet" href="/css/dashboards_style.css" />
-    <style>
-        body {
-            background: #f8fafc;
-            padding: 24px;
-        }
-
-        .wrap {
-            max-width: 1050px;
-            margin: 0 auto;
-        }
-
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 18px;
-        }
-
-        .title h2 {
-            margin: 0;
-        }
-
-        .title p {
-            margin: 4px 0 0;
-            color: #64748b;
-        }
-
-        .btn {
-            padding: 10px 14px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-back {
-            background: #334155;
-            color: #fff;
-        }
-
-        .btn-refresh {
-            background: #e2e8f0;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
-        }
-
-        @media (min-width: 900px) {
-            .grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 16px;
-            box-shadow: 0 8px 18px rgba(15, 23, 42, .06);
-        }
-
-        .meta {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .meta small {
-            color: #64748b;
-        }
-
-        .tag {
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 999px;
-            font-weight: 700;
-            background: #e0f2fe;
-            color: #075985;
-        }
-
-        .tag.text {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .content {
-            margin-top: 10px;
-            color: #0f172a;
-        }
-
-        .content p {
-            margin: 8px 0;
-            color: #334155;
-        }
-
-        .file-link {
-            display: inline-flex;
-            gap: 8px;
-            align-items: center;
-            margin-top: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            color: #0284c7;
-        }
-
-        .file-link:hover {
-            text-decoration: underline;
-        }
-
-        .text-box {
-            margin-top: 10px;
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            padding: 12px;
-            border-radius: 12px;
-            white-space: pre-wrap;
-            color: #0f172a;
-            max-height: 240px;
-            overflow: auto;
-        }
-
-        .actions {
-            margin-top: 12px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-edit {
-            background: #facc15;
-        }
-
-        .btn-delete {
-            background: #ef4444;
-            color: #fff;
-        }
-
-        /* modal */
-        .modal {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, .55);
-            padding: 16px;
-            z-index: 9999;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-box {
-            width: min(520px, 100%);
-            background: #fff;
-            border-radius: 14px;
-            padding: 16px;
-        }
-
-        .modal-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .modal-close {
-            background: transparent;
-            border: none;
-            font-size: 22px;
-            cursor: pointer;
-        }
-
-        label {
-            display: block;
-            margin-top: 10px;
-            font-weight: 700;
-            color: #0f172a;
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #cbd5e1;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 14px;
-        }
-
-        .btn-cancel {
-            background: #e2e8f0;
-        }
-
-        .btn-save {
-            background: #10b981;
-            color: #fff;
-        }
-
-        .search-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin: 10px 0 18px;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid #cbd5e1;
-            background: #fff;
-            font-size: 14px;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #94a3b8;
-            box-shadow: 0 0 0 3px rgba(148, 163, 184, .25);
-        }
-
-        .clear-btn {
-            padding: 10px 14px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            background: #e2e8f0;
-            font-weight: 600;
-        }
-
-        .no-results {
-            grid-column: 1 / -1;
-            padding: 14px;
-            border: 1px dashed #cbd5e1;
-            border-radius: 14px;
-            color: #64748b;
-            background: #fff;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training Materials — ChaiConnect</title>
+  <link rel="stylesheet" href="/css/farmer_dashboard_items.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-
 <body>
-    <script src="theme.js"></script>
-    <div class="wrap">
-        <div class="topbar">
-            <div class="title">
-                <h2>📚 Training Materials</h2>
-                <p>View resources shared by extension officers.</p>
-            </div>
-            <div style="display:flex; gap:10px;">
-                <button class="btn btn-refresh" onclick="fetchMaterials()">Refresh</button>
-                <button class="btn btn-back" id="backBtn">← Back to Dashboard</button>
-            </div>
-        </div>
+  <script src="/theme.js"></script>
 
-        <div class="search-row">
-            <input id="searchInput" class="search-input" type="text"
-                placeholder="Search by title, description, uploader, or type..." />
-            <button class="clear-btn" id="clearSearchBtn" type="button">Clear</button>
-        </div>
+  <div class="page-wrapper wide">
 
-        <div class="grid" id="materialsGrid"></div>
-
-
-        <!-- Edit Modal (only used when can_edit=true) -->
-        <div class="modal" id="editModal" aria-hidden="true">
-            <div class="modal-box">
-                <div class="modal-head">
-                    <h3 style="margin:0;">Edit Training Material</h3>
-                    <button class="modal-close" onclick="closeModal()">×</button>
-                </div>
-
-                <form id="editForm">
-                    <input type="hidden" id="editId" />
-                    <label>Title</label>
-                    <input type="text" id="editTitle" required />
-
-                    <label>Description</label>
-                    <textarea id="editDescription" rows="3"></textarea>
-
-                    <label id="textLabel" style="display:none;">Text Content</label>
-                    <textarea id="editText" rows="6" style="display:none;"></textarea>
-
-                    <div class="modal-actions">
-                        <button type="button" class="btn btn-cancel" onclick="closeModal()">Cancel</button>
-                        <button type="submit" class="btn btn-save">Save</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1><i class="fas fa-book-open"></i> Training Materials</h1>
+        <p>Resources, guides and bulletins shared by your extension officers.</p>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-secondary btn-sm" onclick="fetchMaterials()">
+          <i class="fas fa-rotate-right"></i> Refresh
+        </button>
+        <a href="/" id="backBtn" class="btn-back-dashboard">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
 
-    <script>
-        let me = { role: 'guest' };
-        let currentDoc = null;
-        let allMaterials = [];
-
-        async function loadMe() {
-            const res = await fetch('/api/me');
-            if (!res.ok) return;
-            me = await res.json();
-            const role = (me.role || '').toLowerCase();
-            const back = document.getElementById('backBtn');
-
-            const map = {
-                admin: '/admin_dashboard.html',
-                extension_officer: '/extension_officer_dashboard.html',
-                farmer: '/farmer_dashboard.html',
-                factory_staff: '/factory_staff_dashboard.html'
-            };
-            back.onclick = () => window.location.href = (map[role] || '/');
-        }
-
-        function escapeHtml(str = '') {
-            return String(str).replace(/[&<>"']/g, m => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-            }[m]));
-        }
-
-        function openModal(doc) {
-            currentDoc = doc;
-            document.getElementById('editId').value = doc.id;
-            document.getElementById('editTitle').value = doc.title || '';
-            document.getElementById('editDescription').value = doc.description || '';
-
-            const isText = doc.material_type === 'text';
-            document.getElementById('textLabel').style.display = isText ? 'block' : 'none';
-            document.getElementById('editText').style.display = isText ? 'block' : 'none';
-            document.getElementById('editText').value = isText ? (doc.text_content || '') : '';
-
-            const modal = document.getElementById('editModal');
-            modal.classList.add('show');
-            modal.setAttribute('aria-hidden', 'false');
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('editModal');
-            modal.classList.remove('show');
-            modal.setAttribute('aria-hidden', 'true');
-            currentDoc = null;
-        }
-
-        // click outside closes
-        document.addEventListener('click', (e) => {
-            const modal = document.getElementById('editModal');
-            if (modal.classList.contains('show') && e.target === modal) closeModal();
-        });
-        // ESC closes
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        async function deleteDoc(id) {
-            if (!confirm('Delete this training material?')) return;
-            const res = await fetch(`/api/training-materials/${id}`, { method: 'DELETE' });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) return alert(data.message || 'Delete failed');
-            alert(data.message || 'Deleted');
-            fetchMaterials();
-        }
-
-        function buildSearchText(doc) {
-            const title = (doc.title || '').toLowerCase();
-            const desc = (doc.description || '').toLowerCase();
-            const uploader = (doc.uploaded_by || '').toLowerCase();
-            const type = (doc.material_type || '').toLowerCase();
-            return `${title} ${desc} ${uploader} ${type}`;
-        }
-
-        function renderMaterials(list) {
-            const grid = document.getElementById('materialsGrid');
-            grid.innerHTML = '';
-
-            if (!list || list.length === 0) {
-                grid.innerHTML = `<div class="no-results">No matching training materials found.</div>`;
-                return;
-            }
-
-            list.forEach(doc => {
-                const uploadedBy = doc.uploaded_by ? escapeHtml(doc.uploaded_by) : 'Unknown';
-                const uploadedAt = doc.upload_date ? new Date(doc.upload_date).toLocaleString() : '—';
-                const typeTag = doc.material_type === 'text'
-                    ? `<span class="tag text">TEXT</span>`
-                    : `<span class="tag">FILE</span>`;
-
-                const fileOrText = doc.material_type === 'text'
-                    ? `<div class="text-box">${escapeHtml(doc.text_content || '')}</div>`
-                    : (doc.file_path
-                        ? `<a class="file-link" href="${doc.file_path}" target="_blank">📎 Open file</a>`
-                        : `<p style="color:#ef4444;margin:10px 0 0;">Missing file link</p>`);
-
-                const actions = `
-      <div class="actions">
-        ${doc.can_edit ? `<button class="btn btn-edit" onclick='openModal(${JSON.stringify(doc)})'>Edit</button>` : ''}
-        ${doc.can_delete ? `<button class="btn btn-delete" onclick="deleteDoc(${doc.id})">Delete</button>` : ''}
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box" style="flex:1;">
+        <i class="fas fa-magnifying-glass"></i>
+        <input id="searchInput" type="text" placeholder="Search by title, description, uploader..." />
       </div>
-    `;
+      <select id="typeFilter" style="padding:.55rem .9rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.82rem;background:var(--white);color:var(--text-dark);">
+        <option value="">All Types</option>
+        <option value="file">File</option>
+        <option value="text">Text</option>
+      </select>
+      <button class="btn btn-outline btn-sm" id="clearSearchBtn">
+        <i class="fas fa-xmark"></i> Clear
+      </button>
+    </div>
 
-                const el = document.createElement('div');
-                el.className = 'card';
-                el.dataset.search = buildSearchText(doc);
+    <!-- Count bar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <span id="resultCount" style="font-size:.82rem;color:var(--text-light);">Loading...</span>
+    </div>
 
-                el.innerHTML = `
-      <div class="meta">
-        <div>
-          <strong>${escapeHtml(doc.title || 'Untitled')}</strong>
-          <div><small>Uploaded by <b>${uploadedBy}</b> • ${uploadedAt}</small></div>
-        </div>
-        ${typeTag}
+    <!-- Cards Grid -->
+    <div class="materials-grid" id="materialsGrid">
+      <div style="grid-column:1/-1;" class="empty-state">
+        <div class="spinner"></div>
+        <p style="margin-top:.75rem;">Loading materials...</p>
       </div>
-      <div class="content">
-        <p>${escapeHtml(doc.description || 'No description')}</p>
-        ${fileOrText}
-        ${actions}
+    </div>
+
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fas fa-pen-to-square"></i> Edit Training Material</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
       </div>
-    `;
-                grid.appendChild(el);
-            });
-        }
+      <div class="modal-body">
+        <form id="editForm">
+          <input type="hidden" id="editId" />
+          <div class="form-group">
+            <label for="editTitle">Title</label>
+            <input type="text" id="editTitle" required />
+          </div>
+          <div class="form-group">
+            <label for="editDescription">Description</label>
+            <textarea id="editDescription" rows="3"></textarea>
+          </div>
+          <div class="form-group" id="textGroup" style="display:none;">
+            <label for="editText">Text Content</label>
+            <textarea id="editText" rows="6"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="document.getElementById('editForm').requestSubmit()">
+          <i class="fas fa-floppy-disk"></i> Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
 
-        function applySearch() {
-            const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-            if (!q) return renderMaterials(allMaterials);
+  <script>
+    const roleMap = {
+      admin:             '/admin_dashboard.html',
+      extension_officer: '/extension_officer_dashboard.html',
+      farmer:            '/farmer_dashboard.html',
+      factory_staff:     '/factory_staff_dashboard.html'
+    };
 
-            const filtered = allMaterials.filter(doc => buildSearchText(doc).includes(q));
-            renderMaterials(filtered);
-        }
+    let me = { role: 'guest' };
+    let currentDoc = null;
+    let allMaterials = [];
 
-        async function fetchMaterials() {
-            const grid = document.getElementById('materialsGrid');
-            grid.innerHTML = `<div class="no-results">Loading...</div>`;
+    async function loadMe() {
+      try {
+        const res = await fetch('/api/me');
+        if (res.ok) me = await res.json();
+      } catch {}
+      document.getElementById('backBtn').href = roleMap[(me.role || '').toLowerCase()] || '/';
+    }
 
-            const res = await fetch('/training-materials');
-            const items = await res.json();
+    function esc(str = '') {
+      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    }
 
-            allMaterials = Array.isArray(items) ? items : [];
-            applySearch(); // keep current search active after refresh
-        }
+    function typeIcon(type) {
+      if (!type || type === 'text') return `<div class="material-type-icon type-text"><i class="fas fa-align-left"></i></div>`;
+      const ext = (type || '').toLowerCase();
+      if (ext.includes('pdf')) return `<div class="material-type-icon type-pdf"><i class="fas fa-file-pdf"></i></div>`;
+      if (ext.includes('video')) return `<div class="material-type-icon type-video"><i class="fas fa-play-circle"></i></div>`;
+      return `<div class="material-type-icon type-file"><i class="fas fa-paperclip"></i></div>`;
+    }
 
+    function typeChip(type) {
+      if (!type || type === 'text') return `<span class="chip chip-text"><i class="fas fa-align-left"></i> Text</span>`;
+      return `<span class="chip chip-file"><i class="fas fa-paperclip"></i> File</span>`;
+    }
 
-        document.getElementById('editForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    function openModal(doc) {
+      currentDoc = doc;
+      document.getElementById('editId').value = doc.id;
+      document.getElementById('editTitle').value = doc.title || '';
+      document.getElementById('editDescription').value = doc.description || '';
+      const isText = doc.material_type === 'text';
+      document.getElementById('textGroup').style.display = isText ? 'block' : 'none';
+      document.getElementById('editText').value = isText ? (doc.text_content || '') : '';
+      document.getElementById('editModal').classList.add('show');
+    }
 
-            const id = document.getElementById('editId').value;
-            const title = document.getElementById('editTitle').value.trim();
-            const description = document.getElementById('editDescription').value.trim();
-            const text_content = (currentDoc && currentDoc.material_type === 'text')
-                ? document.getElementById('editText').value
-                : undefined;
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('show');
+      currentDoc = null;
+    }
 
-            const res = await fetch(`/api/training-materials/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, description, text_content })
-            });
+    async function deleteDoc(id) {
+      if (!confirm('Delete this training material? This cannot be undone.')) return;
+      const res = await fetch(`/api/training-materials/${id}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return alert(data.message || 'Delete failed');
+      fetchMaterials();
+    }
 
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) return alert(data.message || 'Update failed');
+    function buildSearchText(doc) {
+      return [doc.title, doc.description, doc.uploaded_by, doc.material_type]
+        .map(v => (v || '').toLowerCase()).join(' ');
+    }
 
-            alert(data.message || 'Updated');
-            closeModal();
-            fetchMaterials();
-        });
-        document.getElementById('searchInput').addEventListener('input', applySearch);
-        document.getElementById('clearSearchBtn').addEventListener('click', () => {
-            document.getElementById('searchInput').value = '';
-            renderMaterials(allMaterials);
-        });
+    function applyFilters() {
+      const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      const type = (document.getElementById('typeFilter').value || '').toLowerCase();
+      let list = allMaterials;
+      if (q) list = list.filter(d => buildSearchText(d).includes(q));
+      if (type) list = list.filter(d => (d.material_type || '').toLowerCase() === type);
+      renderMaterials(list);
+    }
 
+    function renderMaterials(list) {
+      const grid = document.getElementById('materialsGrid');
+      document.getElementById('resultCount').textContent =
+        `${list.length} material${list.length !== 1 ? 's' : ''} found`;
 
-        (async function init() {
-            await loadMe();
-            await fetchMaterials();
-        })();
+      if (!list.length) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1;">
+            <div class="empty-state-icon"><i class="fas fa-folder-open"></i></div>
+            <h3>No materials found</h3>
+            <p>Try a different search term or check back later.</p>
+          </div>`;
+        return;
+      }
 
-    </script>
+      grid.innerHTML = list.map(doc => {
+        const uploaderName = esc(doc.uploaded_by || 'Unknown');
+        const uploadDate = doc.upload_date
+          ? new Date(doc.upload_date).toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' })
+          : 'Unknown date';
+
+        const bodyContent = doc.material_type === 'text'
+          ? `<div class="text-preview-box">${esc(doc.text_content || 'No content.')}</div>`
+          : (doc.file_path
+              ? `<a class="btn btn-primary btn-sm" href="${doc.file_path}" target="_blank">
+                   <i class="fas fa-external-link-alt"></i> Open Resource
+                 </a>`
+              : `<span style="font-size:.82rem;color:var(--red);"><i class="fas fa-exclamation-triangle"></i> File not available</span>`);
+
+        const adminBtns = (doc.can_edit || doc.can_delete) ? `
+          <div class="btn-group" style="margin-top:.6rem;">
+            ${doc.can_edit ? `<button class="btn btn-sm" style="background:#fef3c7;color:#92400e;border-color:#fde68a;" onclick='openModal(${JSON.stringify(doc)})'>
+              <i class="fas fa-pen"></i> Edit</button>` : ''}
+            ${doc.can_delete ? `<button class="btn btn-danger btn-sm" onclick="deleteDoc(${doc.id})">
+              <i class="fas fa-trash"></i> Delete</button>` : ''}
+          </div>` : '';
+
+        return `
+          <div class="material-card">
+            <div class="material-card-header">
+              ${typeIcon(doc.material_type)}
+              <div style="flex:1;min-width:0;">
+                <div class="material-card-title">${esc(doc.title || 'Untitled')}</div>
+                <div class="material-card-desc">${esc(doc.description || 'No description provided.')}</div>
+              </div>
+              ${typeChip(doc.material_type)}
+            </div>
+            <div class="material-card-body">
+              ${bodyContent}
+              ${adminBtns}
+            </div>
+            <div class="material-card-footer">
+              <div class="material-meta-info">
+                <span class="material-meta-uploader"><i class="fas fa-user" style="color:var(--green-mid);margin-right:.3rem;font-size:.75rem;"></i>${uploaderName}</span>
+                <span class="material-meta-date"><i class="fas fa-clock" style="margin-right:.3rem;font-size:.7rem;"></i>${uploadDate}</span>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function fetchMaterials() {
+      const grid = document.getElementById('materialsGrid');
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="spinner"></div><p style="margin-top:.75rem;">Loading...</p></div>`;
+      document.getElementById('resultCount').textContent = 'Loading...';
+      try {
+        const res = await fetch('/training-materials');
+        const items = await res.json();
+        allMaterials = Array.isArray(items) ? items : [];
+        applyFilters();
+      } catch {
+        grid.innerHTML = `
+          <div class="notice notice-error" style="grid-column:1/-1;">
+            <i class="fas fa-exclamation-circle"></i> Failed to load training materials. Please refresh.
+          </div>`;
+      }
+    }
+
+    document.getElementById('editForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const payload = {
+        title: document.getElementById('editTitle').value.trim(),
+        description: document.getElementById('editDescription').value.trim(),
+        ...(currentDoc?.material_type === 'text' && { text_content: document.getElementById('editText').value })
+      };
+      const res = await fetch(`/api/training-materials/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return alert(data.message || 'Update failed');
+      closeModal();
+      fetchMaterials();
+    });
+
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('typeFilter').addEventListener('change', applyFilters);
+    document.getElementById('clearSearchBtn').addEventListener('click', () => {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('typeFilter').value = '';
+      renderMaterials(allMaterials);
+    });
+
+    document.addEventListener('click', e => {
+      const modal = document.getElementById('editModal');
+      if (modal.classList.contains('show') && e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    (async () => {
+      await loadMe();
+      await fetchMaterials();
+    })();
+  </script>
 
 </body>
-
 </html>

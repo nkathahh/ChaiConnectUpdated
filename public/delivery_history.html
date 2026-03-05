@@ -8,151 +8,218 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-  <script src="theme.js"></script>
+  <script src="/theme.js"></script>
 
   <div class="page-wrapper wide">
 
+    <!-- Page Header -->
     <div class="page-header">
       <div class="page-header-left">
-        <h1><i class="fas fa-truck"></i> My Delivery History</h1>
-        <p>Full record of all your tea deliveries and payment statuses.</p>
+        <h1><i class="fas fa-truck"></i> Delivery History</h1>
+        <p>Full record of all your tea deliveries and their payment status.</p>
       </div>
       <a href="/farmer_dashboard.html" class="btn-back-dashboard">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
       </a>
     </div>
 
-    <!-- Result count + export -->
-    <div class="toolbar">
-      <div class="search-box">
-        <i class="fas fa-magnifying-glass"></i>
-        <input type="text" id="searchInput" placeholder="Search by status, grade, center…" oninput="filterTable()" />
+    <!-- Summary Cards -->
+    <div class="delivery-summary-row" id="summaryRow">
+      <div class="dsumm-card">
+        <div class="dsumm-icon-wrap dsumm-icon-green"><i class="fas fa-boxes-stacked"></i></div>
+        <div>
+          <div class="dsumm-value" id="s-total">0</div>
+          <div class="dsumm-label">Total Deliveries</div>
+        </div>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="downloadCSV()">
-        <i class="fas fa-file-csv"></i> Export CSV
-      </button>
+      <div class="dsumm-card">
+        <div class="dsumm-icon-wrap dsumm-icon-blue"><i class="fas fa-weight-scale"></i></div>
+        <div>
+          <div class="dsumm-value" id="s-weight">0 kg</div>
+          <div class="dsumm-label">Total Weight</div>
+        </div>
+      </div>
+      <div class="dsumm-card">
+        <div class="dsumm-icon-wrap dsumm-icon-amber"><i class="fas fa-star-half-stroke"></i></div>
+        <div>
+          <div class="dsumm-value" id="s-grade">N/A</div>
+          <div class="dsumm-label">Common Grade</div>
+        </div>
+      </div>
+      <div class="dsumm-card">
+        <div class="dsumm-icon-wrap dsumm-icon-purple"><i class="fas fa-check-circle"></i></div>
+        <div>
+          <div class="dsumm-value" id="s-paid">0</div>
+          <div class="dsumm-label">Paid Deliveries</div>
+        </div>
+      </div>
     </div>
 
-    <div class="section-card" style="padding:0; overflow:hidden;">
+    <!-- Table card -->
+    <div class="section-card" style="padding:0;overflow:hidden;">
+      <!-- Toolbar -->
+      <div style="padding:1rem 1.4rem;border-bottom:1px solid var(--border);">
+        <div class="toolbar" style="margin-bottom:0;">
+          <div class="search-box" style="flex:1;">
+            <i class="fas fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Search by status, grade, collection centre..." oninput="filterTable()" />
+          </div>
+          <select id="gradeFilter" onchange="filterTable()" style="padding:.55rem .9rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.82rem;background:var(--white);color:var(--text-dark);">
+            <option value="">All Grades</option>
+            <option value="A">Grade A</option>
+            <option value="B">Grade B</option>
+            <option value="C">Grade C</option>
+            <option value="D">Grade D</option>
+          </select>
+          <select id="statusFilter" onchange="filterTable()" style="padding:.55rem .9rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.82rem;background:var(--white);color:var(--text-dark);">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="scheduled">Scheduled</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="downloadCSV()">
+            <i class="fas fa-file-csv"></i> Export
+          </button>
+        </div>
+      </div>
+
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>Delivery Date</th>
+              <th>Date</th>
               <th>Status</th>
-              <th>Est. Qty (kg)</th>
-              <th>Actual Qty (kg)</th>
-              <th>Collection Center</th>
+              <th>Est. Qty</th>
+              <th>Actual Qty</th>
+              <th>Collection Centre</th>
               <th>Quality Grade</th>
               <th>Payment</th>
             </tr>
           </thead>
           <tbody id="deliveryTableBody">
             <tr class="loading-row">
-              <td colspan="7">
-                <span class="spinner"></span>&nbsp; Loading deliveries…
-              </td>
+              <td colspan="7"><span class="spinner"></span>&nbsp; Loading deliveries...</td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:.5rem;">
-      <span id="resultCount" style="font-size:.85rem; color:var(--text-light);">Showing 0 results</span>
-    </div>
-
-  </div>
-
-  <!-- Cancel Modal -->
-  <div id="cancelModal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3><i class="fas fa-ban" style="color:var(--red);"></i> Cancel Delivery Request</h3>
-        <button class="modal-close" onclick="closeModal()">×</button>
-      </div>
-      <p style="color:var(--text-mid);margin-bottom:1rem;">Are you sure you want to cancel this delivery request?</p>
-      <div class="form-group">
-        <label>Reason for cancellation (optional)</label>
-        <textarea id="cancelReason" placeholder="Describe the reason…"></textarea>
-      </div>
-      <div class="btn-group right">
-        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-        <button class="btn btn-danger" onclick="confirmCancel()">Confirm Cancel</button>
+      <div style="padding:.75rem 1.4rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span id="resultCount" style="font-size:.78rem;color:var(--text-light);">Showing 0 results</span>
+        <button class="btn btn-secondary btn-sm" onclick="loadDeliveries()">
+          <i class="fas fa-rotate-right"></i> Refresh
+        </button>
       </div>
     </div>
+
   </div>
 
   <script>
-
     let allDeliveries = [];
-    let currentRequestId = null;
 
-    document.addEventListener('DOMContentLoaded', loadDeliveries);
-
-    async function loadDeliveries() {
-      try {
-        const res = await fetch('/api/delivery-history', { credentials: 'include' });
-        if (!res.ok) throw new Error(`Server returned ${res.status}`);
-        allDeliveries = await res.json();
-        allDeliveries.sort((a, b) => new Date(b.delivery_date) - new Date(a.delivery_date));
-        renderTable(allDeliveries);
-      } catch (err) {
-        document.getElementById('deliveryTableBody').innerHTML = `
-          <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--red);">
-            <i class="fas fa-exclamation-circle"></i> ${err.message || 'Failed to load. Please try again.'}
-          </td></tr>`;
-      }
+    function gradeBadge(g) {
+      const map = { A: 'grade-a', B: 'grade-b', C: 'grade-c', D: 'grade-d' };
+      const cls = map[(g || '').toUpperCase()] || '';
+      return cls ? `<span class="rate-grade-badge ${cls}">Grade ${g}</span>` : `<span style="color:var(--text-light);">N/A</span>`;
     }
 
-    function statusBadge(status) {
-      const map = { pending:'badge-pending', scheduled:'badge-scheduled', completed:'badge-completed', cancelled:'badge-cancelled' };
-      return `<span class="badge ${map[status] || 'badge-pending'}">${status || '—'}</span>`;
+    function statusBadge(s) {
+      const map = {
+        pending:   'badge-pending',
+        scheduled: 'badge-scheduled',
+        completed: 'badge-completed',
+        cancelled: 'badge-cancelled'
+      };
+      const label = s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Unknown';
+      return `<span class="badge ${map[(s || '').toLowerCase()] || 'badge-pending'}">${label}</span>`;
     }
 
-    function paymentBadge(ps) {
+    function payBadge(ps) {
       return ps === 'paid'
-        ? `<span class="badge badge-paid"><i class="fas fa-check-circle"></i> Paid</span>`
-        : `<span class="badge badge-unpaid"><i class="fas fa-hourglass-half"></i> ${ps || 'Unpaid'}</span>`;
+        ? `<span class="badge badge-completed"><i class="fas fa-check-circle"></i> Paid</span>`
+        : `<span class="badge badge-pending"><i class="fas fa-hourglass-half"></i> ${ps ? ps.charAt(0).toUpperCase() + ps.slice(1) : 'Unpaid'}</span>`;
+    }
+
+    function computeSummary(data) {
+      const total = data.length;
+      const weight = data.reduce((s, d) => s + parseFloat(d.quantity_kg || 0), 0);
+      const paid = data.filter(d => d.payment_status === 'paid').length;
+
+      const grades = {};
+      data.forEach(d => { if (d.quality_grade) grades[d.quality_grade] = (grades[d.quality_grade] || 0) + 1; });
+      const topGrade = Object.entries(grades).sort((a, b) => b[1] - a[1])[0];
+
+      document.getElementById('s-total').textContent = total;
+      document.getElementById('s-weight').textContent = weight.toFixed(1) + ' kg';
+      document.getElementById('s-grade').textContent = topGrade ? `Grade ${topGrade[0]}` : 'N/A';
+      document.getElementById('s-paid').textContent = paid;
     }
 
     function renderTable(data) {
       const tbody = document.getElementById('deliveryTableBody');
-      document.getElementById('resultCount').textContent = `Showing ${data.length} result${data.length !== 1 ? 's' : ''}`;
+      document.getElementById('resultCount').textContent =
+        `Showing ${data.length} result${data.length !== 1 ? 's' : ''}`;
 
       if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-light);">
-          <i class="fas fa-info-circle"></i> No delivery records found.
-        </td></tr>`;
+        tbody.innerHTML = `
+          <tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-light);">
+            <i class="fas fa-info-circle" style="display:block;font-size:1.5rem;margin-bottom:.5rem;"></i>
+            No delivery records match your filters.
+          </td></tr>`;
         return;
       }
 
       tbody.innerHTML = data.map(d => `
         <tr>
-          <td>${new Date(d.delivery_date).toLocaleDateString('en-KE')}</td>
+          <td style="white-space:nowrap;">
+            <div style="font-weight:600;">${new Date(d.delivery_date).toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' })}</div>
+            <div style="font-size:.72rem;color:var(--text-light);">${new Date(d.delivery_date).toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' })}</div>
+          </td>
           <td>${statusBadge(d.status)}</td>
-          <td>${d.estimated_quantity ?? '—'} kg</td>
-          <td>${d.quantity_kg ?? '—'} kg</td>
-          <td>${d.collection_center || '—'}</td>
-          <td>${d.quality_grade || '—'}</td>
-          <td>${paymentBadge(d.payment_status)}</td>
+          <td>${d.estimated_quantity ?? 'N/A'} kg</td>
+          <td style="font-weight:600;">${d.quantity_kg ?? 'N/A'} kg</td>
+          <td>${d.collection_center || '<span style="color:var(--text-light);">N/A</span>'}</td>
+          <td>${gradeBadge(d.quality_grade)}</td>
+          <td>${payBadge(d.payment_status)}</td>
         </tr>`).join('');
     }
 
     function filterTable() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = allDeliveries.filter(d =>
-        (d.status || '').toLowerCase().includes(q) ||
-        (d.quality_grade || '').toLowerCase().includes(q) ||
-        (d.collection_center || '').toLowerCase().includes(q) ||
-        (d.payment_status || '').toLowerCase().includes(q)
-      );
+      const grade = document.getElementById('gradeFilter').value.toUpperCase();
+      const status = document.getElementById('statusFilter').value.toLowerCase();
+
+      const filtered = allDeliveries.filter(d => {
+        const matchQ = !q || [d.status, d.quality_grade, d.collection_center, d.payment_status]
+          .map(v => (v || '').toLowerCase()).join(' ').includes(q);
+        const matchG = !grade || (d.quality_grade || '').toUpperCase() === grade;
+        const matchS = !status || (d.status || '').toLowerCase() === status;
+        return matchQ && matchG && matchS;
+      });
       renderTable(filtered);
+    }
+
+    async function loadDeliveries() {
+      const tbody = document.getElementById('deliveryTableBody');
+      tbody.innerHTML = `<tr class="loading-row"><td colspan="7"><span class="spinner"></span>&nbsp; Loading...</td></tr>`;
+      try {
+        const res = await fetch('/api/delivery-history', { credentials: 'include' });
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        allDeliveries = await res.json();
+        allDeliveries.sort((a, b) => new Date(b.delivery_date) - new Date(a.delivery_date));
+        computeSummary(allDeliveries);
+        filterTable();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--red);">
+          <i class="fas fa-exclamation-circle"></i> ${err.message || 'Failed to load. Please refresh.'}
+        </td></tr>`;
+      }
     }
 
     function downloadCSV() {
       if (!allDeliveries.length) { alert('No data to export.'); return; }
-      const headers = ['Delivery Date','Status','Est. Qty (kg)','Actual Qty (kg)','Collection Center','Quality Grade','Payment Status'];
+      const headers = ['Date','Status','Est. Qty (kg)','Actual Qty (kg)','Collection Centre','Quality Grade','Payment Status'];
       const rows = allDeliveries.map(d => [
         new Date(d.delivery_date).toLocaleDateString(),
         d.status, d.estimated_quantity, d.quantity_kg,
@@ -165,9 +232,7 @@
       a.click();
     }
 
-    function closeModal() { document.getElementById('cancelModal').classList.remove('show'); }
-    document.getElementById('cancelModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    document.addEventListener('DOMContentLoaded', loadDeliveries);
   </script>
 
 </body>

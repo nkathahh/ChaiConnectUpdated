@@ -1,441 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Profile</title>
-
-  <!-- Optional: if your dashboards_style.css defines button styles etc, keep this -->
-  <link rel="stylesheet" href="/css/dashboards_style.css">
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --bg: #f4f6f8;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
-
-      --primary: #10b981;
-      --primary-hover: #059669;
-
-      --secondary: #0ea5e9;
-      --secondary-hover: #0284c7;
-
-      --danger: #ef4444;
-      --focus: rgba(16, 185, 129, 0.25);
-    }
-
-    body.dark-mode {
-      --bg: #0b1220;
-      --card: #0f172a;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --border: #1f2a44;
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-      --focus: rgba(56, 189, 248, 0.25);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .page {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 26px 16px 60px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .title-wrap h1 {
-      margin: 0;
-      font-size: 1.6rem;
-      letter-spacing: 0.2px;
-    }
-
-    .title-wrap p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      box-shadow: var(--shadow);
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: transform 0.05s ease, border-color 0.15s ease;
-    }
-
-    .back-link:hover {
-      border-color: rgba(100, 116, 139, 0.55);
-    }
-
-    .back-link:active {
-      transform: translateY(1px);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    @media (min-width: 900px) {
-      .grid {
-        grid-template-columns: 1.2fr 0.8fr;
-        align-items: start;
-      }
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .card h2 {
-      margin: 0 0 12px;
-      font-size: 1.05rem;
-      letter-spacing: 0.2px;
-    }
-
-    .card .sub {
-      margin: -4px 0 14px;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    @media (min-width: 720px) {
-      .form-grid.two {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .full {
-        grid-column: 1 / -1;
-      }
-    }
-
-    label {
-      display: block;
-      font-weight: 700;
-      font-size: 0.82rem;
-      margin-bottom: 6px;
-      color: var(--text);
-    }
-
-    input {
-      width: 100%;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text);
-      outline: none;
-      transition: box-shadow 0.15s ease, border-color 0.15s ease;
-    }
-
-    input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px var(--focus);
-    }
-
-    input:disabled {
-      opacity: 0.85;
-      cursor: not-allowed;
-    }
-
-    .actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
-    .btn {
-      border: none;
-      border-radius: 12px;
-      padding: 11px 14px;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 0.95rem;
-      transition: transform 0.05s ease, filter 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn:active {
-      transform: translateY(1px);
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: #062114;
-    }
-
-    .btn-primary:hover {
-      filter: brightness(0.95);
-    }
-
-    .btn-secondary {
-      background: var(--secondary);
-      color: #061827;
-    }
-
-    .btn-secondary:hover {
-      filter: brightness(0.95);
-    }
-
-    .note {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.88rem;
-      line-height: 1.45;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(148, 163, 184, 0.12);
-      color: var(--muted);
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 10px;
-      width: fit-content;
-    }
-  </style>
+  <title>My Profile — ChaiConnect</title>
+  <link rel="stylesheet" href="/css/farmer_dashboard_items.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-
 <body>
   <script src="theme.js"></script>
-  <div class="page">
-    <div class="topbar">
-      <div class="title-wrap">
-        <h1>My Profile</h1>
-        <p>Update your account information and security details.</p>
-        <div class="pill" id="rolePill">Role: loading…</div>
-      </div>
 
-      <a href="#" id="backBtn" class="back-link">← Back to Dashboard</a>
+  <div class="page-wrapper">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1><i class="fas fa-user-circle"></i> My Profile</h1>
+        <p>Update your account information and security details.</p>
+        <span class="role-pill" id="rolePill"><i class="fas fa-id-badge"></i> Role: loading…</span>
+      </div>
+      <a href="/" id="backBtn" class="btn-back-dashboard">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <h2>Personal Information</h2>
-        <div class="sub">Keep your contact details up to date.</div>
+    <div class="profile-grid">
 
-        <form id="profileForm">
-          <div class="form-grid two">
-            <div class="full">
+      <!-- Personal Information -->
+      <div class="section-card">
+        <h2 class="section-card-title"><i class="fas fa-address-card"></i> Personal Information</h2>
+        <p style="color:var(--text-light);font-size:.85rem;margin-bottom:1.25rem;">Keep your contact details up to date.</p>
+
+        <form id="profileForm" style="background:none;border:none;padding:0;box-shadow:none;max-width:100%;margin:0;">
+          <div class="form-grid-2">
+            <div class="form-group full">
               <label for="name">Full Name</label>
               <input type="text" id="name" name="name" required />
             </div>
-
-            <div>
+            <div class="form-group">
               <label for="email">Email Address</label>
               <input type="email" id="email" name="email" required />
             </div>
-
-            <div>
+            <div class="form-group">
               <label for="phone">Phone Number</label>
               <input type="text" id="phone" name="phone" required />
             </div>
-
-            <div>
+            <div class="form-group">
               <label for="id_number">ID Number</label>
               <input type="text" id="id_number" name="id_number" disabled />
             </div>
-
-            <div>
+            <div class="form-group">
               <label for="role">Role</label>
               <input type="text" id="role" name="role" disabled />
             </div>
           </div>
-
-          <div class="actions">
-            <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+          <div class="btn-group right" style="margin-top:.5rem;">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-floppy-disk"></i> Save Changes
+            </button>
           </div>
         </form>
       </div>
 
-      <div class="card">
-        <h2>Security</h2>
-        <div class="sub">Change your password anytime.</div>
+      <!-- Security -->
+      <div class="section-card">
+        <h2 class="section-card-title"><i class="fas fa-lock"></i> Security</h2>
+        <p style="color:var(--text-light);font-size:.85rem;margin-bottom:1.25rem;">Change your password anytime.</p>
 
-        <form id="passwordForm">
-          <div class="form-grid">
-            <div>
-              <label for="currentPassword">Current Password</label>
-              <input type="password" id="currentPassword" name="currentPassword" required />
-            </div>
-
-            <div>
-              <label for="newPassword">New Password</label>
-              <input type="password" id="newPassword" name="newPassword" required />
-            </div>
+        <form id="passwordForm" style="background:none;border:none;padding:0;box-shadow:none;max-width:100%;margin:0;">
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" name="currentPassword" required />
           </div>
-
-          <div class="actions">
-            <button type="submit" class="btn btn-secondary">🔄 Change Password</button>
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" name="newPassword" required />
           </div>
-
-          <div class="note">
-            Tip: Use at least 8 characters and avoid reusing old passwords.
+          <div class="btn-group right" style="margin-top:.5rem;">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-key"></i> Change Password
+            </button>
           </div>
+          <p style="margin-top:.85rem;font-size:.8rem;color:var(--text-light);">
+            <i class="fas fa-circle-info"></i> Use at least 8 characters and avoid reusing old passwords.
+          </p>
         </form>
       </div>
+
     </div>
   </div>
 
   <script>
-    let userRole = '';
+    const roleMap = {
+      admin:             '/admin_dashboard.html',
+      factory_staff:     '/factory_staff_dashboard.html',
+      farmer:            '/farmer_dashboard.html',
+      extension_officer: '/extension_officer_dashboard.html'
+    };
 
     async function loadProfile() {
       try {
-        const res = await fetch('/my-profile');
+        const res  = await fetch('/my-profile');
         const data = await res.json();
 
-        document.getElementById('name').value = data.name || '';
-        document.getElementById('email').value = data.email || '';
-        document.getElementById('phone').value = data.phone || '';
+        document.getElementById('name').value      = data.name      || '';
+        document.getElementById('email').value     = data.email     || '';
+        document.getElementById('phone').value     = data.phone     || '';
         document.getElementById('id_number').value = data.id_number || '';
-        document.getElementById('role').value = data.role || '';
+        document.getElementById('role').value      = data.role      || '';
 
-        userRole = data.role || '';
-        document.getElementById('rolePill').textContent = `Role: ${userRole || 'N/A'}`;
-
-        setDashboardLink(userRole);
-        applyThemeFromUser(); // keep your dark mode consistency
-      } catch (error) {
-        console.error('Error loading profile:', error);
+        const role = (data.role || '').toLowerCase();
+        document.getElementById('rolePill').innerHTML = `<i class="fas fa-id-badge"></i> Role: ${data.role || 'N/A'}`;
+        document.getElementById('backBtn').href = roleMap[role] || '/login.html';
+      } catch (err) {
+        console.error('Error loading profile:', err);
       }
     }
 
-    function setDashboardLink(role) {
-      const backBtn = document.getElementById('backBtn');
-      const r = (role || '').toLowerCase();
-
-      if (r === 'admin') backBtn.href = '/admin_dashboard.html';
-      else if (r === 'factory_staff') backBtn.href = '/factory_staff_dashboard.html';
-      else if (r === 'farmer') backBtn.href = '/farmer_dashboard.html';
-      else if (r === 'extension_officer') backBtn.href = '/extension_officer_dashboard.html';
-      else backBtn.href = '/login.html';
-    }
-
-
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-
-      submitBtn.innerHTML = '⏳ Saving...';
-      submitBtn.disabled = true;
-
+      const btn = e.target.querySelector('button[type="submit"]');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> Saving…';
       try {
-        const body = {
-          name: document.getElementById('name').value,
-          email: document.getElementById('email').value,
-          phone: document.getElementById('phone').value
-        };
-
         const res = await fetch('/my-profile/update', {
-          method: 'POST',
+          method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body:    JSON.stringify({
+            name:  document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value
+          })
         });
-
         const result = await res.json();
         alert(result.success ? 'Profile updated successfully!' : (result.error || 'Error updating profile'));
-      } catch (error) {
+      } catch {
         alert('Error updating profile. Please try again.');
       } finally {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+        btn.disabled = false;
+        btn.innerHTML = orig;
       }
     });
 
     document.getElementById('passwordForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-
-      submitBtn.innerHTML = '⏳ Updating...';
-      submitBtn.disabled = true;
-
+      const btn = e.target.querySelector('button[type="submit"]');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> Updating…';
       try {
         const res = await fetch('/my-profile/change-password', {
-          method: 'POST',
+          method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+          body:    JSON.stringify({
             currentPassword: document.getElementById('currentPassword').value,
-            newPassword: document.getElementById('newPassword').value
+            newPassword:     document.getElementById('newPassword').value
           })
         });
-
         const result = await res.json();
-
         if (result.success) {
           alert(result.message || 'Password changed successfully!');
           document.getElementById('currentPassword').value = '';
-          document.getElementById('newPassword').value = '';
-          // no forced redirect needed; user can click back when ready
+          document.getElementById('newPassword').value     = '';
         } else {
           alert(result.error || 'Error changing password.');
         }
-      } catch (error) {
+      } catch {
         alert('Error changing password. Please try again.');
       } finally {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+        btn.disabled = false;
+        btn.innerHTML = orig;
       }
     });
 
     loadProfile();
   </script>
-</body>
 
+</body>
 </html>
